@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@400;500;600;700;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap");
+
+/* PP Telegraf SemiBold font-face declaration */
+@font-face {
+  font-family: "PP Telegraf";
+  src: local("PPTelegraf-SemiBold"),
+       local("PP Telegraf SemiBold");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-body: "Lato", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "PP Telegraf", "Inter", "Lato", system-ui, sans-serif;
+}
+
+html, body {
+  font-family: var(--font-body);
+}
+
+/* Apply PP Telegraf SemiBold to all headings across all screens (-1 to 12) */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+}
+
+/* Ensure all heading-like elements and display classes use PP Telegraf SemiBold */
+[class*="display-"],
+.heading,
+.title {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+}
