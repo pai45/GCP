@@ -1,16 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { motion } from "motion/react";
-import PineLabsLogo from "../../../imports/Frame2-1/Frame2-27-25";
-import { EmailVerificationIllustration } from "../onboarding/EmailVerificationIllustration";
+import { AuthShell } from "./AuthShell";
 
 interface OTPVerificationProps {
   email: string;
   onVerify: () => void;
   onBack: () => void;
+  embedded?: boolean;
 }
 
-export function OTPVerification({ email, onVerify, onBack }: OTPVerificationProps) {
+export function OTPVerification({ email, onVerify, onBack, embedded = false }: OTPVerificationProps) {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
@@ -100,211 +100,9 @@ export function OTPVerification({ email, onVerify, onBack }: OTPVerificationProp
 
   const isComplete = otp.every((digit) => digit !== "");
 
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      <EmailVerificationIllustration />
-      {/* Background - matching Figma design */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(140.342deg, rgb(6, 18, 18) 8.4861%, rgb(10, 31, 31) 50%, rgb(13, 32, 32) 91.514%)"
-        }}
-      />
-
-      {/* Blur layer */}
-      <div
-        className="absolute inset-0 backdrop-blur-[2px]"
-        style={{
-          background: "rgba(6, 18, 18, 0.15)"
-        }}
-      />
-
-      {/* Mask Reveal Transition Layers - More Subtle */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(135deg, rgba(13, 32, 32, 0.25) 0%, rgba(10, 31, 31, 0.2) 50%, rgba(6, 18, 18, 0.18) 100%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 20% 80%)", "circle(150% at 20% 80%)", "circle(0% at 20% 80%)"] }}
-        transition={{ duration: 12, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 30% 70%, rgba(0, 86, 86, 0.12) 0%, rgba(0, 120, 110, 0.06) 40%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 15% 85%)", "circle(140% at 15% 85%)", "circle(0% at 15% 85%)"] }}
-        transition={{ duration: 14, delay: 0.3, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 50% 50%, rgba(209, 242, 86, 0.04) 0%, rgba(180, 255, 160, 0.02) 30%, transparent 60%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 25% 75%)", "circle(160% at 25% 75%)", "circle(0% at 25% 75%)"] }}
-        transition={{ duration: 15, delay: 0.6, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(220deg, rgba(60, 200, 170, 0.04) 0%, rgba(20, 160, 140, 0.025) 40%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["polygon(0% 100%, 0% 100%, 0% 100%)", "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", "polygon(0% 100%, 0% 100%, 0% 100%)"] }}
-        transition={{ duration: 13, delay: 0.4, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(circle at 70% 30%, rgba(209, 242, 86, 0.045) 0%, rgba(180, 255, 160, 0.03) 25%, transparent 50%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 80% 20%)", "circle(145% at 80% 20%)", "circle(0% at 80% 20%)"] }}
-        transition={{ duration: 14.5, delay: 0.8, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(310deg, rgba(0, 140, 130, 0.05) 0%, rgba(0, 86, 86, 0.035) 50%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["polygon(100% 0%, 100% 0%, 100% 0%)", "polygon(0% 0%, 100% 0%, 100% 100%)", "polygon(100% 0%, 100% 0%, 100% 0%)"] }}
-        transition={{ duration: 12.5, delay: 0.5, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 40% 60%, rgba(60, 200, 170, 0.04) 0%, rgba(209, 242, 86, 0.025) 35%, transparent 65%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 50% 50%)", "circle(155% at 50% 50%)", "circle(0% at 50% 50%)"] }}
-        transition={{ duration: 16, delay: 0.2, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      {/* Gradient overlays */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          background: "radial-gradient(ellipse at 50% 50%, rgba(209, 242, 86, 0.06) 0%, transparent 100%)"
-        }}
-      />
-
-      {/* Ambient animated blobs (calm, low-intensity) */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -left-32 w-[720px] h-[720px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(0,140,130,0.12) 0%, rgba(0,86,86,0) 70%)",
-          filter: "blur(110px)",
-          boxShadow: "0 0 80px 20px rgba(0,140,130,0.08), 0 0 120px 40px rgba(0,86,86,0.04)",
-        }}
-        animate={{ x: [0, 50, 0], y: [0, 20, 0], opacity: [0.12, 0.18, 0.12] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/4 right-[-12%] w-[640px] h-[640px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(60,200,170,0.11) 0%, rgba(20,160,140,0) 70%)",
-          filter: "blur(120px)",
-          boxShadow: "0 0 90px 25px rgba(60,200,170,0.1), 0 0 130px 45px rgba(20,160,140,0.05)",
-        }}
-        animate={{ x: [0, -40, 0], y: [0, 25, 0], opacity: [0.1, 0.16, 0.1] }}
-        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 left-[2%] w-[560px] h-[560px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(209,242,86,0.1) 0%, rgba(209,242,86,0) 70%)",
-          filter: "blur(120px)",
-          boxShadow: "0 0 85px 22px rgba(209,242,86,0.09), 0 0 125px 42px rgba(209,242,86,0.05)",
-        }}
-        animate={{ x: [0, 40, 0], y: [0, -20, 0], opacity: [0.09, 0.15, 0.09] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-      />
-
-      {/* Subtle diagonal light sweep */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 -left-1/3 w-[80%]"
-        style={{
-          backgroundImage:
-            "linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(180,255,200,0.025) 35%, rgba(209,242,86,0.06) 50%, rgba(180,255,200,0.025) 65%, rgba(255,255,255,0) 100%)",
-          filter: "blur(70px)",
-          mixBlendMode: "screen",
-        }}
-        initial={{ x: "-60%", opacity: 0 }}
-        animate={{
-          x: ["-60%", "-20%", "30%", "120%", "120%"],
-          opacity: [0, 0.08, 0.12, 0, 0],
-        }}
-        transition={{
-          duration: 10,
-          times: [0, 0.1, 0.18, 0.3, 1],
-          ease: "easeInOut",
-          repeat: Infinity,
-        }}
-      />
-
-      {/* Subtle network/grid pan */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(209,242,86,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(209,242,86,0.03) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)",
-          filter: "blur(0.5px)",
-          opacity: 0.3,
-        }}
-        animate={{ backgroundPosition: ["0px 0px", "60px 0px"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* Logo header */}
-      <div className="absolute top-0 left-0 right-0 z-20 px-6 py-4 sm:px-8 sm:py-6">
-        <div className="w-32 sm:w-40">
-          <PineLabsLogo />
-        </div>
-      </div>
-
-      {/* Bottom gradient line */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1"
-        style={{
-          background: "linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(209, 242, 86, 0.35) 50%, rgba(0, 0, 0, 0) 100%)",
-          animation: "pulseGlow 4s ease-in-out infinite",
-          opacity: 0.3
-        }}
-      >
-        <style>{`
-          @keyframes pulseGlow {
-            0%, 100% { opacity: 0.3; filter: blur(0px); }
-            50% { opacity: 0.7; filter: blur(1px); }
-          }
-        `}</style>
-      </div>
-
-      <div className="relative z-10 w-full max-w-[500px] px-6">
+  const content = (
+    <>
+      <div className={embedded ? "w-full" : "relative z-10 w-full max-w-[500px] px-6"}>
         <div className="bg-white rounded-[20px] shadow-2xl p-10">
           {/* Back button */}
           <button
@@ -466,6 +264,9 @@ export function OTPVerification({ email, onVerify, onBack }: OTPVerificationProp
           </p>
         </div>
       </div>
-    </div>
+    </>
   );
+
+  if (embedded) return content;
+  return <AuthShell layout="centered">{content}</AuthShell>;
 }

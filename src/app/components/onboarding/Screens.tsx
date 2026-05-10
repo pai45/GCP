@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate as animateMV } from "motion/react";
+import Lottie from "lottie-react";
 import { TopNav } from "./Layout";
 import PineLabsLogo from "../../../imports/Frame2-1/Frame2-27-25";
+import successTickRaw from "./successTick.json";
 
 function AnimatedPercent({ value, duration = 1.1, delay = 0.4 }: { value: number; duration?: number; delay?: number }) {
   const mv = useMotionValue(0);
@@ -62,6 +64,46 @@ const BG_SOFT = "#f9fafb";
 const REQUIRED = "#fb2c36";
 const HEADER_GRADIENT =
   "linear-gradient(90deg, #005656 0%, #006565 50%, #007A7A 100%)";
+
+const SUCCESS_TICK_GREEN = [0, 130 / 255, 54 / 255, 1];
+const SUCCESS_TICK_TEAL = [0, 86 / 255, 86 / 255, 0.16];
+
+function getRethemedSuccessTick() {
+  const cloned = JSON.parse(JSON.stringify(successTickRaw));
+
+  if (Array.isArray(cloned.layers)) {
+    cloned.layers = cloned.layers.filter((layer: any) => layer.ind !== 35);
+  }
+
+  const visit = (node: any) => {
+    if (!node || typeof node !== "object") return;
+
+    if (node.ty === "st" && node.c?.a === 0 && Array.isArray(node.c.k)) {
+      const key = node.c.k;
+      if (key.length === 4 && key.every((value: number) => value === 1)) {
+        node.c.k = SUCCESS_TICK_GREEN;
+      } else if (
+        key.length === 4 &&
+        Math.abs(key[0] - 0) < 0.001 &&
+        Math.abs(key[1] - 0.208) < 0.01 &&
+        Math.abs(key[2] - 0.133) < 0.01
+      ) {
+        node.c.k = SUCCESS_TICK_TEAL;
+      }
+    }
+
+    Object.values(node).forEach((value) => {
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+      } else if (value && typeof value === "object") {
+        visit(value);
+      }
+    });
+  };
+
+  visit(cloned);
+  return cloned;
+}
 
 type Ripple = { id: number; x: number; y: number; size: number };
 
@@ -304,19 +346,21 @@ function Card({ children, className = "", style: extraStyle = {} }: any) {
 function SectionHeading({ children }: any) {
   return (
     <motion.div
-      className="flex items-center gap-2.5 mb-4"
+      className="mb-6"
       initial={{ opacity: 0, x: -6 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
     >
-      <motion.span
-        className="size-1.5 rounded-full shrink-0"
-        style={{ background: PRIMARY }}
-        initial={{ scale: 0 }}
-        animate={{ scale: [0, 1.4, 1] }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      />
-      <span style={{ color: TEXT, fontWeight: 700, fontSize: 14 }}>{children}</span>
+      <h2
+        style={{
+          color: TEXT,
+          fontWeight: 700,
+          fontSize: 20,
+          lineHeight: "28px",
+        }}
+      >
+        {children}
+      </h2>
     </motion.div>
   );
 }
@@ -625,7 +669,17 @@ function ActionBar({ left, children }: any) {
       }}
     >
       <div className="w-full flex items-center justify-between gap-3 px-4 sm:px-8 md:px-12 xl:px-[120px]" style={{ maxWidth: 1440 }}>
-        <div className="min-w-0">{left}</div>
+        <div className="min-w-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <Lock className="size-3.5 shrink-0" style={{ color: PRIMARY }} />
+            <p
+              className="min-w-0 text-[11px]"
+              style={{ color: "#717680", fontWeight: 400, lineHeight: "16.5px", letterSpacing: "0.06px" }}
+            >
+              All information is encrypted and stored securely as per industry standards.
+            </p>
+          </div>
+        </div>
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">{children}</div>
       </div>
     </div>
@@ -690,14 +744,18 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
   const firstName = parts[0] || "";
   const lastName = parts.slice(1).join(" ");
   const setNames = (f: string, l: string) =>
-    setState({ ...state, fullName: [f, l].filter(Boolean).join(" ") });
+    setState({
+      ...state,
+      fullName: [f, l].filter(Boolean).join(" "),
+      sigName: state.sameAsOwner ? [f, l].filter(Boolean).join(" ") : state.sigName,
+    });
 
   const emailValid = state.email.includes("@") && state.email.includes(".");
   const mobileValid = state.mobile.replace(/\D/g, "").length >= 10;
   const valid = firstName && lastName && emailValid && mobileValid;
 
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard title="Basic Details" subtitle="Please provide your information to get started" progress={25}>
         <div className="space-y-6 sm:space-y-7">
           <section>
@@ -808,6 +866,32 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                 </motion.p>
               </motion.div>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <Prefilled
+                index={2}
+                label="Work Email"
+                value={state.email}
+                source="Prefilled from login"
+              />
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 * 3, duration: 0.4, ease: "easeOut" }}
+              >
+                <FieldLabel required>Mobile Number</FieldLabel>
+                <TextInput
+                  value={state.mobile}
+                  placeholder="+91 9876543210"
+                  onChange={(e: any) =>
+                    setState({
+                      ...state,
+                      mobile: e.target.value,
+                      sigMobile: state.sameAsOwner ? e.target.value : state.sigMobile,
+                    })
+                  }
+                />
+              </motion.div>
+            </div>
           </section>
 
           
@@ -847,6 +931,12 @@ const DOC_DEFS: { key: DocKey; title: string; hint: string; sample: UploadedDoc 
   { key: "address", title: "Address proof (optional)", hint: "Only needed if GST certificate is not available", sample: { name: "Electricity Bill.pdf", ext: "PDF", size: "512 KB" } },
 ];
 
+const DOC_ICONS: Record<DocKey, any> = {
+  gst: Receipt,
+  cin: FileText,
+  address: Mail,
+};
+
 export function ScreenBeforeYouBegin({ go, state, setState }: any) {
   const [docs, setDocs] = useState<Record<DocKey, UploadedDoc>>({
     gst: null,
@@ -867,101 +957,100 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
   };
 
   return (
-    <div className="py-2 px-2 sm:px-0 min-h-screen flex items-center justify-center">
-      <div className="w-full">
+    <div className="pb-2 px-2 sm:px-0">
+      <div className="w-full min-h-[calc(100vh-18rem)] flex items-center justify-center">
         <FormCard
-          eyebrow="Quick start"
+          eyebrow="Usually takes 1 minute"
           title="Before you begin"
-          subtitle="Upload these documents and we'll autofill your company details"
+          subtitle="Please provide your information to get started"
           progress={10}
         >
-        <div className="space-y-7">
-          <section>
-            <SectionHeading>Required Documents</SectionHeading>
-            <div className="space-y-3">
-              {DOC_DEFS.map(({ key, title, hint, sample }) => {
-                const file = docs[key];
-                return (
-                  <motion.div
-                    key={key}
-                    onClick={() => !file && setDocs({ ...docs, [key]: sample })}
-                    className="rounded-xl px-4 py-4 flex items-center gap-4 transition"
-                    style={{
-                      border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
-                      background: file ? SUCCESS_BG : "#fff",
-                      cursor: file ? "default" : "pointer",
-                    }}
-                    whileHover={!file ? { scale: 1.01, borderColor: PRIMARY } : {}}
-                    whileTap={!file ? { scale: 0.99 } : {}}
-                  >
-                    <div
-                      className="size-9 rounded-lg flex items-center justify-center shrink-0"
-                      style={{ background: file ? "#fff" : BG_SOFT }}
+          <div className="space-y-6">
+            <section>
+              <div className="px-1 pb-2">
+                <h2 style={{ color: TEXT, fontSize: 20, fontWeight: 700, lineHeight: "21px" }}>
+                  Required Documents
+                </h2>
+              </div>
+              <div className="space-y-3">
+                {DOC_DEFS.map(({ key, title, hint, sample }) => {
+                  const file = docs[key];
+                  const Icon = DOC_ICONS[key];
+                  return (
+                    <motion.div
+                      key={key}
+                      onClick={() => !file && setDocs({ ...docs, [key]: sample })}
+                      className="rounded-2xl px-4 py-4 flex items-center gap-4 transition"
+                      style={{
+                        border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
+                        background: "#fff",
+                        cursor: file ? "default" : "pointer",
+                      }}
+                      whileHover={!file ? { scale: 1.01, borderColor: PRIMARY } : {}}
+                      whileTap={!file ? { scale: 0.99 } : {}}
                     >
-                      {file ? (
-                        <CheckCircle2 className="size-5" style={{ color: SUCCESS }} />
-                      ) : (
-                        <UploadCloud className="size-5" style={{ color: MUTED }} />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm truncate" style={{ color: TEXT, fontWeight: 600 }}>
-                        {file ? file.name : title}
+                      <div
+                        className="size-9 rounded-[10px] flex items-center justify-center shrink-0"
+                        style={{ background: BG_SOFT }}
+                      >
+                        {file ? (
+                          <CheckCircle2 className="size-5" style={{ color: SUCCESS }} />
+                        ) : (
+                          <Icon className="size-5" style={{ color: "#252B37" }} />
+                        )}
                       </div>
-                      <div className="text-xs mt-0.5" style={{ color: MUTED }}>
-                        {file ? `${file.size} · Uploaded` : hint}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm truncate" style={{ color: TEXT, fontWeight: 600, lineHeight: "20px" }}>
+                          {title}
+                        </div>
+                        <div className="text-xs mt-0.5" style={{ color: MUTED, lineHeight: "16px" }}>
+                          {file ? `${file.size} | Uploaded` : hint}
+                        </div>
                       </div>
-                    </div>
-                    {file ? (
-                      <motion.button
+                      <button
+                        type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setDocs({ ...docs, [key]: null });
+                          setDocs({ ...docs, [key]: file ? null : sample });
                         }}
-                        className="text-sm shrink-0"
-                        style={{ color: MUTED, fontWeight: 600 }}
-                        whileHover={{ color: PRIMARY }}
+                        className="shrink-0 inline-flex items-center gap-2"
+                        style={{ color: PRIMARY, fontWeight: 600, fontSize: 14, lineHeight: "20px" }}
                       >
-                        Replace
-                      </motion.button>
-                    ) : (
-                      <span className="text-sm shrink-0" style={{ color: PRIMARY, fontWeight: 600 }}>
-                        Upload
-                      </span>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-            <p className="text-xs mt-4" style={{ color: MUTED }}>
-              We'll use these only for verification. Nothing is shared. Address proof is optional if you have GST certificate.
-            </p>
-          </section>
-        </div>
-      </FormCard>
+                        <Upload className="size-5" />
+                        {file ? "Replace" : "Upload"}
+                      </button>
+                    </motion.div>
+                  );
+                })}
+              </div>
+              <p className="text-xs mt-4" style={{ color: MUTED, lineHeight: "16px" }}>
+                We'll use these only for verification. Nothing is shared. Address proof is optional if you have GST certificate.
+              </p>
+            </section>
+          </div>
+        </FormCard>
 
-      <ActionBar left={<GhostLink onClick={() => go(2)}>Skip for now</GhostLink>}>
-        {parsing ? (
-          <motion.div
-            className="min-w-[120px] px-6 py-3 rounded-[12px] text-sm inline-flex items-center justify-center gap-2"
-            style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <Loader2 className="size-4 animate-spin" />
-            Reading documents...
-          </motion.div>
-        ) : (
-          <PrimaryButton disabled={!allUploaded} onClick={handleContinue}>
-            Continue
-          </PrimaryButton>
-        )}
-      </ActionBar>
+        <ActionBar left={<GhostLink onClick={() => go(2)}>Skip for now</GhostLink>}>
+          {parsing ? (
+            <motion.div
+              className="min-w-[120px] px-6 py-3 rounded-[12px] text-sm inline-flex items-center justify-center gap-2"
+              style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <Loader2 className="size-4 animate-spin" />
+              Reading documents...
+            </motion.div>
+          ) : (
+            <PrimaryButton disabled={!allUploaded} onClick={handleContinue}>
+              Continue
+            </PrimaryButton>
+          )}
+        </ActionBar>
       </div>
     </div>
   );
 }
-
 // ============== SCREEN 3 ==============
 export function ScreenCompanyIdentifier({ go, state, setState }: any) {
   const [loading, setLoading] = useState(false);
@@ -1178,7 +1267,7 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
   };
 
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         title="Organisation Details"
         subtitle="Verify your company's legal information"
@@ -1208,9 +1297,6 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
                     transition={{ type: "spring", stiffness: 500, damping: 30 }}
                   />
                 </motion.button>
-                <p className="mt-3 max-w-[260px] text-xs leading-5" style={{ color: MUTED }}>
-                  If selected yes, the GSTIN state must match your billing/registered address.
-                </p>
               </div>
             </div>
 
@@ -1357,7 +1443,7 @@ function GstUnavailableConfirm({ open, onCancel, onConfirm }: any) {
               Continue without GST details?
             </h3>
             <p className="mt-2 text-sm leading-6" style={{ color: MUTED }}>
-              GST details help us verify your registered business address and state automatically. If GST is not present, you can continue without GSTIN and provide any required details later.
+              If selected yes, the GSTIN state must match your billing/registered address.
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -1388,7 +1474,7 @@ function GstUnavailableConfirm({ open, onCancel, onConfirm }: any) {
 // ============== Registered address ==============
 export function ScreenCompanyAddress({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         title="Organisation Details"
         subtitle="Confirm your registered and billing addresses"
@@ -1672,7 +1758,7 @@ export function ScreenSignatory({ go, state, setState }: any) {
   const valid = state.sigName && state.sigEmail && state.sigMobile && state.designation && state.sigConfirm;
 
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         title="Authorised Signatory"
         subtitle="This person will accept terms and complete business verification"
@@ -1696,7 +1782,7 @@ export function ScreenSignatory({ go, state, setState }: any) {
                 }}
                 className="size-4 accent-[#005656]"
               />
-              <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>Same as account owner</span>
+              <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>Same as basic details</span>
             </label>
 
             <div className="space-y-4 sm:space-y-5">
@@ -1851,7 +1937,7 @@ export function ScreenDocuments({ go }: { go: Nav }) {
 // ============== SCREEN 6 ==============
 export function ScreenReviewSubmit({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         title="Review and Submit"
         subtitle="Verify your information before proceeding to terms & conditions"
@@ -1967,7 +2053,7 @@ function SummaryCard({ title, rows, onEdit }: any) {
 // ============== TERMS & CONDITIONS (Screens 7-10) ==============
 export function ScreenTermsPage1({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         eyebrow="Page 1 of 4"
         title="Terms & Conditions"
@@ -2021,7 +2107,7 @@ export function ScreenTermsPage1({ go, state, setState }: any) {
 
 export function ScreenTermsPage2({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         eyebrow="Page 2 of 4"
         title="Terms & Conditions"
@@ -2077,7 +2163,7 @@ export function ScreenTermsPage2({ go, state, setState }: any) {
 
 export function ScreenTermsPage3({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         eyebrow="Page 3 of 4"
         title="Terms & Conditions"
@@ -2132,7 +2218,7 @@ export function ScreenTermsPage3({ go, state, setState }: any) {
 
 export function ScreenTermsPage4({ go, state, setState }: any) {
   return (
-    <div className="py-2 px-2 sm:px-0">
+    <div className="pb-2 px-2 sm:px-0">
       <FormCard
         eyebrow="Page 4 of 4"
         title="Terms & Conditions"
@@ -2232,136 +2318,139 @@ export function ScreenAadhaarOTP({ go, state, setState }: any) {
     }, 2000);
   };
 
-  const otpComplete = state.aadhaarOTP.length === 6;
+  const otpComplete = (state.aadhaarOTP || "").length === 6;
+  const aadhaarComplete = (state.aadhaarNumber || "").length === 12;
 
   return (
-    <div className="max-w-2xl mx-auto py-6 sm:py-12 px-4 sm:px-8">
-      <PageHeader
+    <div className="py-2 px-2 sm:px-0">
+      <FormCard
+        eyebrow="Final step"
         title="Aadhaar eSign verification"
         subtitle="Complete your digital signature using Aadhaar OTP"
-      />
-
-      <Card className="p-5 sm:p-8">
-        <div className="flex items-start gap-4 mb-8 p-4 rounded-xl" style={{ background: BG_SOFT }}>
-          <div className="size-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#fff" }}>
-            <ShieldCheck className="size-5" style={{ color: PRIMARY }} />
-          </div>
-          <div>
-            <div className="text-sm mb-1" style={{ color: TEXT, fontWeight: 600 }}>
-              Secure digital signature
-            </div>
-            <p className="text-sm" style={{ color: MUTED, lineHeight: 1.6 }}>
-              Your Aadhaar details are used only for identity verification and creating a legally binding digital signature.
-              We don't store your Aadhaar number.
-            </p>
-          </div>
-        </div>
-
-        {!otpSent ? (
-          <>
-            <div className="mb-6">
-              <FieldLabel required>Aadhaar Number</FieldLabel>
-              <TextInput
-                placeholder="Enter 12-digit Aadhaar number"
-                maxLength={12}
-                onChange={(e: any) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  setState({ ...state, aadhaarNumber: val });
-                }}
-              />
-              <p className="text-xs mt-2" style={{ color: MUTED }}>
-                An OTP will be sent to your registered mobile number
-              </p>
-            </div>
-
-            <PrimaryButton onClick={handleSendOTP} className="w-full">
-              Send OTP to Aadhaar-linked mobile
-            </PrimaryButton>
-          </>
-        ) : (
-          <>
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <FieldLabel required>Enter OTP</FieldLabel>
-                <button className="text-xs hover:underline" style={{ color: PRIMARY, fontWeight: 600 }}>
-                  Resend OTP
-                </button>
+        progress={100}
+      >
+        <div className="space-y-6 sm:space-y-7">
+          <section>
+            <SectionHeading>Digital signature</SectionHeading>
+            <div className="flex items-start gap-3 rounded-[12px] p-4" style={{ background: BG_SOFT, border: `1px solid ${BORDER}` }}>
+              <div className="size-10 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#fff", border: `1px solid ${BORDER}` }}>
+                <ShieldCheck className="size-5" style={{ color: PRIMARY }} />
               </div>
-
-              <div className="flex gap-2 sm:gap-3 justify-center">
-                {[0, 1, 2, 3, 4, 5].map((i) => (
-                  <input
-                    key={i}
-                    type="text"
-                    maxLength={1}
-                    className="size-10 sm:size-14 text-center text-base sm:text-xl rounded-lg sm:rounded-xl outline-none"
-                    style={{
-                      border: `2px solid ${BORDER_INPUT}`,
-                      color: TEXT,
-                      fontWeight: 600,
-                    }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = PRIMARY)}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = BORDER_INPUT)}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      const current = state.aadhaarOTP || "";
-                      const newOTP = current.substring(0, i) + val + current.substring(i + 1);
-                      setState({ ...state, aadhaarOTP: newOTP });
-                      if (val && i < 5) {
-                        const next = e.target.nextElementSibling as HTMLInputElement;
-                        next?.focus();
-                      }
-                    }}
-                    value={state.aadhaarOTP[i] || ""}
-                  />
-                ))}
+              <div>
+                <div className="text-sm mb-1" style={{ color: TEXT, fontWeight: 700 }}>
+                  Secure digital signature
+                </div>
+                <p className="text-sm" style={{ color: MUTED, lineHeight: 1.6 }}>
+                  Your Aadhaar details are used only for identity verification and creating a legally binding digital signature.
+                  We don't store your Aadhaar number.
+                </p>
               </div>
-
-              <p className="text-xs mt-4 text-center" style={{ color: MUTED }}>
-                OTP sent to mobile number ending in ****7890
-              </p>
             </div>
+          </section>
 
-            <Card className="p-4 mb-6" style={{ background: "#ECFDF3", borderColor: "#ABEFC6" } as any}>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="size-5 shrink-0 mt-0.5" style={{ color: SUCCESS }} />
-                <div className="text-sm" style={{ color: "#067647" }}>
-                  <div className="font-semibold mb-1">What happens after verification?</div>
-                  Your digital signature will be applied to the terms & conditions, and your merchant account
-                  will be activated immediately — no manual review needed.
+          <section>
+            {!otpSent ? (
+              <div>
+                <FieldLabel required>Aadhaar Number</FieldLabel>
+                <TextInput
+                  placeholder="Enter 12-digit Aadhaar number"
+                  maxLength={12}
+                  value={state.aadhaarNumber || ""}
+                  onChange={(e: any) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    setState({ ...state, aadhaarNumber: val });
+                  }}
+                />
+                <p className="text-xs mt-2" style={{ color: MUTED }}>
+                  An OTP will be sent to your registered mobile number
+                </p>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <FieldLabel required>Enter OTP</FieldLabel>
+                  <button className="text-xs hover:underline" style={{ color: PRIMARY, fontWeight: 600 }}>
+                    Resend OTP
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-6 gap-2 sm:gap-3">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      className="aspect-square w-full min-w-0 text-center text-base sm:text-xl rounded-[8px] outline-none"
+                      style={{
+                        border: `1px solid ${BORDER_INPUT}`,
+                        background: "#fff",
+                        color: TEXT,
+                        fontWeight: 700,
+                      }}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = PRIMARY)}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = BORDER_INPUT)}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        const current = state.aadhaarOTP || "";
+                        const newOTP = current.substring(0, i) + val + current.substring(i + 1);
+                        setState({ ...state, aadhaarOTP: newOTP });
+                        if (val && i < 5) {
+                          const next = e.target.nextElementSibling as HTMLInputElement;
+                          next?.focus();
+                        }
+                      }}
+                      value={state.aadhaarOTP[i] || ""}
+                    />
+                  ))}
+                </div>
+
+                <p className="text-xs mt-4 text-center sm:text-left" style={{ color: MUTED }}>
+                  OTP sent to mobile number ending in ****7890
+                </p>
+              </div>
+            )}
+          </section>
+
+          {otpSent && (
+            <section>
+              <div className="rounded-[12px] p-4" style={{ background: SUCCESS_BG, border: `1px solid ${SUCCESS_BORDER}` }}>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="size-5 shrink-0 mt-0.5" style={{ color: SUCCESS }} />
+                  <div className="text-sm" style={{ color: "#067647" }}>
+                    <div className="font-semibold mb-1">What happens after verification?</div>
+                    Your digital signature will be applied to the terms & conditions, and your merchant account
+                    will be activated immediately.
+                  </div>
                 </div>
               </div>
-            </Card>
+            </section>
+          )}
 
-            <PrimaryButton
-              disabled={!otpComplete || verifying}
-              onClick={handleVerify}
-              className="w-full"
-            >
-              {verifying ? (
-                <>
-                  <Loader2 className="size-4 animate-spin mr-2" />
-                  Verifying OTP...
-                </>
-              ) : (
-                "Verify OTP & complete signature"
-              )}
-            </PrimaryButton>
-          </>
+        </div>
+      </FormCard>
+
+      <ActionBar left={<GhostLink onClick={() => go(10)}>Back to terms</GhostLink>}>
+        {!otpSent ? (
+          <PrimaryButton disabled={!aadhaarComplete} onClick={handleSendOTP}>
+            Send OTP
+          </PrimaryButton>
+        ) : (
+          <PrimaryButton disabled={!otpComplete || verifying} onClick={handleVerify}>
+            {verifying ? (
+              <>
+                <Loader2 className="size-4 animate-spin mr-2" />
+                Verifying OTP...
+              </>
+            ) : (
+              "Verify OTP & complete signature"
+            )}
+          </PrimaryButton>
         )}
-      </Card>
-
-      <div className="mt-6 p-4 rounded-xl flex items-start gap-3" style={{ background: BG_SOFT }}>
-        <Lock className="size-4 shrink-0 mt-0.5" style={{ color: MUTED }} />
-        <p className="text-xs" style={{ color: MUTED, lineHeight: 1.6 }}>
-          Your Aadhaar information is encrypted and used only for identity verification. We comply with UIDAI guidelines
-          and do not store your Aadhaar number after verification.
-        </p>
-      </div>
+      </ActionBar>
     </div>
   );
 }
-
 // ============== SUCCESS - Celebration + Email Template (Screen 12) ==============
 function Confetti() {
   const colors = ["#d0f255", "#005656", "#008236", "#FFB020", "#F472B6", "#60A5FA"];
@@ -2400,6 +2489,8 @@ function Confetti() {
 export function ScreenSuccess({ state }: any) {
   const merchantId = "PL-" + Math.floor(100000 + Math.random() * 900000);
   const tempPassword = "Qs@" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const firstName = state.fullName?.split(" ")[0] || "there";
+  const successTickAnimation = useMemo(() => getRethemedSuccessTick(), []);
 
   return (
     <div className="relative max-w-3xl mx-auto py-6 sm:py-8 md:py-12 px-4">
@@ -2407,20 +2498,80 @@ export function ScreenSuccess({ state }: any) {
 
       <div className="relative text-center mb-6 sm:mb-8">
         <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 180, damping: 14 }}
-          className="inline-flex items-center justify-center size-16 sm:size-20 md:size-24 rounded-full mb-4 sm:mb-5 relative"
-          style={{ background: SUCCESS_BG, border: `2px solid ${SUCCESS_BORDER}` }}
+          aria-hidden
+          className="absolute left-1/2 top-2 -translate-x-1/2 rounded-full"
+          style={{
+            width: 220,
+            height: 220,
+            background:
+              "radial-gradient(circle, rgba(208,242,85,0.22) 0%, rgba(208,242,85,0.1) 28%, rgba(208,242,85,0) 72%)",
+            filter: "blur(18px)",
+          }}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: [0.45, 0.7, 0.5], scale: [0.92, 1.04, 1] }}
+          transition={{ duration: 2.6, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.72, y: 14 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-flex items-center justify-center size-[88px] sm:size-[108px] md:size-[124px] rounded-full mb-5 sm:mb-6 relative"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(240,253,244,0.96) 100%)",
+            border: `1px solid ${SUCCESS_BORDER}`,
+            boxShadow:
+              "0 22px 44px -20px rgba(0,130,54,0.28), inset 0 1px 0 rgba(255,255,255,0.9)",
+            backdropFilter: "blur(10px)",
+          }}
         >
-          <CheckCircle2 className="size-8 sm:size-10 md:size-12" style={{ color: SUCCESS }} />
           <motion.div
             className="absolute inset-0 rounded-full"
-            style={{ border: `2px solid ${SUCCESS}` }}
-            initial={{ scale: 1, opacity: 0.6 }}
-            animate={{ scale: 1.6, opacity: 0 }}
-            transition={{ duration: 1.4, repeat: Infinity }}
+            style={{ border: `1.5px solid rgba(0,130,54,0.26)` }}
+            initial={{ scale: 0.88, opacity: 0 }}
+            animate={{ scale: [0.95, 1.22, 1.38], opacity: [0, 0.42, 0] }}
+            transition={{ duration: 1.9, times: [0, 0.45, 1], repeat: Infinity, repeatDelay: 0.4 }}
           />
+          <motion.div
+            className="absolute inset-[10px] rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95) 0%, rgba(240,253,244,0.92) 42%, rgba(220,252,231,0.82) 100%)",
+              border: `1px solid rgba(185,248,207,0.95)`,
+            }}
+            initial={{ scale: 0.92, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.08, duration: 0.45 }}
+          />
+          <motion.div
+            className="relative z-10 size-[62px] sm:size-[76px] md:size-[86px]"
+            initial={{ opacity: 0, scale: 0.88 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.16, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Lottie
+              animationData={successTickAnimation}
+              loop={false}
+              autoplay
+              style={{ width: "100%", height: "100%" }}
+            />
+          </motion.div>
+          {[0, 1, 2].map((i) => (
+            <motion.span
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                width: i === 1 ? 7 : 5,
+                height: i === 1 ? 7 : 5,
+                background: i === 1 ? LIME : "#A7F3C0",
+                top: i === 0 ? 18 : i === 1 ? 30 : 22,
+                right: i === 0 ? 16 : i === 1 ? 28 : 36,
+              }}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.6], y: [6, -4, -12] }}
+              transition={{ delay: 0.78 + i * 0.1, duration: 1.1, repeat: Infinity, repeatDelay: 1.8 }}
+            />
+          ))}
         </motion.div>
 
         <motion.h1
@@ -2430,7 +2581,7 @@ export function ScreenSuccess({ state }: any) {
           className="text-xl sm:text-2xl md:text-4xl leading-7 sm:leading-8 md:leading-10 px-4"
           style={{ fontWeight: 700, fontFamily: "var(--font-display)" }}
         >
-          Congratulations, {state.fullName?.split(" ")[0] || "there"}! 🎉
+          Congratulations, {firstName}!
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
@@ -2444,13 +2595,18 @@ export function ScreenSuccess({ state }: any) {
         </motion.p>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="relative rounded-[12px] sm:rounded-[16px] md:rounded-[20px] overflow-hidden"
-        style={{ background: "#fff", border: `1px solid ${BORDER}`, boxShadow: "0px 12px 32px rgba(16,24,40,0.08)" }}
-      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="relative rounded-[12px] sm:rounded-[16px] md:rounded-[20px] overflow-hidden"
+          style={{
+            background: "rgba(255,255,255,0.94)",
+            border: `1px solid ${BORDER}`,
+            boxShadow: "0px 18px 42px rgba(16,24,40,0.1)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
         <div className="px-3 sm:px-5 py-2 sm:py-3 flex items-center gap-2 border-b" style={{ borderColor: BORDER, background: BG_SOFT }}>
           <div className="flex gap-1 sm:gap-1.5">
             <span className="size-2 sm:size-3 rounded-full" style={{ background: "#FF5F57" }} />
@@ -2484,17 +2640,21 @@ export function ScreenSuccess({ state }: any) {
         <div className="px-4 sm:px-6 py-4 sm:py-6">
           <div
             className="rounded-[8px] sm:rounded-[12px] p-3 sm:p-5 mb-4 sm:mb-5 text-center"
-            style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #007A7A 100%)`, color: "#fff" }}
+            style={{
+              background: `linear-gradient(135deg, ${PRIMARY} 0%, #007A7A 100%)`,
+              color: "#fff",
+              boxShadow: "0 18px 34px -22px rgba(0,86,86,0.55)",
+            }}
           >
             <Sparkles className="inline size-4 sm:size-5 mb-1 sm:mb-2" style={{ color: LIME }} />
-            <div className="text-sm sm:text-lg" style={{ fontWeight: 700 }}>You're all set, {state.fullName?.split(" ")[0] || "Merchant"}!</div>
+            <div className="text-sm sm:text-lg" style={{ fontWeight: 700 }}>You're all set, {firstName || "Merchant"}!</div>
             <div className="text-[10px] sm:text-xs mt-0.5 sm:mt-1" style={{ color: "rgba(255,255,255,0.85)" }}>
               Your QwikServe portal is ready to use
             </div>
           </div>
 
           <p className="text-xs sm:text-sm mb-3 sm:mb-4" style={{ color: TEXT_2 }}>
-            Hi {state.fullName?.split(" ")[0] || "there"},
+            Hi {firstName},
           </p>
           <p className="text-xs sm:text-sm mb-4 sm:mb-5" style={{ color: TEXT_2 }}>
             Thank you for completing your merchant onboarding with Pine Labs. Your account has been

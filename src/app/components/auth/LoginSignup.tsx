@@ -1,21 +1,36 @@
 import { useState } from "react";
-import { Eye, EyeOff, Check, Wallet, Zap, Gift, Shield, Loader2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Check,
+  Wallet,
+  Zap,
+  Gift,
+  Shield,
+  Loader2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import pineLabsLogoImg from "../../../imports/image.png";
+import { AuthShell } from "./AuthShell";
 
 interface LoginSignupProps {
   onContinue: (email: string, password: string, isSignup: boolean) => void;
+  embedded?: boolean;
 }
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
-export function LoginSignup({ onContinue }: LoginSignupProps) {
+export function LoginSignup({
+  onContinue,
+  embedded = false,
+}: LoginSignupProps) {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [email, setEmail] = useState("john.doe@company.com");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number; size: number }[]>([]);
+  const [ripples, setRipples] = useState<
+    { id: number; x: number; y: number; size: number }[]
+  >([]);
   const [shineKey, setShineKey] = useState(0);
 
   const hasMinLength = password.length >= 8;
@@ -50,313 +65,77 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
     { Icon: Wallet, text: "Digital Wallet Integration" },
     { Icon: Zap, text: "Instant Settlements" },
     { Icon: Gift, text: "Gift Cards & Vouchers" },
-    { Icon: Shield, text: "Enterprise-grade Security" }
+    { Icon: Shield, text: "Enterprise-grade Security" },
   ];
 
-  return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background - matching Figma design */}
+  const content = (
+    <>
+      <style>{`
+        @keyframes borderShimmer {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        @keyframes glassPulse {
+          0%, 100% { box-shadow: 0 10px 30px -18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.16); }
+          50% { box-shadow: 0 14px 34px -18px rgba(0,0,0,0.58), 0 0 22px rgba(208,242,85,0.08), inset 0 1px 0 rgba(255,255,255,0.22); }
+        }
+        .feature-card {
+          position: relative;
+          isolation: isolate;
+          transition: transform 200ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out, border-color 200ms ease-out;
+          animation: glassPulse 5.5s ease-in-out infinite;
+        }
+        .feature-card::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 1rem;
+          padding: 1px;
+          background: linear-gradient(120deg, rgba(209,242,86,0) 0%, rgba(209,242,86,0.55) 25%, rgba(180,255,180,0.35) 50%, rgba(209,242,86,0.55) 75%, rgba(209,242,86,0) 100%);
+          background-size: 200% 200%;
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+                  mask-composite: exclude;
+          opacity: 0.4;
+          animation: borderShimmer 4.2s linear infinite;
+          transition: opacity 200ms ease-out;
+          pointer-events: none;
+        }
+        .feature-card::after {
+          content: "";
+          position: absolute;
+          inset: -18% auto auto -10%;
+          width: 56%;
+          height: 72%;
+          border-radius: 999px;
+          background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 72%);
+          filter: blur(14px);
+          opacity: 0.58;
+          pointer-events: none;
+          transform: rotate(-12deg);
+        }
+        .feature-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 18px 40px -18px rgba(0,0,0,0.55);
+          background-color: rgba(255,255,255,0.04);
+          border-color: rgba(255,255,255,0.2);
+        }
+        .feature-card:hover::before { opacity: 0.62; }
+        .feature-card .icon-wrap { transition: background-color 200ms ease-out; }
+        .feature-card:hover .icon-wrap { background-color: rgba(209,242,86,0.32); }
+        .auth-input { transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .auth-input:focus { border-color: #005656; }
+        .eye-btn { transition: opacity 180ms ease-out; opacity: 0.75; }
+        .eye-btn:hover { opacity: 1; }
+      `}</style>
+
       <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(140.342deg, rgb(6, 18, 18) 8.4861%, rgb(10, 31, 31) 50%, rgb(13, 32, 32) 91.514%)"
-        }}
-      />
-
-      {/* Blur layer */}
-      <div
-        className="absolute inset-0 backdrop-blur-[2px]"
-        style={{
-          background: "rgba(6, 18, 18, 0.15)"
-        }}
-      />
-
-      {/* Mask Reveal Transition Layers - More Subtle */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(135deg, rgba(13, 32, 32, 0.25) 0%, rgba(10, 31, 31, 0.2) 50%, rgba(6, 18, 18, 0.18) 100%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 20% 80%)", "circle(150% at 20% 80%)", "circle(0% at 20% 80%)"] }}
-        transition={{ duration: 12, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 30% 70%, rgba(0, 86, 86, 0.12) 0%, rgba(0, 120, 110, 0.06) 40%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 15% 85%)", "circle(140% at 15% 85%)", "circle(0% at 15% 85%)"] }}
-        transition={{ duration: 14, delay: 0.3, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 50% 50%, rgba(209, 242, 86, 0.04) 0%, rgba(180, 255, 160, 0.02) 30%, transparent 60%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 25% 75%)", "circle(160% at 25% 75%)", "circle(0% at 25% 75%)"] }}
-        transition={{ duration: 15, delay: 0.6, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(220deg, rgba(60, 200, 170, 0.04) 0%, rgba(20, 160, 140, 0.025) 40%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["polygon(0% 100%, 0% 100%, 0% 100%)", "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)", "polygon(0% 100%, 0% 100%, 0% 100%)"] }}
-        transition={{ duration: 13, delay: 0.4, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(circle at 70% 30%, rgba(209, 242, 86, 0.045) 0%, rgba(180, 255, 160, 0.03) 25%, transparent 50%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 80% 20%)", "circle(145% at 80% 20%)", "circle(0% at 80% 20%)"] }}
-        transition={{ duration: 14.5, delay: 0.8, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "linear-gradient(310deg, rgba(0, 140, 130, 0.05) 0%, rgba(0, 86, 86, 0.035) 50%, transparent 70%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["polygon(100% 0%, 100% 0%, 100% 0%)", "polygon(0% 0%, 100% 0%, 100% 100%)", "polygon(100% 0%, 100% 0%, 100% 0%)"] }}
-        transition={{ duration: 12.5, delay: 0.5, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(ellipse at 40% 60%, rgba(60, 200, 170, 0.04) 0%, rgba(209, 242, 86, 0.025) 35%, transparent 65%)",
-          filter: "blur(100px)",
-        }}
-        animate={{ clipPath: ["circle(0% at 50% 50%)", "circle(155% at 50% 50%)", "circle(0% at 50% 50%)"] }}
-        transition={{ duration: 16, delay: 0.2, ease: "easeInOut", repeat: Infinity }}
-      />
-
-      {/* Gradient overlays */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          background: "radial-gradient(ellipse at 50% 50%, rgba(209, 242, 86, 0.06) 0%, transparent 100%)"
-        }}
-      />
-
-      {/* Ambient animated blobs (calm, low-intensity) */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -left-32 w-[720px] h-[720px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(0,140,130,0.12) 0%, rgba(0,86,86,0) 70%)",
-          filter: "blur(110px)",
-          boxShadow: "0 0 80px 20px rgba(0,140,130,0.08), 0 0 120px 40px rgba(0,86,86,0.04)",
-        }}
-        animate={{ x: [0, 50, 0], y: [0, 20, 0], opacity: [0.12, 0.18, 0.12] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute top-1/4 right-[-12%] w-[640px] h-[640px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(60,200,170,0.11) 0%, rgba(20,160,140,0) 70%)",
-          filter: "blur(120px)",
-          boxShadow: "0 0 90px 25px rgba(60,200,170,0.1), 0 0 130px 45px rgba(20,160,140,0.05)",
-        }}
-        animate={{ x: [0, -40, 0], y: [0, 25, 0], opacity: [0.1, 0.16, 0.1] }}
-        transition={{ duration: 17, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-      />
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 left-[2%] w-[560px] h-[560px] rounded-full"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(209,242,86,0.1) 0%, rgba(209,242,86,0) 70%)",
-          filter: "blur(120px)",
-          boxShadow: "0 0 85px 22px rgba(209,242,86,0.09), 0 0 125px 42px rgba(209,242,86,0.05)",
-        }}
-        animate={{ x: [0, 40, 0], y: [0, -20, 0], opacity: [0.09, 0.15, 0.09] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
-      />
-
-      {/* Soft moving color wash behind heading (drives the text color shift) */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute hidden lg:block"
-        style={{
-          left: "-5%",
-          top: "10%",
-          width: "65%",
-          height: "65%",
-          backgroundImage:
-            "linear-gradient(110deg, rgba(120,220,200,0.22) 0%, rgba(180,255,160,0.25) 33%, rgba(255,220,120,0.22) 66%, rgba(120,220,200,0.22) 100%)",
-          backgroundSize: "300% 100%",
-          filter: "blur(110px)",
-          opacity: 0.18,
-          borderRadius: "50%",
-        }}
-        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"], x: [0, 30, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* Subtle diagonal light sweep */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 -left-1/3 w-[80%]"
-        style={{
-          backgroundImage:
-            "linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(180,255,200,0.025) 35%, rgba(209,242,86,0.06) 50%, rgba(180,255,200,0.025) 65%, rgba(255,255,255,0) 100%)",
-          filter: "blur(70px)",
-          mixBlendMode: "screen",
-        }}
-        initial={{ x: "-60%", opacity: 0 }}
-        animate={{
-          x: ["-60%", "-20%", "30%", "120%", "120%"],
-          opacity: [0, 0.08, 0.12, 0, 0],
-        }}
-        transition={{
-          duration: 10,
-          times: [0, 0.1, 0.18, 0.3, 1],
-          ease: "easeInOut",
-          repeat: Infinity,
-        }}
-      />
-
-      {/* Floating fintech shapes (parallax depth) */}
-      {[
-        { left: "8%", top: "18%", w: 120, h: 70, radius: 14, opacity: 0.05, dur: 20, delay: 0, drift: 12 },
-        { left: "22%", top: "62%", w: 90, h: 90, radius: 999, opacity: 0.04, dur: 18, delay: 1.2, drift: 10 },
-        { left: "38%", top: "30%", w: 70, h: 44, radius: 10, opacity: 0.06, dur: 16, delay: 0.6, drift: 8 },
-        { left: "55%", top: "78%", w: 140, h: 80, radius: 16, opacity: 0.035, dur: 22, delay: 2, drift: 14 },
-        { left: "68%", top: "12%", w: 60, h: 60, radius: 999, opacity: 0.045, dur: 17, delay: 0.4, drift: 10 },
-        { left: "82%", top: "55%", w: 110, h: 64, radius: 14, opacity: 0.04, dur: 19, delay: 1.6, drift: 12 },
-        { left: "12%", top: "82%", w: 80, h: 50, radius: 12, opacity: 0.05, dur: 21, delay: 0.9, drift: 16 },
-        { left: "46%", top: "8%", w: 50, h: 50, radius: 999, opacity: 0.03, dur: 15, delay: 2.4, drift: 8 },
-      ].map((s, i) => (
-        <motion.div
-          key={`fx-shape-${i}`}
-          aria-hidden
-          className="pointer-events-none absolute hidden md:block"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.w,
-            height: s.h,
-            borderRadius: s.radius,
-            border: "1px solid rgba(209,242,86,0.09)",
-            backgroundColor: "rgba(255,255,255,0.008)",
-            backdropFilter: "blur(2px)",
-          }}
-          animate={{
-            x: [0, 40, 0],
-            y: [0, -s.drift, 0],
-            opacity: [s.opacity * 0.7, s.opacity, s.opacity * 0.7],
-          }}
-          transition={{ duration: s.dur, repeat: Infinity, repeatType: "mirror", ease: "easeInOut", delay: s.delay }}
-        />
-      ))}
-
-      {/* Subtle network/grid pan */}
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(209,242,86,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(209,242,86,0.03) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)",
-          WebkitMaskImage: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)",
-          filter: "blur(0.5px)",
-          opacity: 0.3,
-        }}
-        animate={{ backgroundPosition: ["0px 0px", "60px 0px"] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* Logo header */}
-      <header className="absolute top-0 left-0 right-0 z-20 py-4 sm:py-6">
-        <div className="w-full max-w-[1200px] mx-auto px-6">
-          <img
-            src={pineLabsLogoImg}
-            alt="Pine Labs"
-            className="h-8 sm:h-9 w-auto select-none"
-            draggable={false}
-          />
-        </div>
-      </header>
-
-      {/* Bottom gradient line */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-1"
-        style={{
-          background: "linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(209, 242, 86, 0.35) 50%, rgba(0, 0, 0, 0) 100%)",
-          animation: "pulseGlow 4s ease-in-out infinite",
-          opacity: 0.3
-        }}
+        className={
+          embedded
+            ? "w-full flex gap-20 items-center justify-center"
+            : "relative z-10 w-full max-w-[1200px] px-6 pt-20 sm:pt-24 flex gap-20 items-center justify-center"
+        }
       >
-        <style>{`
-          @keyframes secondaryShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-          }
-          @keyframes pulseGlow {
-            0%, 100% { opacity: 0.3; filter: blur(0px); }
-            50% { opacity: 0.7; filter: blur(1px); }
-          }
-          @keyframes borderShimmer {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-          }
-          .feature-card {
-            position: relative;
-            isolation: isolate;
-            transition: transform 200ms ease-out, box-shadow 200ms ease-out, background-color 200ms ease-out;
-          }
-          .feature-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            padding: 1px;
-            background: linear-gradient(120deg, rgba(209,242,86,0) 0%, rgba(209,242,86,0.55) 25%, rgba(180,255,180,0.35) 50%, rgba(209,242,86,0.55) 75%, rgba(209,242,86,0) 100%);
-            background-size: 200% 200%;
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-                    mask-composite: exclude;
-            opacity: 0.3;
-            animation: borderShimmer 5s linear infinite;
-            transition: opacity 200ms ease-out;
-            pointer-events: none;
-          }
-          .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 30px -12px rgba(0,0,0,0.5);
-            background-color: rgba(255,255,255,0.07);
-          }
-          .feature-card:hover::before { opacity: 0.55; }
-          .feature-card .icon-wrap { transition: background-color 200ms ease-out; }
-          .feature-card:hover .icon-wrap { background-color: rgba(209,242,86,0.32); }
-          .auth-input { transition: border-color 180ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1); }
-          .auth-input:focus { border-color: #005656; }
-          .eye-btn { transition: opacity 180ms ease-out; opacity: 0.75; }
-          .eye-btn:hover { opacity: 1; }
-        `}</style>
-      </div>
-
-      <div className="relative z-10 w-full max-w-[1200px] px-6 flex gap-20 items-center">
         {/* Left side - Marketing content */}
         <div className="flex-1 hidden lg:flex flex-col gap-8">
           {/* Badge */}
@@ -366,7 +145,9 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
             transition={{ delay: 0.1, duration: 0.5, ease: easeOut }}
             className="inline-flex items-center justify-center px-[18px] py-[10px] bg-[rgba(209,242,86,0.1)] border border-[rgba(209,242,86,0.3)] rounded-[20px] self-start"
           >
-            <p className="text-[#d1f256] text-[15px] font-semibold">Trusted by 1000+ Merchants</p>
+            <p className="text-[#d1f256] text-[15px] font-semibold">
+              Trusted by 1000+ Merchants
+            </p>
           </motion.div>
 
           {/* Heading */}
@@ -375,8 +156,18 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.22, duration: 0.65, ease: easeOut }}
           >
-            <h1 className="text-[60px] leading-[72px] font-bold text-white" style={{ mixBlendMode: "screen" }}>Power Your</h1>
-            <h1 className="text-[60px] leading-[72px] font-bold text-[#d1f256]" style={{ mixBlendMode: "screen" }}>Business Growth</h1>
+            <h1
+              className="text-[60px] leading-[72px] font-bold text-white"
+              style={{ mixBlendMode: "screen" }}
+            >
+              Power Your
+            </h1>
+            <h1
+              className="text-[60px] leading-[72px] font-bold text-[#d1f256]"
+              style={{ mixBlendMode: "screen" }}
+            >
+              Business Growth
+            </h1>
           </motion.div>
 
           <motion.p
@@ -386,7 +177,8 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
             className="text-[16px] max-w-[550px] text-[rgba(255,255,255,0.7)]"
             style={{ mixBlendMode: "screen" }}
           >
-            Join the leading payment platform designed for modern businesses. Accept payments, manage transactions, and grow revenue seamlessly.
+            Join the leading payment platform designed for modern businesses.
+            Accept payments, manage transactions, and grow revenue seamlessly.
           </motion.p>
 
           {/* Features grid */}
@@ -396,8 +188,21 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                 key={idx}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55 + idx * 0.12, duration: 0.45, ease: easeOut }}
-                className="relative flex gap-3 items-center p-4 bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-2xl overflow-hidden isolate"
+                transition={{
+                  delay: 0.55 + idx * 0.12,
+                  duration: 0.45,
+                  ease: easeOut,
+                }}
+                className="feature-card relative flex gap-3 items-center p-4 rounded-2xl overflow-hidden isolate"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0.08) 100%)",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  boxShadow:
+                    "0 10px 30px -18px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.16)",
+                }}
               >
                 <motion.div
                   aria-hidden
@@ -411,10 +216,15 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                       "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
                     WebkitMaskComposite: "xor",
                     maskComposite: "exclude",
-                    opacity: 0.45
+                    opacity: 0.52,
                   }}
                   animate={{ backgroundPosition: ["0% 50%", "200% 50%"] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "linear", delay: idx * 0.4 }}
+                  transition={{
+                    duration: 4.2,
+                    repeat: Infinity,
+                    ease: "linear",
+                    delay: idx * 0.35,
+                  }}
                 />
                 <motion.div
                   aria-hidden
@@ -422,19 +232,38 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                   style={{
                     background:
                       "radial-gradient(circle at 50% 50%, rgba(209,242,86,0.12) 0%, rgba(209,242,86,0) 65%)",
-                    filter: "blur(16px)"
+                    filter: "blur(16px)",
                   }}
-                  animate={{ opacity: [0.15, 0.3, 0.15] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: idx * 0.3 }}
+                  animate={{ opacity: [0.16, 0.36, 0.16], scale: [0.98, 1.02, 0.98] }}
+                  transition={{
+                    duration: 4.8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.28,
+                  }}
                 />
                 <motion.div
                   className="icon-wrap w-10 h-10 bg-[rgba(209,242,86,0.2)] rounded-[10px] flex items-center justify-center relative z-10"
-                  animate={{ backgroundColor: ["rgba(209,242,86,0.18)", "rgba(209,242,86,0.32)", "rgba(209,242,86,0.18)"] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: idx * 0.3 }}
+                  animate={{
+                    backgroundColor: [
+                      "rgba(209,242,86,0.18)",
+                      "rgba(209,242,86,0.34)",
+                      "rgba(209,242,86,0.18)",
+                    ],
+                    scale: [1, 1.04, 1],
+                  }}
+                  transition={{
+                    duration: 4.6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: idx * 0.25,
+                  }}
                 >
                   <feature.Icon size={20} className="text-[#d1f256]" />
                 </motion.div>
-                <p className="text-[16px] text-[rgba(255,255,255,0.8)] relative z-10">{feature.text}</p>
+                <p className="text-[16px] text-[rgba(255,255,255,0.8)] relative z-10">
+                  {feature.text}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -460,8 +289,7 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
             <p className="text-[16px] text-[#4a5565]">
               {mode === "signup"
                 ? "Get started with your Pine Labs business account"
-                : "Log in to your Pine Labs business account"
-              }
+                : "Log in to your Pine Labs business account"}
             </p>
           </motion.div>
 
@@ -487,7 +315,9 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
-                <span className="relative z-10">{m === "signup" ? "Sign Up" : "Log In"}</span>
+                <span className="relative z-10">
+                  {m === "signup" ? "Sign Up" : "Log In"}
+                </span>
               </button>
             ))}
           </motion.div>
@@ -552,9 +382,18 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                   transition={{ duration: 0.25, ease: easeOut }}
                   className="bg-[#f9fafb] rounded-[10px] p-3 space-y-2 overflow-hidden"
                 >
-                  <PasswordRequirement met={hasMinLength} text="At least 8 characters" />
-                  <PasswordRequirement met={hasLetters} text="Contains letters" />
-                  <PasswordRequirement met={hasNumbers} text="Contains numbers" />
+                  <PasswordRequirement
+                    met={hasMinLength}
+                    text="At least 8 characters"
+                  />
+                  <PasswordRequirement
+                    met={hasLetters}
+                    text="Contains letters"
+                  />
+                  <PasswordRequirement
+                    met={hasNumbers}
+                    text="Contains numbers"
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -563,13 +402,16 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
             <motion.button
               type="submit"
               disabled={(mode === "signup" && !isPasswordValid) || submitting}
-              onPointerDown={(e) => { if (!((mode === "signup" && !isPasswordValid) || submitting)) spawnRipple(e); }}
+              onPointerDown={(e) => {
+                if (!((mode === "signup" && !isPasswordValid) || submitting))
+                  spawnRipple(e);
+              }}
               initial={{ opacity: 0, y: 8 }}
               animate={{
                 opacity: 1,
               }}
               whileHover={
-                ((mode === "signup" && !isPasswordValid) || submitting)
+                (mode === "signup" && !isPasswordValid) || submitting
                   ? undefined
                   : {
                       y: -2,
@@ -579,7 +421,7 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                     }
               }
               whileTap={
-                ((mode === "signup" && !isPasswordValid) || submitting)
+                (mode === "signup" && !isPasswordValid) || submitting
                   ? undefined
                   : {
                       y: 0,
@@ -587,9 +429,16 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                       boxShadow: "0 4px 12px -4px rgba(0,86,86,0.35)",
                     }
               }
-              transition={{ delay: submitting ? 0 : 0.82, duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
+              transition={{
+                delay: submitting ? 0 : 0.82,
+                duration: 0.18,
+                ease: [0.4, 0, 0.2, 1],
+              }}
               className="submit-btn relative overflow-hidden w-full bg-[#005656] text-white py-3 px-6 rounded-xl font-semibold text-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ WebkitTapHighlightColor: "transparent", willChange: "transform" }}
+              style={{
+                WebkitTapHighlightColor: "transparent",
+                willChange: "transform",
+              }}
             >
               {/* Glass top highlight */}
               <span
@@ -640,10 +489,14 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                 {submitting ? (
                   <>
                     <Loader2 className="size-4 animate-spin" />
-                    {mode === "signup" ? "Creating account..." : "Logging in..."}
+                    {mode === "signup"
+                      ? "Creating account..."
+                      : "Logging in..."}
                   </>
+                ) : mode === "signup" ? (
+                  "Create Account"
                 ) : (
-                  mode === "signup" ? "Create Account" : "Log In"
+                  "Log In"
                 )}
               </span>
             </motion.button>
@@ -657,9 +510,13 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                 className="text-[13px] text-[#6a7282] text-center leading-5"
               >
                 By creating an account, you agree to our{" "}
-                <span className="text-[#364153] underline cursor-pointer">Terms of Service</span>
+                <span className="text-[#364153] underline cursor-pointer">
+                  Terms of Service
+                </span>
                 {" and "}
-                <span className="text-[#364153] underline cursor-pointer">Privacy Policy</span>
+                <span className="text-[#364153] underline cursor-pointer">
+                  Privacy Policy
+                </span>
               </motion.p>
             )}
 
@@ -670,7 +527,10 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
                 transition={{ delay: 0.9, duration: 0.4, ease: easeOut }}
                 className="text-center"
               >
-                <a href="#" className="text-[#005656] text-[14px] font-medium hover:underline">
+                <a
+                  href="#"
+                  className="text-[#005656] text-[14px] font-medium hover:underline"
+                >
                   Forgot password?
                 </a>
               </motion.div>
@@ -678,19 +538,28 @@ export function LoginSignup({ onContinue }: LoginSignupProps) {
           </form>
         </motion.div>
       </div>
-    </div>
+    </>
   );
+
+  if (embedded) return content;
+  return <AuthShell layout="split">{content}</AuthShell>;
 }
 
 function PasswordRequirement({ met, text }: { met: boolean; text: string }) {
   return (
     <div className="flex gap-2.5 items-center">
-      <div className={`w-[22px] h-[22px] rounded-full flex items-center justify-center transition-colors ${
-        met ? "bg-[#a9efc5]" : "bg-[#e5e7eb]"
-      }`}>
-        {met && <Check size={13} className="text-[#079455]" strokeWidth={2.5} />}
+      <div
+        className={`w-[22px] h-[22px] rounded-full flex items-center justify-center transition-colors ${
+          met ? "bg-[#a9efc5]" : "bg-[#e5e7eb]"
+        }`}
+      >
+        {met && (
+          <Check size={13} className="text-[#079455]" strokeWidth={2.5} />
+        )}
       </div>
-      <p className={`text-[14px] ${met ? "text-[#079455]" : "text-[#6b7280]"}`}>{text}</p>
+      <p className={`text-[14px] ${met ? "text-[#079455]" : "text-[#6b7280]"}`}>
+        {text}
+      </p>
     </div>
   );
 }

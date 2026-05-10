@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageShell } from "./components/onboarding/Layout";
 import {
   ScreenAccountOwner,
@@ -16,10 +16,18 @@ import {
 } from "./components/onboarding/Screens";
 import { LoginSignup } from "./components/auth/LoginSignup";
 import { OTPVerification } from "./components/auth/OTPVerification";
+import { AuthShell } from "./components/auth/AuthShell";
 import { AuthToOnboardTransition } from "./components/auth/AuthToOnboardTransition";
 import { AnalyzingTransition } from "./components/onboarding/AnalyzingTransition";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const FORM_PAGE_MOTION = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.34, ease: [0.22, 1, 0.36, 1] as const },
+};
 
 const SCREEN_LABELS: Record<number, string> = {
   [-1]: "Login / Signup",
@@ -97,6 +105,7 @@ const COMPLETED_FOR_SCREEN: Record<number, number[]> = {
 export default function App() {
   // Start at -1 for login/signup
   const [screen, setScreen] = useState(-1);
+  const [furthestFormScreen, setFurthestFormScreen] = useState(1);
   const [authEmail, setAuthEmail] = useState("");
   const [isSignup, setIsSignup] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
@@ -109,10 +118,10 @@ export default function App() {
     idType: "GSTIN",
     idValue: "29AABCP1234F1Z5",
     billingSame: true,
-    sameAsOwner: false,
-    sigName: "",
-    sigEmail: "",
-    sigMobile: "",
+    sameAsOwner: true,
+    sigName: "John Doe",
+    sigEmail: "john@company.com",
+    sigMobile: "+91 9876543210",
     designation: "",
     sigConfirm: false,
     declaration: false,
@@ -129,7 +138,11 @@ export default function App() {
   const handleAuthContinue = (email: string, password: string, signup: boolean) => {
     setAuthEmail(email);
     setIsSignup(signup);
-    setState({ ...state, email });
+    setState((current) => ({
+      ...current,
+      email,
+      sigEmail: current.sameAsOwner ? email : current.sigEmail,
+    }));
     setScreen(0); // Move to OTP verification
   };
 
@@ -163,14 +176,21 @@ export default function App() {
     }
   };
 
-  // Auth screens (-1, 0) and Before You Begin (1) don't show sidebar
+  useEffect(() => {
+    if (screen >= 1 && screen <= 11) {
+      setFurthestFormScreen((current) => Math.max(current, screen));
+    }
+  }, [screen]);
+
+  // Auth screens (-1, 0) don't use the onboarding shell; screen 1 uses the shell without the sidebar.
   const showSidebar = screen >= 2 && screen <= 11;
   const sidebarStep = SIDEBAR_STEP_FOR_SCREEN[screen] ?? 4;
-  const completed = COMPLETED_FOR_SCREEN[screen] || [1, 2, 3, 4];
+  const progressScreen = screen >= 1 && screen <= 11 ? Math.max(screen, furthestFormScreen) : furthestFormScreen;
+  const completed = COMPLETED_FOR_SCREEN[progressScreen] || [1, 2, 3, 4];
   const currentSub = SUB_FOR_SCREEN[screen];
-  const completedSubs = COMPLETED_SUBS_FOR_SCREEN[screen];
+  const completedSubs = COMPLETED_SUBS_FOR_SCREEN[progressScreen];
 
-  // Auth screens and Before You Begin render without PageShell
+  // Auth screens render without PageShell. Before You Begin uses PageShell so it gets the shared top bar and background.
   let content: React.ReactNode;
   if (analyzing) {
     content = (
@@ -186,52 +206,66 @@ export default function App() {
     );
   } else if (screen === -1) {
     content = (
-      <motion.div
-        key="login"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-      >
-        <LoginSignup onContinue={handleAuthContinue} />
-      </motion.div>
+      <AuthShell layout="split">
+        <motion.div
+          key="login"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="w-full"
+        >
+          <LoginSignup embedded onContinue={handleAuthContinue} />
+        </motion.div>
+      </AuthShell>
     );
   } else if (screen === 0) {
     content = (
-      <motion.div
-        key="otp"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-      >
-        <OTPVerification
-          email={authEmail}
-          onVerify={handleOTPVerify}
-          onBack={() => setScreen(-1)}
-        />
-      </motion.div>
+      <AuthShell layout="centered">
+        <motion.div
+          key="otp"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="w-full"
+        >
+          <OTPVerification
+            embedded
+            email={authEmail}
+            onVerify={handleOTPVerify}
+            onBack={() => setScreen(-1)}
+          />
+        </motion.div>
+      </AuthShell>
     );
   } else if (screen === 1) {
     content = (
       <motion.div
         key="before-begin"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
+        initial={FORM_PAGE_MOTION.initial}
+        animate={FORM_PAGE_MOTION.animate}
+        exit={FORM_PAGE_MOTION.exit}
+        transition={FORM_PAGE_MOTION.transition}
       >
-        <ScreenBeforeYouBegin go={handleBeforeYouBeginContinue} state={state} setState={setState} />
+        <PageShell
+          currentStep={1}
+          completed={[]}
+          showSidebar={false}
+          onSaveExit={() => setScreen(-1)}
+        >
+          <ScreenBeforeYouBegin go={handleBeforeYouBeginContinue} state={state} setState={setState} />
+        </PageShell>
       </motion.div>
     );
   } else {
     content = (
       <motion.div
         key={`screen-${screen}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
+        initial={FORM_PAGE_MOTION.initial}
+        animate={FORM_PAGE_MOTION.animate}
+        exit={FORM_PAGE_MOTION.exit}
+        transition={FORM_PAGE_MOTION.transition}
       >
         <PageShell
         currentStep={sidebarStep}

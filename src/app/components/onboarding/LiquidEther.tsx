@@ -130,7 +130,8 @@ void main() {
 `;
 
 function toColorArray(colors: string[]) {
-  const normalized = colors.length > 0 ? colors.slice(0, 5) : ["#D0F255", "#007A7A"];
+  const normalized =
+    colors.length > 0 ? colors.slice(0, 5) : ["#D0F255", "#007A7A"];
   while (normalized.length < 5) {
     normalized.push(normalized[normalized.length - 1]);
   }
@@ -139,7 +140,7 @@ function toColorArray(colors: string[]) {
 }
 
 export default function LiquidEther({
-  colors = ["#FFFFF0", "#FAFFD6", "#F0F9AE", "#DBEF78", "#D0F255"],
+  colors = ["#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"],
   mouseForce = 20,
   cursorSize = 100,
   resolution = 0.5,
@@ -151,8 +152,26 @@ export default function LiquidEther({
   autoResumeDelay = 1200,
 }: LiquidEtherProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  const propsRef = useRef({ colors, mouseForce, cursorSize, resolution, autoDemo, autoSpeed, autoIntensity, autoResumeDelay });
-  propsRef.current = { colors, mouseForce, cursorSize, resolution, autoDemo, autoSpeed, autoIntensity, autoResumeDelay };
+  const propsRef = useRef({
+    colors,
+    mouseForce,
+    cursorSize,
+    resolution,
+    autoDemo,
+    autoSpeed,
+    autoIntensity,
+    autoResumeDelay,
+  });
+  propsRef.current = {
+    colors,
+    mouseForce,
+    cursorSize,
+    resolution,
+    autoDemo,
+    autoSpeed,
+    autoIntensity,
+    autoResumeDelay,
+  };
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -202,7 +221,10 @@ export default function LiquidEther({
     const onPointerMove = (event: PointerEvent) => {
       const rect = mount.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
-      pointer.set((event.clientX - rect.left) / rect.width, 1 - (event.clientY - rect.top) / rect.height);
+      pointer.set(
+        (event.clientX - rect.left) / rect.width,
+        1 - (event.clientY - rect.top) / rect.height,
+      );
       uniforms.uPointerStrength.value = Math.min(1, mouseForce / 32);
       lastInteraction.value = performance.now();
     };
@@ -226,13 +248,16 @@ export default function LiquidEther({
       uniforms.uTime.value = elapsed;
       autoPointer.set(
         0.5 + Math.cos(elapsed * current.autoSpeed * 0.72) * 0.32,
-        0.52 + Math.sin(elapsed * current.autoSpeed) * 0.24
+        0.52 + Math.sin(elapsed * current.autoSpeed) * 0.24,
       );
       uniforms.uAutoStrength.value = autoActive ? current.autoIntensity : 0.2;
       uniforms.uPointerStrength.value *= 0.94;
       uniforms.uCursorSize.value = Math.max(8, 14000 / current.cursorSize);
       uniforms.uColors.value = toColorArray(current.colors);
-      uniforms.uColorCount.value = Math.min(Math.max(current.colors.length, 2), 5);
+      uniforms.uColorCount.value = Math.min(
+        Math.max(current.colors.length, 2),
+        5,
+      );
       renderer.render(scene, camera);
     };
     frame = requestAnimationFrame(render);
@@ -252,5 +277,11 @@ export default function LiquidEther({
     };
   }, []);
 
-  return <div ref={mountRef} className={`liquid-ether-container ${className || ""}`} style={style} />;
+  return (
+    <div
+      ref={mountRef}
+      className={`liquid-ether-container ${className || ""}`}
+      style={style}
+    />
+  );
 }
