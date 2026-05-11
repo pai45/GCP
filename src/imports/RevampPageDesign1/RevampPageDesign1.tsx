@@ -903,8 +903,8 @@ function Form() {
         </div>
       </div>
       <p className="font-['Lato:Regular',sans-serif] leading-[0] not-italic relative shrink-0 text-[#6a7282] text-[0px] text-center tracking-[-0.13px] whitespace-nowrap">
-        <span className="leading-[20px] text-[13px]">{`By creating an account, you agree to our `}</span>
-        <span className="decoration-solid leading-[20px] text-[#364153] text-[13px] underline">
+        <span className="leading-[20px] text-[14px]">{`By creating an account, you agree to our `}</span>
+        <span className="decoration-solid leading-[20px] text-[#364153] text-[14px] underline">
           Terms of Service
         </span>
         <span className="leading-[20px] text-[13px]">{` and `}</span>

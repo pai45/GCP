@@ -53,7 +53,7 @@ export function TopNav({ onSaveExit }: { onSaveExit?: () => void }) {
       }}
     >
       <div
-        className="w-full flex items-center justify-between px-4 sm:px-8 md:px-12 xl:px-[120px]"
+        className="w-full flex items-center justify-between px-4 sm:px-6 md:px-8 xl:px-[80px]"
         style={{ maxWidth: 1440 }}
       >
         <div className="flex items-center gap-3 sm:gap-6 min-w-0 flex-1">
@@ -647,7 +647,7 @@ export function PageShell({
             className="flex justify-center w-full"
             style={{ maxWidth: 1440 }}
           >
-            <div className="flex items-start w-full px-0 sm:px-6 md:px-8 xl:px-[120px]">
+            <div className="flex items-start w-full px-0 sm:px-6 md:px-8 xl:px-[80px]">
               {showSidebar && (
                 <Sidebar
                   currentStep={currentStep}
@@ -659,7 +659,7 @@ export function PageShell({
               )}
               <main
                 className={`flex-1 min-w-0 flex overflow-visible pt-4 sm:pt-6 lg:pt-12 ${
-                  showSidebar ? "lg:ml-24 justify-start" : "justify-center"
+                  showSidebar ? "lg:ml-12 xl:ml-16 justify-start" : "justify-center"
                 }`}
               >
                 <div className="w-full">{children}</div>
@@ -690,7 +690,7 @@ export function FormCard({
     <motion.div
       className="mx-auto rounded-[16px] sm:rounded-[20px] md:rounded-[24px] overflow-hidden w-full"
       style={{
-        maxWidth: 960,
+        maxWidth: 1040,
         background: "rgba(255,255,255,0.85)",
         boxShadow: "0 25px 50px -12px rgba(16,24,40,0.1)",
         backdropFilter: "blur(8px)",
@@ -793,7 +793,7 @@ export function StickyActionBar({
       }}
     >
       <div
-        className="w-full flex items-center justify-between gap-3 px-4 sm:px-8 md:px-12 xl:px-[120px]"
+        className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 md:px-8 xl:px-[80px]"
         style={{ maxWidth: 1440 }}
       >
         <div className="min-w-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
