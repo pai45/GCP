@@ -12,8 +12,16 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
+import Lottie from "lottie-react";
 import { AnimatePresence, motion } from "motion/react";
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from "react-router";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router";
 import { AuthShell } from "./components/auth/AuthShell";
 import { LoginSignup } from "./components/auth/LoginSignup";
 import { OTPVerification } from "./components/auth/OTPVerification";
@@ -36,11 +44,12 @@ import {
 import pineLogo from "../../pinelabs logo.png";
 import pineBg from "../../bg pinlabs.png";
 import heroImage from "../imports/image 171.png";
+import logoAnimation from "../imports/logo-animation.json";
 
 const stats = [
-  { value: "10M+", label: "Cards and vouchers issued annually" },
-  { value: "600+", label: "Enterprise reward programs supported" },
-  { value: "24 hr", label: "Bulk order dispatch for digital cards" },
+  { value: "10M+", label: "Gift Cards issued" },
+  { value: "600+", label: "Catalogue of Brands" },
+  { value: "24 hr", label: "Support Network" },
 ];
 
 const solutions = [
@@ -68,7 +77,14 @@ const workflow = [
   "Track redemption, breakage, and campaign ROI",
 ];
 
-const brands = ["Retail", "Travel", "Food", "Fuel", "Wellness", "Entertainment"];
+const brands = [
+  "Retail",
+  "Travel",
+  "Food",
+  "Fuel",
+  "Wellness",
+  "Entertainment",
+];
 
 const ONBOARDING_PATHS: Record<number, string> = {
   1: "/onboarding/begin",
@@ -188,14 +204,17 @@ function AppRoutes() {
 
   const startAuthTransition = useCallback(() => {
     setLogoTransitionOpen(true);
-    window.setTimeout(() => navigate("/signup", { state: { playIntro: true } }), 520);
-    window.setTimeout(() => setLogoTransitionOpen(false), 920);
+    window.setTimeout(() => navigate("/signup"), 2500);
+    window.setTimeout(() => setLogoTransitionOpen(false), 2720);
   }, [navigate]);
 
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage onStartAuth={startAuthTransition} />} />
+        <Route
+          path="/"
+          element={<LandingPage onStartAuth={startAuthTransition} />}
+        />
         <Route path="/signup" element={<AuthPage mode="signup" />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/verify" element={<VerifyPage />} />
@@ -212,7 +231,7 @@ function AppRoutes() {
 function LandingAuthBridge() {
   return (
     <motion.div
-      className="fixed inset-0 z-[300] flex items-center justify-center overflow-hidden bg-white"
+      className="fixed inset-0 z-[300] flex items-center justify-center overflow-hidden bg-[#f8fff7]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -223,31 +242,37 @@ function LandingAuthBridge() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(140deg, rgba(255,255,255,0.96) 0%, rgba(232,250,241,0.98) 42%, rgba(1,25,25,0.98) 100%)",
+            "linear-gradient(140deg, rgba(255,255,255,0.98) 0%, rgba(241,255,232,0.98) 48%, rgba(224,250,239,0.98) 100%)",
         }}
         initial={{ opacity: 0, scale: 1.04 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0.9 }}
-        transition={{ duration: 0.7, ease: [0.45, 0, 0.2, 1] }}
+        exit={{ opacity: 0.9, scale: 1.01 }}
+        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       />
       <motion.div
         aria-hidden="true"
-        className="absolute h-[70vmax] w-[70vmax] rounded-full bg-[#d0f255]/20 blur-3xl"
-        initial={{ scale: 0.25, x: "-35%", y: "28%", opacity: 0 }}
-        animate={{ scale: 1.05, x: "20%", y: "-8%", opacity: 1 }}
+        className="absolute h-[68vmax] w-[68vmax] rounded-full bg-[#d0f255]/30 blur-3xl"
+        initial={{ scale: 0.45, x: "-28%", y: "18%", opacity: 0 }}
+        animate={{ scale: 1.08, x: "16%", y: "-10%", opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.9, ease: [0.45, 0, 0.2, 1] }}
+        transition={{ duration: 2.8, ease: [0.22, 1, 0.36, 1] }}
       />
-      <motion.img
-        src={vectorLogo}
-        alt="Pine Labs transition mark"
-        className="relative h-20 w-20"
-        draggable={false}
-        initial={{ opacity: 0, scale: 0.78, rotate: -35 }}
-        animate={{ opacity: 1, scale: [0.78, 1.08, 0.98], rotate: [0, 180, 310] }}
-        exit={{ opacity: 0, scale: 1.08, rotate: 360 }}
-        transition={{ duration: 0.82, ease: [0.45, 0, 0.2, 1] }}
-      />
+      <motion.div
+        className="relative h-36 w-36"
+        initial={{ opacity: 0, scale: 0.86 }}
+        animate={{ opacity: 1, scale: [0.86, 1.06, 1] }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Lottie
+          animationData={logoAnimation}
+          loop
+          autoplay
+          className="h-full w-full"
+          aria-label="Pine Labs loading animation"
+          rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+        />
+      </motion.div>
     </motion.div>
   );
 }
@@ -255,7 +280,9 @@ function LandingAuthBridge() {
 function AuthPage({ mode }: { mode: "signup" | "login" }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const playIntro = Boolean((location.state as { playIntro?: boolean } | null)?.playIntro);
+  const playIntro = Boolean(
+    (location.state as { playIntro?: boolean } | null)?.playIntro,
+  );
 
   return (
     <AuthShell layout="split" intro={playIntro}>
@@ -272,7 +299,9 @@ function AuthPage({ mode }: { mode: "signup" | "login" }) {
 function VerifyPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = (location.state as { email?: string } | null)?.email ?? "john.doe@company.com";
+  const email =
+    (location.state as { email?: string } | null)?.email ??
+    "john.doe@company.com";
 
   return (
     <AuthShell layout="centered">
@@ -290,7 +319,9 @@ function OnboardingFlow() {
   const navigate = useNavigate();
   const location = useLocation();
   const [state, setState] = useState(initialOnboardingState);
-  const [transitionContext, setTransitionContext] = useState<"documents" | "signing" | null>(null);
+  const [transitionContext, setTransitionContext] = useState<
+    "documents" | "signing" | null
+  >(null);
   const screen = SCREEN_BY_PATH[location.pathname] ?? 1;
 
   const go = (nextScreen: number) => {
@@ -331,10 +362,24 @@ function OnboardingFlow() {
     return (
       <AnalyzingTransition
         onComplete={handleTransitionComplete}
-        stepOneText={transitionContext === "signing" ? "Applying your Aadhaar eSign to all documents..." : undefined}
-        stepTwoText={transitionContext === "signing" ? "Finalizing signed terms and conditions..." : undefined}
-        successTitle={transitionContext === "signing" ? "Signed successfully..." : undefined}
-        successText={transitionContext === "signing" ? "Your terms and conditions have been digitally signed." : undefined}
+        stepOneText={
+          transitionContext === "signing"
+            ? "Applying your Aadhaar eSign to all documents..."
+            : undefined
+        }
+        stepTwoText={
+          transitionContext === "signing"
+            ? "Finalizing signed terms and conditions..."
+            : undefined
+        }
+        successTitle={
+          transitionContext === "signing" ? "Signed successfully..." : undefined
+        }
+        successText={
+          transitionContext === "signing"
+            ? "Your terms and conditions have been digitally signed."
+            : undefined
+        }
       />
     );
   }
@@ -345,18 +390,34 @@ function OnboardingFlow() {
   const currentSub = SUB_FOR_SCREEN[screen];
   const completedSubs = COMPLETED_SUBS_FOR_SCREEN[screen];
 
-  let content: React.ReactNode = <ScreenBeforeYouBegin go={go} state={state} setState={setState} />;
+  let content: React.ReactNode = (
+    <ScreenBeforeYouBegin go={go} state={state} setState={setState} />
+  );
 
-  if (screen === 2) content = <ScreenAccountOwner go={go} state={state} setState={setState} />;
-  if (screen === 3) content = <ScreenBusinessIdentity go={go} state={state} setState={setState} />;
-  if (screen === 4) content = <ScreenCompanyAddress go={go} state={state} setState={setState} />;
-  if (screen === 5) content = <ScreenSignatory go={go} state={state} setState={setState} />;
-  if (screen === 6) content = <ScreenReviewSubmit go={go} state={state} setState={setState} />;
-  if (screen === 7) content = <ScreenTermsPage1 go={go} state={state} setState={setState} />;
-  if (screen === 8) content = <ScreenTermsPage2 go={go} state={state} setState={setState} />;
-  if (screen === 9) content = <ScreenTermsPage3 go={go} state={state} setState={setState} />;
-  if (screen === 10) content = <ScreenTermsPage4 go={go} state={state} setState={setState} />;
-  if (screen === 11) content = <ScreenAadhaarOTP go={go} state={state} setState={setState} />;
+  if (screen === 2)
+    content = <ScreenAccountOwner go={go} state={state} setState={setState} />;
+  if (screen === 3)
+    content = (
+      <ScreenBusinessIdentity go={go} state={state} setState={setState} />
+    );
+  if (screen === 4)
+    content = (
+      <ScreenCompanyAddress go={go} state={state} setState={setState} />
+    );
+  if (screen === 5)
+    content = <ScreenSignatory go={go} state={state} setState={setState} />;
+  if (screen === 6)
+    content = <ScreenReviewSubmit go={go} state={state} setState={setState} />;
+  if (screen === 7)
+    content = <ScreenTermsPage1 go={go} state={state} setState={setState} />;
+  if (screen === 8)
+    content = <ScreenTermsPage2 go={go} state={state} setState={setState} />;
+  if (screen === 9)
+    content = <ScreenTermsPage3 go={go} state={state} setState={setState} />;
+  if (screen === 10)
+    content = <ScreenTermsPage4 go={go} state={state} setState={setState} />;
+  if (screen === 11)
+    content = <ScreenAadhaarOTP go={go} state={state} setState={setState} />;
   if (screen === 12) content = <ScreenSuccess state={state} />;
 
   return (
@@ -381,35 +442,56 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
     <main className="min-h-screen bg-white text-[#081c2d]">
       <header className="sticky top-0 z-50 border-b border-[#d9e6df] bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-          <button type="button" onClick={() => navigate("/")} className="flex items-center gap-3" aria-label="Pine Labs home">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-3"
+            aria-label="Pine Labs home"
+          >
             <img src={pineLogo} alt="Pine Labs" className="h-8 w-auto" />
           </button>
 
           <nav className="hidden items-center gap-8 text-sm font-semibold text-[#345066] lg:flex">
-            {["Products", "Solutions", "Developers", "Resources"].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-[#008d7d]">
-                {item}
-              </a>
-            ))}
+            {["Products", "Solutions", "Developers", "Resources"].map(
+              (item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="hover:text-[#008d7d]"
+                >
+                  {item}
+                </a>
+              ),
+            )}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <a href="#contact" className="rounded-md border border-[#b9cec6] px-5 py-2.5 text-sm font-bold text-[#08263c] transition hover:border-[#008d7d] hover:text-[#008d7d]">
+            <a
+              href="#contact"
+              className="inline-flex min-w-[120px] items-center justify-center gap-3 rounded-full bg-[#d0f255] px-4 py-3.5 text-[15px] font-black text-[#003434] transition hover:bg-[#c4ee39] hover:shadow-[0_18px_34px_rgba(208,242,85,0.36)]"
+            >
               Contact us
-            </a>
-            <a href="#demo" className="rounded-md bg-[#008d7d] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#007265]">
-              Request demo
             </a>
           </div>
 
-          <button className="flex h-10 w-10 items-center justify-center rounded-md border border-[#c9d9d3] bg-white text-[#0d2b41] lg:hidden" aria-label="Open navigation">
+          <button
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-[#c9d9d3] bg-white text-[#0d2b41] lg:hidden"
+            aria-label="Open navigation"
+          >
             <Menu size={20} />
           </button>
         </div>
       </header>
 
       <section className="relative overflow-hidden bg-white">
-        <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: `url(${pineBg})`, backgroundSize: "cover", backgroundPosition: "center" }} />
+        <div
+          className="absolute inset-0 opacity-[0.08]"
+          style={{
+            backgroundImage: `url(${pineBg})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-5 pb-16 pt-14 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-24 lg:pt-20">
           <div className="flex flex-col justify-center">
             <div className="mb-6 inline-flex w-fit items-center gap-2 rounded-md border border-[#bde7d5] bg-[#effbf5] px-3 py-2 text-sm font-bold text-[#007265]">
@@ -417,29 +499,40 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
               Pine Labs inspired gift card platform
             </div>
             <h1 className="max-w-3xl text-[44px] font-semibold leading-[1.04] tracking-normal text-[#08263c] sm:text-[58px] lg:text-[70px]">
-              Corporate gifting that moves at enterprise speed.
+              Corporate Gifting, Finally Simple.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#4b6476]">
-              Launch digital and physical gift card programs for employees, customers, and partners with bulk ordering, branded experiences, instant delivery, and finance-ready controls.
+              Bulk procurement, branded delivery, and full spend control, all in
+              one platform.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 onClick={onStartAuth}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-[#008d7d] px-6 py-3.5 font-bold text-white shadow-[0_18px_36px_rgba(0,141,125,0.24)] transition hover:bg-[#007265]"
+                className="inline-flex min-w-[190px] items-center justify-center gap-3 rounded-full bg-[#d0f255] px-8 py-3.5 text-[15px] font-black text-[#011919] transition hover:bg-[#c4ee39] hover:shadow-[0_18px_34px_rgba(208,242,85,0.36)]"
               >
-                Start a gifting program
-                <ArrowRight size={18} />
+                Get started
+                <ArrowRight size={22} strokeWidth={2.4} />
               </button>
-              <a href="#solutions" className="inline-flex items-center justify-center gap-2 rounded-md border border-[#b7cbc3] bg-white px-6 py-3.5 font-bold text-[#08263c] transition hover:border-[#008d7d] hover:text-[#008d7d]">
+              <a
+                href="#solutions"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-[#b7cbc3] bg-white px-6 py-3.5 font-bold text-[#08263c] transition hover:border-[#008d7d] hover:text-[#008d7d]"
+              >
                 Explore solutions
               </a>
             </div>
             <div className="mt-10 hidden max-w-2xl gap-4 lg:grid lg:grid-cols-3">
               {stats.map((item) => (
-                <div key={item.label} className="border-l-2 border-[#00a889] pl-4">
-                  <p className="text-3xl font-black text-[#08263c]">{item.value}</p>
-                  <p className="mt-1 text-sm leading-5 text-[#5e7483]">{item.label}</p>
+                <div
+                  key={item.label}
+                  className="border-l-2 border-[#00a889] pl-4"
+                >
+                  <p className="text-3xl font-black text-[#08263c]">
+                    {item.value}
+                  </p>
+                  <p className="mt-1 text-sm leading-5 text-[#5e7483]">
+                    {item.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -458,9 +551,16 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
 
           <div className="grid max-w-2xl gap-4 sm:grid-cols-3 lg:hidden">
             {stats.map((item) => (
-              <div key={item.label} className="border-l-2 border-[#00a889] pl-4">
-                <p className="text-3xl font-black text-[#08263c]">{item.value}</p>
-                <p className="mt-1 text-sm leading-5 text-[#5e7483]">{item.label}</p>
+              <div
+                key={item.label}
+                className="border-l-2 border-[#00a889] pl-4"
+              >
+                <p className="text-3xl font-black text-[#08263c]">
+                  {item.value}
+                </p>
+                <p className="mt-1 text-sm leading-5 text-[#5e7483]">
+                  {item.label}
+                </p>
               </div>
             ))}
           </div>
@@ -470,12 +570,15 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
       <section id="solutions" className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.78fr_1.22fr]">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">Solutions</p>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">
+              Solutions
+            </p>
             <h2 className="mt-3 text-4xl leading-tight text-[#08263c] sm:text-5xl">
               One platform for every gifting motion.
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#587082]">
-              Build programs that feel delightful to recipients and predictable to procurement, finance, and HR teams.
+              Build programs that feel delightful to recipients and predictable
+              to procurement, finance, and HR teams.
             </p>
           </div>
 
@@ -483,7 +586,10 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
             {solutions.map((item) => {
               const Icon = item.icon;
               return (
-                <article key={item.title} className="rounded-[8px] border border-[#d8e7e0] bg-white p-6 shadow-sm">
+                <article
+                  key={item.title}
+                  className="rounded-[8px] border border-[#d8e7e0] bg-white p-6 shadow-sm"
+                >
                   <div className="flex h-12 w-12 items-center justify-center rounded-md bg-[#e9f9f1] text-[#008d7d]">
                     <Icon size={24} />
                   </div>
@@ -499,29 +605,56 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
       <section id="products" className="bg-[#08263c] py-20 text-white">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-2 lg:px-8">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#8be3c8]">Platform</p>
-            <h2 className="mt-3 text-4xl leading-tight sm:text-5xl">Gift cards, governance, and growth in one operating layer.</h2>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#8be3c8]">
+              Platform
+            </p>
+            <h2 className="mt-3 text-4xl leading-tight sm:text-5xl">
+              Gift cards, governance, and growth in one operating layer.
+            </h2>
             <p className="mt-5 text-lg leading-8 text-[#c6d6df]">
-              Configure brands, denominations, budgets, messages, expiry rules, and redemption reporting without creating manual spreadsheets for every campaign.
+              Configure brands, denominations, budgets, messages, expiry rules,
+              and redemption reporting without creating manual spreadsheets for
+              every campaign.
             </p>
           </div>
 
           <div className="grid gap-4">
             {[
-              [LayoutDashboard, "Campaign command center", "Track programs, budgets, recipients, and redemptions in a live dashboard."],
-              [CreditCard, "Digital and physical fulfilment", "Issue instant e-gift cards or branded physical cards for high-touch campaigns."],
-              [Globe2, "Multi-brand catalogue", "Offer curated categories across retail, food, travel, wellness, and entertainment."],
-              [BadgeCheck, "Enterprise compliance", "Role-based approvals, KYC-ready onboarding, invoice trails, and secure delivery."],
+              [
+                LayoutDashboard,
+                "Campaign command center",
+                "Track programs, budgets, recipients, and redemptions in a live dashboard.",
+              ],
+              [
+                CreditCard,
+                "Digital and physical fulfilment",
+                "Issue instant e-gift cards or branded physical cards for high-touch campaigns.",
+              ],
+              [
+                Globe2,
+                "Multi-brand catalogue",
+                "Offer curated categories across retail, food, travel, wellness, and entertainment.",
+              ],
+              [
+                BadgeCheck,
+                "Enterprise compliance",
+                "Role-based approvals, KYC-ready onboarding, invoice trails, and secure delivery.",
+              ],
             ].map(([Icon, title, copy]) => {
               const FeatureIcon = Icon as typeof LayoutDashboard;
               return (
-                <div key={title as string} className="flex gap-4 rounded-[8px] border border-white/12 bg-white/[0.04] p-5">
+                <div
+                  key={title as string}
+                  className="flex gap-4 rounded-[8px] border border-white/12 bg-white/[0.04] p-5"
+                >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#00a889] text-white">
                     <FeatureIcon size={21} />
                   </div>
                   <div>
                     <h3 className="text-xl">{title as string}</h3>
-                    <p className="mt-1 leading-7 text-[#c6d6df]">{copy as string}</p>
+                    <p className="mt-1 leading-7 text-[#c6d6df]">
+                      {copy as string}
+                    </p>
                   </div>
                 </div>
               );
@@ -533,14 +666,19 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
       <section className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1fr_0.95fr]">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">How it works</p>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">
+              How it works
+            </p>
             <h2 className="mt-3 max-w-2xl text-4xl leading-tight text-[#08263c] sm:text-5xl">
               From campaign brief to recipient delight in four steps.
             </h2>
           </div>
           <div className="grid gap-4">
             {workflow.map((item, index) => (
-              <div key={item} className="flex items-center gap-4 rounded-[8px] border border-[#d8e7e0] bg-white p-5">
+              <div
+                key={item}
+                className="flex items-center gap-4 rounded-[8px] border border-[#d8e7e0] bg-white p-5"
+              >
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#08263c] text-sm font-black text-white">
                   {index + 1}
                 </span>
@@ -551,16 +689,26 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
         </div>
       </section>
 
-      <section id="resources" className="border-y border-[#d8e7e0] bg-white py-16">
+      <section
+        id="resources"
+        className="border-y border-[#d8e7e0] bg-white py-16"
+      >
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-center">
             <div>
-              <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">Catalogue</p>
-              <h2 className="mt-3 text-4xl leading-tight text-[#08263c]">Give recipients real choice.</h2>
+              <p className="text-sm font-black uppercase tracking-[0.18em] text-[#008d7d]">
+                Catalogue
+              </p>
+              <h2 className="mt-3 text-4xl leading-tight text-[#08263c]">
+                Give recipients real choice.
+              </h2>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:min-w-[520px]">
               {brands.map((brand) => (
-                <div key={brand} className="flex items-center gap-2 rounded-[8px] border border-[#d8e7e0] bg-[#fbfdfc] px-4 py-3 font-bold text-[#173850]">
+                <div
+                  key={brand}
+                  className="flex items-center gap-2 rounded-[8px] border border-[#d8e7e0] bg-[#fbfdfc] px-4 py-3 font-bold text-[#173850]"
+                >
                   <CheckCircle2 size={18} className="text-[#008d7d]" />
                   {brand}
                 </div>
@@ -573,13 +721,22 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
       <section id="demo" className="mx-auto max-w-7xl px-5 py-20 lg:px-8">
         <div className="grid gap-8 rounded-[8px] bg-[#eaf8f1] p-8 lg:grid-cols-[1fr_auto] lg:items-center lg:p-12">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#007265]">Ready for launch</p>
-            <h2 className="mt-3 text-4xl leading-tight text-[#08263c]">Design your next corporate gifting program.</h2>
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#007265]">
+              Ready for launch
+            </p>
+            <h2 className="mt-3 text-4xl leading-tight text-[#08263c]">
+              Design your next corporate gifting program.
+            </h2>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-[#4d6677]">
-              Set up bulk digital gift cards, employee rewards, partner incentives, or customer campaigns with a platform made for enterprise teams.
+              Set up bulk digital gift cards, employee rewards, partner
+              incentives, or customer campaigns with a platform made for
+              enterprise teams.
             </p>
           </div>
-          <a href="#contact" className="inline-flex items-center justify-center gap-2 rounded-md bg-[#08263c] px-6 py-3.5 font-bold text-white transition hover:bg-[#123c58]">
+          <a
+            href="#contact"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-[#08263c] px-6 py-3.5 font-bold text-white transition hover:bg-[#123c58]"
+          >
             Talk to sales
             <ArrowRight size={18} />
           </a>
@@ -589,8 +746,16 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
       <footer id="contact" className="bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 border-t border-[#d8e7e0] px-5 py-8 text-sm text-[#607686] lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <img src={pineLogo} alt="Pine Labs" className="h-8 w-fit" />
-          <p>Corporate gift cards, rewards, loyalty, and prepaid solutions for modern enterprises.</p>
-          <a href="mailto:sales@example.com" className="font-bold text-[#008d7d]">sales@example.com</a>
+          <p>
+            Corporate gift cards, rewards, loyalty, and prepaid solutions for
+            modern enterprises.
+          </p>
+          <a
+            href="mailto:sales@example.com"
+            className="font-bold text-[#008d7d]"
+          >
+            sales@example.com
+          </a>
         </div>
       </footer>
     </main>

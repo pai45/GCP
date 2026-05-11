@@ -1,11 +1,12 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import Lottie from "lottie-react";
 import { useNavigate } from "react-router";
 import pineLabsLogoImg from "../../../imports/Pine_Labs_White.png";
-import vectorLogo from "../../../imports/Vector.svg";
+import logoAnimation from "../../../imports/logo-animation.json";
 import ColorBends from "./ColorBends";
 
-const authBgColors = ["#4A6512", "#64841A", "#84A928", "#A8CA3B", "#D0F255"];
+const authBgColors = ["#012C2C", "#33470d", "#4f6a16", "#789126", "#a9c93a"];
 
 export function AuthShell({
   children,
@@ -39,24 +40,26 @@ export function AuthShell({
             "linear-gradient(140deg, #011919 8%, #022929 48%, #033f3f 100%)",
         }}
       />
-      <div className="absolute inset-0 opacity-80">
-        <ColorBends
-          colors={authBgColors}
-          rotation={111}
-          autoRotate={3}
-          speed={0.22}
-          scale={0.95}
-          frequency={1.15}
-          warpStrength={1.1}
-          mouseInfluence={0.8}
-          noise={0.08}
-          parallax={0.35}
-          iterations={3}
-          intensity={1.35}
-          bandWidth={7}
-          transparent
-        />
-      </div>
+      {!showIntro && (
+        <div className="absolute inset-0 opacity-80">
+          <ColorBends
+            colors={authBgColors}
+            rotation={111}
+            autoRotate={3}
+            speed={0.22}
+            scale={0.95}
+            frequency={1.15}
+            warpStrength={1.1}
+            mouseInfluence={0.8}
+            noise={0.08}
+            parallax={0.35}
+            iterations={3}
+            intensity={1.35}
+            bandWidth={7}
+            transparent
+          />
+        </div>
+      )}
       <div
         className="absolute inset-0"
         style={{
@@ -207,17 +210,15 @@ export function AuthShell({
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
             <motion.div
-              className="relative flex h-36 w-36 items-center justify-center rounded-[30px] bg-white/[0.08] backdrop-blur-md"
+              className="relative flex h-36 w-36 items-center justify-center"
               initial={{ opacity: 0, scale: 0.86 }}
               animate={{
                 opacity: 1,
-                scale: [0.86, 1.08, 0.96, 1.04, 1],
-                rotate: [0, 90, 180, 270, 360],
+                scale: [0.86, 1.04, 1],
               }}
               transition={{
                 opacity: { duration: 0.18 },
-                scale: { duration: 1.5, ease: [0.45, 0, 0.2, 1] },
-                rotate: { duration: 1.5, ease: [0.45, 0, 0.2, 1] },
+                scale: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
               }}
             >
               <motion.div
@@ -234,16 +235,13 @@ export function AuthShell({
                 }}
                 transition={{ duration: 1.5, ease: [0.45, 0, 0.2, 1] }}
               />
-              <motion.img
-                src={vectorLogo}
-                alt="Pine Labs transition mark"
-                className="relative h-24 w-24 brightness-0 invert"
-                draggable={false}
-                animate={{
-                  scale: [0.92, 1.06, 0.96, 1.04, 1],
-                  opacity: [0.82, 1, 0.88, 1, 0.96],
-                }}
-                transition={{ duration: 1.5, ease: [0.45, 0, 0.2, 1] }}
+              <Lottie
+                animationData={logoAnimation}
+                loop
+                autoplay
+                className="relative h-28 w-28"
+                aria-label="Pine Labs loading animation"
+                rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
               />
             </motion.div>
           </motion.div>

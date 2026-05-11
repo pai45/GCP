@@ -138,42 +138,42 @@
   }
 
   h1 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-2xl);
     font-weight: 600;
     line-height: 1.5;
   }
 
   h2 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-xl);
     font-weight: 600;
     line-height: 1.5;
   }
 
   h3 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-lg);
     font-weight: 600;
     line-height: 1.5;
   }
 
   h4 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-base);
     font-weight: 600;
     line-height: 1.5;
   }
 
   h5 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-sm);
     font-weight: 600;
     line-height: 1.5;
   }
 
   h6 {
-    font-family: var(--font-display, "PP Telegraf", "Inter", "Lato", system-ui, sans-serif);
+    font-family: var(--font-display, "PP Telegraf", "PP Telegraph", "Inter", "Lato", system-ui, sans-serif);
     font-size: var(--text-xs);
     font-weight: 600;
     line-height: 1.5;
