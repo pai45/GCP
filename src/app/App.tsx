@@ -43,7 +43,7 @@ import {
 } from "./components/onboarding/Screens";
 import pineLogo from "../../pinelabs logo.png";
 import pineBg from "../../bg pinlabs.png";
-import heroImage from "../imports/image 171.png";
+import landingImage from "../imports/landing image.png";
 import logoAnimation from "../imports/logo-animation.json";
 
 const stats = [
@@ -185,9 +185,9 @@ const initialOnboardingState = {
   aadhaarOTP: "",
   aadhaarNumber: "",
   esignVerified: false,
-  panNumber: "",
-  panName: "",
-  panVerified: false,
+  panNumber: "AABCP1234F",
+  panName: "PINE LABS LIMITED",
+  panVerified: true,
 };
 
 export default function App() {
@@ -320,13 +320,18 @@ function OnboardingFlow() {
   const location = useLocation();
   const [state, setState] = useState(initialOnboardingState);
   const [transitionContext, setTransitionContext] = useState<
-    "documents" | "signing" | null
+    "documents" | "basicDetails" | "signing" | null
   >(null);
   const screen = SCREEN_BY_PATH[location.pathname] ?? 1;
 
   const go = (nextScreen: number) => {
     if (screen === 1 && nextScreen === 2) {
       setTransitionContext("documents");
+      return;
+    }
+
+    if (screen === 2 && nextScreen === 3) {
+      setTransitionContext("basicDetails");
       return;
     }
 
@@ -348,6 +353,12 @@ function OnboardingFlow() {
     if (transitionContext === "signing") {
       setTransitionContext(null);
       navigate(ONBOARDING_PATHS[12]);
+      return;
+    }
+
+    if (transitionContext === "basicDetails") {
+      setTransitionContext(null);
+      navigate(ONBOARDING_PATHS[3]);
     }
   }, [navigate, transitionContext]);
 
@@ -360,26 +371,35 @@ function OnboardingFlow() {
   };
 
   if (transitionContext) {
+    const isBasicDetails = transitionContext === "basicDetails";
+    const isSigning = transitionContext === "signing";
+
     return (
       <AnalyzingTransition
         onComplete={handleTransitionComplete}
+        successOnly={isBasicDetails}
+        successIcon={isBasicDetails ? "profile" : "check"}
         stepOneText={
-          transitionContext === "signing"
+          isSigning
             ? "Applying your Aadhaar eSign to all documents..."
             : undefined
         }
         stepTwoText={
-          transitionContext === "signing"
-            ? "Finalizing signed terms and conditions..."
-            : undefined
+          isSigning ? "Finalizing signed terms and conditions..." : undefined
         }
         successTitle={
-          transitionContext === "signing" ? "Signed successfully..." : undefined
+          isBasicDetails
+            ? `Welcome, ${state.fullName || "there"}`
+            : isSigning
+              ? "Signed successfully..."
+              : undefined
         }
         successText={
-          transitionContext === "signing"
-            ? "Your terms and conditions have been digitally signed."
-            : undefined
+          isBasicDetails
+            ? "Your account details are saved. Let's continue your onboarding."
+            : isSigning
+              ? "Your terms and conditions have been digitally signed."
+              : undefined
         }
       />
     );
@@ -430,6 +450,7 @@ function OnboardingFlow() {
       showSidebar={showSidebar}
       onSaveExit={() => navigate("/")}
       onStepClick={handleStepClick}
+      autosaveKey={`${screen}:${JSON.stringify(state)}`}
     >
       {content}
     </PageShell>
@@ -539,15 +560,28 @@ function LandingPage({ onStartAuth }: { onStartAuth: () => void }) {
             </div>
           </div>
 
-          <div className="relative min-h-[420px] lg:min-h-[520px]">
-            <div className="relative ml-auto flex h-full max-w-[620px] items-center justify-center">
+          <div className="relative flex min-h-[320px] items-center lg:min-h-[520px]">
+            <motion.div
+              className="relative mx-auto flex h-[280px] w-full max-w-[560px] items-center justify-center overflow-hidden bg-white sm:h-[360px] lg:ml-auto lg:h-[520px] lg:max-w-[640px]"
+              style={{
+                borderRadius: 12,
+                clipPath: "inset(0 round 12px)",
+              }}
+              initial={{ opacity: 0, scale: 1.12, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
+            >
               <img
-                src={heroImage}
+                src={landingImage}
                 alt="Corporate gift card platform preview"
-                className="relative z-10 w-full max-w-[620px] rounded-[8px] object-contain"
+                className="block h-full w-full object-cover"
+                style={{
+                  borderRadius: 16,
+                  clipPath: "inset(0 round 12px)",
+                }}
                 draggable={false}
               />
-            </div>
+            </motion.div>
           </div>
 
           <div className="grid max-w-2xl gap-4 sm:grid-cols-3 lg:hidden">

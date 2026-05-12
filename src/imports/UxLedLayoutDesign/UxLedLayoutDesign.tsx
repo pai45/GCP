@@ -962,7 +962,7 @@ function Content() {
       className="content-stretch flex flex-[1_0_0] items-center min-w-px relative"
       data-name="Content"
     >
-      <p className="flex-[1_0_0] font-['Lato:Regular',sans-serif] leading-[24px] min-w-px not-italic overflow-hidden relative text-[#a4a7ae] text-[16px] text-ellipsis tracking-[-0.16px] whitespace-pre">{`50 Lakhs  - 1 Crore`}</p>
+      <p className="flex-[1_0_0] font-['Lato:Regular',sans-serif] leading-[24px] min-w-px not-italic overflow-hidden relative text-[#a4a7ae] text-[16px] text-ellipsis tracking-[-0.16px] whitespace-pre">{`50 Lacs  - 1 Crore`}</p>
     </div>
   );
 }

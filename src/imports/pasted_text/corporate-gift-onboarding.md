@@ -96,9 +96,9 @@ Fields:
 
 Dropdown values:
 
-- Under ₹10 Lakhs
-- ₹10 Lakhs - ₹50 Lakhs
-- ₹50 Lakhs - ₹1 Crore
+- Under ₹10 Lacs
+- ₹10 Lacs - ₹50 Lacs
+- ₹50 Lacs - ₹1 Crore
 - ₹1 Crore+
 
 Add helper text under annual spend:

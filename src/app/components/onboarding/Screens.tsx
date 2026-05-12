@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate as animateMV } from "motion/react";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+  animate as animateMV,
+} from "motion/react";
 import Lottie from "lottie-react";
 import { TopNav } from "./Layout";
 import successTickRaw from "./successTick.json";
@@ -10,13 +16,25 @@ import uploadMinimalisticIcon from "../../../imports/Upload Minimalistic.svg";
 import pineLabsLogoImg from "../../../../pinelabs logo.png";
 import signatureImg from "../../../imports/Screenshot 2026-04-17 at 12.33.38 PM 1.png";
 
-function AnimatedPercent({ value, duration = 1.1, delay = 0.4 }: { value: number; duration?: number; delay?: number }) {
+function AnimatedPercent({
+  value,
+  duration = 1.1,
+  delay = 0.4,
+}: {
+  value: number;
+  duration?: number;
+  delay?: number;
+}) {
   const mv = useMotionValue(0);
   const rounded = useTransform(mv, (v) => Math.round(v));
   const [display, setDisplay] = useState(0);
   useEffect(() => {
     const unsub = rounded.on("change", (v) => setDisplay(v));
-    const controls = animateMV(mv, value, { duration, delay, ease: [0.34, 1.56, 0.64, 1] });
+    const controls = animateMV(mv, value, {
+      duration,
+      delay,
+      ease: [0.34, 1.56, 0.64, 1],
+    });
     return () => {
       controls.stop();
       unsub();
@@ -72,6 +90,12 @@ const HEADER_GRADIENT =
 
 const SUCCESS_TICK_GREEN = [0, 130 / 255, 54 / 255, 1];
 const SUCCESS_TICK_TEAL = [0, 86 / 255, 86 / 255, 0.16];
+const SPEND_OPTIONS = [
+  "5 Lacs - 10 Lacs",
+  "10 Lacs - 50 Lacs",
+  "50 Lacs - 1 Crore",
+  "Above 1 Crore",
+];
 
 function getRethemedSuccessTick() {
   const cloned = JSON.parse(JSON.stringify(successTickRaw));
@@ -112,11 +136,21 @@ function getRethemedSuccessTick() {
 
 type Ripple = { id: number; x: number; y: number; size: number };
 
-function PrimaryButton({ children, disabled, onClick, className = "", icon = true }: any) {
+function PrimaryButton({
+  children,
+  disabled,
+  onClick,
+  className = "",
+  icon = true,
+}: any) {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [shineKey, setShineKey] = useState(0);
 
-  const spawnRipple = (e: React.MouseEvent<HTMLButtonElement> | React.PointerEvent<HTMLButtonElement>) => {
+  const spawnRipple = (
+    e:
+      | React.MouseEvent<HTMLButtonElement>
+      | React.PointerEvent<HTMLButtonElement>,
+  ) => {
     if (disabled) return;
     const target = e.currentTarget as HTMLButtonElement;
     const rect = target.getBoundingClientRect();
@@ -132,7 +166,9 @@ function PrimaryButton({ children, disabled, onClick, className = "", icon = tru
   return (
     <motion.button
       onClick={onClick}
-      onPointerDown={(e) => { if (!disabled) spawnRipple(e); }}
+      onPointerDown={(e) => {
+        if (!disabled) spawnRipple(e);
+      }}
       disabled={disabled}
       initial={false}
       whileHover={
@@ -239,7 +275,12 @@ function SecondaryButton({ children, onClick, className = "" }: any) {
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 400, damping: 22 }}
       className={`min-w-[100px] sm:min-w-[120px] px-3 sm:px-4 py-2 sm:py-2.5 rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm ${className}`}
-      style={{ background: "#fff", color: "#252b37", fontWeight: 600, border: `1px solid ${BORDER_INPUT}` }}
+      style={{
+        background: "#fff",
+        color: "#252b37",
+        fontWeight: 600,
+        border: `1px solid ${BORDER_INPUT}`,
+      }}
     >
       {children}
     </motion.button>
@@ -260,10 +301,29 @@ function GhostLink({ children, onClick }: any) {
 
 function FieldLabel({ children, optional, required }: any) {
   return (
-    <label className="block mb-2" style={{ color: TEXT_2, fontWeight: 600, fontSize: 14, lineHeight: "20px" }}>
+    <label
+      className="block mb-2"
+      style={{
+        color: TEXT_2,
+        fontWeight: 600,
+        fontSize: 14,
+        lineHeight: "20px",
+      }}
+    >
       {children}
-      {required && <span className="ml-1" style={{ color: REQUIRED }}>*</span>}
-      {optional && <span className="ml-1.5 text-sm" style={{ color: MUTED, fontWeight: 400 }}>(optional)</span>}
+      {required && (
+        <span className="ml-1" style={{ color: REQUIRED }}>
+          *
+        </span>
+      )}
+      {optional && (
+        <span
+          className="ml-1.5 text-sm"
+          style={{ color: MUTED, fontWeight: 400 }}
+        >
+          (optional)
+        </span>
+      )}
     </label>
   );
 }
@@ -293,10 +353,15 @@ function TextInput({ valid, ...props }: any) {
             exit={{ opacity: 0, scale: 0.6 }}
             transition={{ type: "spring", stiffness: 500, damping: 22 }}
             className="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 px-2.5 py-1 rounded-[10px]"
-            style={{ background: SUCCESS_BG, border: `1px solid ${SUCCESS_BORDER}` }}
+            style={{
+              background: SUCCESS_BG,
+              border: `1px solid ${SUCCESS_BORDER}`,
+            }}
           >
             <CheckCircle2 className="size-3.5" style={{ color: SUCCESS }} />
-            <span style={{ color: SUCCESS, fontWeight: 700, fontSize: 11 }}>Verified</span>
+            <span style={{ color: SUCCESS, fontWeight: 700, fontSize: 11 }}>
+              Verified
+            </span>
           </motion.span>
         )}
       </AnimatePresence>
@@ -311,11 +376,18 @@ function Select({ value, onChange, options, placeholder }: any) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full appearance-none pl-4 pr-10 py-2.5 rounded-[8px] outline-none bg-white"
-        style={{ border: `1px solid ${BORDER_INPUT}`, color: value ? TEXT : MUTED_2, fontSize: 14, lineHeight: "21px" }}
+        style={{
+          border: `1px solid ${BORDER_INPUT}`,
+          color: value ? TEXT : MUTED_2,
+          fontSize: 14,
+          lineHeight: "21px",
+        }}
       >
         <option value="">{placeholder}</option>
         {options.map((opt: string) => (
-          <option key={opt} value={opt}>{opt}</option>
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
         ))}
       </select>
       <ChevronDown
@@ -326,13 +398,66 @@ function Select({ value, onChange, options, placeholder }: any) {
   );
 }
 
+function SpendChipGroup({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-3 sm:gap-4">
+      {SPEND_OPTIONS.map((option) => {
+        const selected = value === option;
+
+        return (
+          <motion.button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className="rounded-[8px] px-4 py-2 text-sm sm:text-[15px] transition"
+            style={{
+              background: selected ? "#f0fdf4" : "#fff",
+              border: `1px solid ${selected ? SUCCESS_BORDER : BORDER_INPUT}`,
+              color: selected ? PRIMARY : TEXT,
+              fontWeight: selected ? 700 : 500,
+              boxShadow: selected ? "0 0 0 3px rgba(0,130,54,0.06)" : "none",
+            }}
+            whileHover={{
+              y: -1,
+              borderColor: selected ? SUCCESS_BORDER : PRIMARY,
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {option}
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
 function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-6 sm:mb-8 max-w-3xl mx-auto">
-      <h1 className="text-2xl sm:text-[30px] leading-8 sm:leading-[38px]" style={{ color: TEXT, fontFamily: "var(--font-display)", fontWeight: 600 }}>
+      <h1
+        className="text-2xl sm:text-[30px] leading-8 sm:leading-[38px]"
+        style={{
+          color: TEXT,
+          fontFamily: "var(--font-display)",
+          fontWeight: 600,
+        }}
+      >
         {title}
       </h1>
-      {subtitle && <p className="mt-1 sm:mt-1.5 text-sm sm:text-sm" style={{ color: MUTED, lineHeight: "21px" }}>{subtitle}</p>}
+      {subtitle && (
+        <p
+          className="mt-1 sm:mt-1.5 text-sm sm:text-sm"
+          style={{ color: MUTED, lineHeight: "21px" }}
+        >
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }
@@ -344,7 +469,8 @@ function Card({ children, className = "", style: extraStyle = {} }: any) {
       style={{
         background: "rgba(255,255,255,0.85)",
         border: "1px solid rgba(229,231,235,0.6)",
-        boxShadow: "0px 10px 15px 0px rgba(16,24,40,0.05), 0px 4px 6px 0px rgba(16,24,40,0.05)",
+        boxShadow:
+          "0px 10px 15px 0px rgba(16,24,40,0.05), 0px 4px 6px 0px rgba(16,24,40,0.05)",
         backdropFilter: "blur(8px)",
         ...extraStyle,
       }}
@@ -413,7 +539,7 @@ function SectionHeading({ children }: any) {
 }
 
 function FormCard({
-  eyebrow = "Usually takes 1 minute",
+  eyebrow,
   title,
   subtitle,
   progress,
@@ -444,26 +570,32 @@ function FormCard({
       >
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-6">
           <div className="flex-1 min-w-0">
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="inline-flex items-center justify-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase text-[9px] sm:text-[10px]"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.9)",
-                fontWeight: 700,
-                letterSpacing: "0.11em",
-              }}
-            >
-              {eyebrow}
-            </motion.div>
+            {eyebrow && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="inline-flex items-center justify-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full uppercase text-[9px] sm:text-[10px]"
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.9)",
+                  fontWeight: 700,
+                  letterSpacing: "0.11em",
+                }}
+              >
+                {eyebrow}
+              </motion.div>
+            )}
             <motion.h1
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.4 }}
-              className="mt-2 sm:mt-3 text-xl sm:text-[30px] leading-7 sm:leading-[38px]"
-              style={{ color: "#fff", fontFamily: "var(--font-display)", fontWeight: 600 }}
+              className={`${eyebrow ? "mt-2 sm:mt-3" : ""} text-xl sm:text-[30px] leading-7 sm:leading-[38px]`}
+              style={{
+                color: "#fff",
+                fontFamily: "var(--font-display)",
+                fontWeight: 600,
+              }}
             >
               {title}
             </motion.h1>
@@ -512,12 +644,18 @@ function FormCard({
                 >
                   <AnimatedPercent value={progress} delay={0.4} duration={1} />%
                 </motion.div>
-                <div className="text-[10px] uppercase tracking-wider mt-0.5" style={{ color: "rgba(255,255,255,0.6)", fontWeight: 600 }}>
+                <div
+                  className="text-[10px] uppercase tracking-wider mt-0.5"
+                  style={{ color: "rgba(255,255,255,0.6)", fontWeight: 600 }}
+                >
                   Complete
                 </div>
               </div>
               <div className="relative w-40 h-2 rounded-full overflow-visible">
-                <div className="absolute inset-0 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.2)" }}>
+                <div
+                  className="absolute inset-0 rounded-full overflow-hidden"
+                  style={{ background: "rgba(255,255,255,0.2)" }}
+                >
                   <motion.div
                     className="h-full rounded-full relative overflow-hidden"
                     style={{
@@ -537,16 +675,25 @@ function FormCard({
                       delay: 0.4,
                       duration: 1,
                       ease: [0.34, 1.56, 0.64, 1],
-                      boxShadow: { delay: 1.1, duration: 0.6, times: [0, 0.4, 1] },
+                      boxShadow: {
+                        delay: 1.1,
+                        duration: 0.6,
+                        times: [0, 0.4, 1],
+                      },
                     }}
                   >
                     <motion.div
                       className="absolute inset-0"
                       style={{
-                        background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+                        background:
+                          "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
                       }}
                       animate={{ x: ["-100%", "200%"] }}
-                      transition={{ delay: 0.6, duration: 1.5, ease: "easeInOut" }}
+                      transition={{
+                        delay: 0.6,
+                        duration: 1.5,
+                        ease: "easeInOut",
+                      }}
                     />
                   </motion.div>
                 </div>
@@ -565,9 +712,21 @@ function FormCard({
                     scale: [0.4, 1, 1.3, 0.6],
                   }}
                   transition={{
-                    left: { delay: 0.4, duration: 1, ease: [0.34, 1.56, 0.64, 1] },
-                    opacity: { delay: 0.4, duration: 1.4, times: [0, 0.1, 0.85, 1] },
-                    scale: { delay: 0.4, duration: 1.4, times: [0, 0.3, 0.85, 1] },
+                    left: {
+                      delay: 0.4,
+                      duration: 1,
+                      ease: [0.34, 1.56, 0.64, 1],
+                    },
+                    opacity: {
+                      delay: 0.4,
+                      duration: 1.4,
+                      times: [0, 0.1, 0.85, 1],
+                    },
+                    scale: {
+                      delay: 0.4,
+                      duration: 1.4,
+                      times: [0, 0.3, 0.85, 1],
+                    },
                   }}
                 />
                 {/* Persistent lime ball at leading edge */}
@@ -593,9 +752,17 @@ function FormCard({
                     ],
                   }}
                   transition={{
-                    left: { delay: 0.4, duration: 1, ease: [0.34, 1.56, 0.64, 1] },
+                    left: {
+                      delay: 0.4,
+                      duration: 1,
+                      ease: [0.34, 1.56, 0.64, 1],
+                    },
                     opacity: { delay: 0.5, duration: 0.4 },
-                    scale: { delay: 0.5, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] },
+                    scale: {
+                      delay: 0.5,
+                      duration: 0.5,
+                      ease: [0.34, 1.56, 0.64, 1],
+                    },
                     boxShadow: {
                       delay: 1.4,
                       duration: 2,
@@ -644,7 +811,11 @@ function FormCard({
               initial={{ width: 0 }}
               animate={{
                 width: `${progress}%`,
-                boxShadow: [`0 0 0px ${LIME}00`, `0 0 16px ${LIME}cc`, `0 0 10px ${LIME}80`],
+                boxShadow: [
+                  `0 0 0px ${LIME}00`,
+                  `0 0 16px ${LIME}cc`,
+                  `0 0 10px ${LIME}80`,
+                ],
               }}
               transition={{
                 delay: 0.4,
@@ -656,7 +827,8 @@ function FormCard({
               <motion.div
                 className="absolute inset-0"
                 style={{
-                  background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
                 }}
                 animate={{
                   x: ["-100%", "200%"],
@@ -684,7 +856,11 @@ function FormCard({
               }}
               transition={{
                 left: { delay: 0.4, duration: 1, ease: [0.34, 1.56, 0.64, 1] },
-                opacity: { delay: 0.4, duration: 1.4, times: [0, 0.1, 0.85, 1] },
+                opacity: {
+                  delay: 0.4,
+                  duration: 1.4,
+                  times: [0, 0.1, 0.85, 1],
+                },
                 scale: { delay: 0.4, duration: 1.4, times: [0, 0.3, 0.85, 1] },
               }}
             />
@@ -697,7 +873,9 @@ function FormCard({
         animate="visible"
         variants={{
           hidden: {},
-          visible: { transition: { staggerChildren: 0.07, delayChildren: 0.2 } },
+          visible: {
+            transition: { staggerChildren: 0.07, delayChildren: 0.2 },
+          },
         }}
       >
         {children}
@@ -717,19 +895,29 @@ function ActionBar({ left, children }: any) {
         backdropFilter: "blur(8px)",
       }}
     >
-      <div className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 md:px-8 xl:px-[80px]" style={{ maxWidth: 1440 }}>
+      <div
+        className="w-full flex items-center justify-between gap-3 px-4 sm:px-6 md:px-8 xl:px-[80px]"
+        style={{ maxWidth: 1440 }}
+      >
         <div className="min-w-0 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2 min-w-0">
             <Lock className="size-3.5 shrink-0" style={{ color: PRIMARY }} />
             <p
               className="min-w-0 text-[11px]"
-              style={{ color: "#717680", fontWeight: 400, lineHeight: "16.5px", letterSpacing: "0.06px" }}
+              style={{
+                color: "#717680",
+                fontWeight: 400,
+                lineHeight: "16.5px",
+                letterSpacing: "0.06px",
+              }}
             >
               All information is encrypted
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">{children}</div>
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -740,38 +928,97 @@ export function ScreenWelcome({ go }: { go: Nav }) {
   return (
     <div className="max-w-3xl mx-auto py-6 sm:py-12 px-4 sm:px-8">
       <Card className="p-6 sm:p-10 text-center">
-        <div className="inline-flex items-center justify-center size-12 sm:size-14 rounded-full mb-4 sm:mb-6" style={{ background: BG_SOFT }}>
+        <div
+          className="inline-flex items-center justify-center size-12 sm:size-14 rounded-full mb-4 sm:mb-6"
+          style={{ background: BG_SOFT }}
+        >
           <Sparkles className="size-6 sm:size-7" style={{ color: PRIMARY }} />
         </div>
-        <h1 className="text-xl sm:text-[32px] leading-7 sm:leading-10" style={{ color: TEXT, fontWeight: 600 }}>Get started with corporate gift cards</h1>
-        <p className="mt-2 sm:mt-3 text-sm sm:text-base max-w-xl mx-auto" style={{ color: MUTED }}>
-          Verify your company once and start procuring gift cards for employees, partners, and customers.
+        <h1
+          className="text-xl sm:text-[32px] leading-7 sm:leading-10"
+          style={{ color: TEXT, fontWeight: 600 }}
+        >
+          Get started with corporate gift cards
+        </h1>
+        <p
+          className="mt-2 sm:mt-3 text-sm sm:text-base max-w-xl mx-auto"
+          style={{ color: MUTED }}
+        >
+          Verify your company once and start procuring gift cards for employees,
+          partners, and customers.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-6 sm:mt-10 text-left">
           {[
-            { icon: Zap, title: "Autofill company details", desc: "Enter GSTIN, CIN, or PAN and we'll fetch available details." },
-            { icon: CheckCircle2, title: "Faster verification", desc: "Review pre-filled details instead of filling long forms manually." },
-            { icon: ShieldCheck, title: "Secure onboarding", desc: "Your information is used only for business verification and compliance." },
+            {
+              icon: Zap,
+              title: "Autofill company details",
+              desc: "Enter GSTIN, CIN, or PAN and we'll fetch available details.",
+            },
+            {
+              icon: CheckCircle2,
+              title: "Faster verification",
+              desc: "Review pre-filled details instead of filling long forms manually.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Secure onboarding",
+              desc: "Your information is used only for business verification and compliance.",
+            },
           ].map((b) => (
-            <div key={b.title} className="p-4 sm:p-5 rounded-xl border" style={{ borderColor: BORDER, background: "#fff" }}>
-              <div className="size-8 sm:size-9 rounded-lg flex items-center justify-center mb-2 sm:mb-3" style={{ background: BG_SOFT }}>
-                <b.icon className="size-4 sm:size-5" style={{ color: PRIMARY }} />
+            <div
+              key={b.title}
+              className="p-4 sm:p-5 rounded-xl border"
+              style={{ borderColor: BORDER, background: "#fff" }}
+            >
+              <div
+                className="size-8 sm:size-9 rounded-lg flex items-center justify-center mb-2 sm:mb-3"
+                style={{ background: BG_SOFT }}
+              >
+                <b.icon
+                  className="size-4 sm:size-5"
+                  style={{ color: PRIMARY }}
+                />
               </div>
-              <div className="text-xs sm:text-sm mb-1" style={{ color: TEXT, fontWeight: 600 }}>{b.title}</div>
-              <div className="text-xs leading-relaxed" style={{ color: MUTED }}>{b.desc}</div>
+              <div
+                className="text-xs sm:text-sm mb-1"
+                style={{ color: TEXT, fontWeight: 600 }}
+              >
+                {b.title}
+              </div>
+              <div className="text-xs leading-relaxed" style={{ color: MUTED }}>
+                {b.desc}
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl text-left" style={{ background: BG_SOFT }}>
-          <div className="text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: TEXT, fontWeight: 600 }}>
+        <div
+          className="mt-6 sm:mt-8 p-4 sm:p-5 rounded-xl text-left"
+          style={{ background: BG_SOFT }}
+        >
+          <div
+            className="text-xs sm:text-sm mb-2 sm:mb-3"
+            style={{ color: TEXT, fontWeight: 600 }}
+          >
             Documents you may need (only if verification asks for them)
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
-            {["GST certificate", "Company PAN", "Address proof", "Authorisation letter"].map((d) => (
-              <div key={d} className="flex items-center gap-2 text-xs sm:text-sm" style={{ color: TEXT }}>
-                <FileText className="size-3.5 sm:size-4" style={{ color: PRIMARY }} />
+            {[
+              "GST certificate",
+              "Company PAN",
+              "Address proof",
+              "Authorisation letter",
+            ].map((d) => (
+              <div
+                key={d}
+                className="flex items-center gap-2 text-xs sm:text-sm"
+                style={{ color: TEXT }}
+              >
+                <FileText
+                  className="size-3.5 sm:size-4"
+                  style={{ color: PRIMARY }}
+                />
                 {d}
               </div>
             ))}
@@ -779,7 +1026,9 @@ export function ScreenWelcome({ go }: { go: Nav }) {
         </div>
 
         <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
-          <PrimaryButton onClick={() => go(2)}>Start onboarding <ArrowRight className="size-4 inline ml-1" /></PrimaryButton>
+          <PrimaryButton onClick={() => go(2)}>
+            Start onboarding <ArrowRight className="size-4 inline ml-1" />
+          </PrimaryButton>
           <SecondaryButton>Continue saved application</SecondaryButton>
         </div>
       </Card>
@@ -796,7 +1045,9 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
     setState({
       ...state,
       fullName: [f, l].filter(Boolean).join(" "),
-      sigName: state.sameAsOwner ? [f, l].filter(Boolean).join(" ") : state.sigName,
+      sigName: state.sameAsOwner
+        ? [f, l].filter(Boolean).join(" ")
+        : state.sigName,
     });
 
   const emailValid = state.email.includes("@") && state.email.includes(".");
@@ -804,10 +1055,14 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
 
   return (
     <div className="pb-2 px-2 sm:px-0">
-      <FormCard title="Basic Details" subtitle="Please provide your information to get started" progress={25}>
+      <FormCard
+        title="Basic Details"
+        subtitle="Please provide your information to get started"
+        progress={25}
+      >
         <div className="space-y-6 sm:space-y-7">
           <section>
-            <SectionHeading>Personal information</SectionHeading>
+            <SectionHeading>Required information</SectionHeading>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -817,8 +1072,16 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                 <FieldLabel required>First Name</FieldLabel>
                 <motion.div
                   className="px-4 py-2.5 rounded-[8px] flex items-center justify-between relative overflow-hidden"
-                  style={{ border: `1px solid ${BORDER_INPUT}`, background: "#fff", color: TEXT, fontSize: 14 }}
-                  initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
+                  style={{
+                    border: `1px solid ${BORDER_INPUT}`,
+                    background: "#fff",
+                    color: TEXT,
+                    fontSize: 14,
+                  }}
+                  initial={{
+                    background: SUCCESS_BG,
+                    borderColor: SUCCESS_BORDER,
+                  }}
                   animate={{ background: "#fff", borderColor: BORDER_INPUT }}
                   transition={{ delay: 0.08 * 0 + 0.6, duration: 0.9 }}
                 >
@@ -844,11 +1107,16 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                     aria-hidden
                     className="absolute inset-y-0 w-1/3 pointer-events-none"
                     style={{
-                      background: "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.35) 50%, transparent 100%)",
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.35) 50%, transparent 100%)",
                     }}
                     initial={{ x: "-120%" }}
                     animate={{ x: "260%" }}
-                    transition={{ delay: 0.08 * 0 + 0.1, duration: 0.9, ease: "easeOut" }}
+                    transition={{
+                      delay: 0.08 * 0 + 0.1,
+                      duration: 0.9,
+                      ease: "easeOut",
+                    }}
                   />
                 </motion.div>
                 <motion.p
@@ -869,8 +1137,16 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                 <FieldLabel required>Last Name</FieldLabel>
                 <motion.div
                   className="px-4 py-2.5 rounded-[8px] flex items-center justify-between relative overflow-hidden"
-                  style={{ border: `1px solid ${BORDER_INPUT}`, background: "#fff", color: TEXT, fontSize: 14 }}
-                  initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
+                  style={{
+                    border: `1px solid ${BORDER_INPUT}`,
+                    background: "#fff",
+                    color: TEXT,
+                    fontSize: 14,
+                  }}
+                  initial={{
+                    background: SUCCESS_BG,
+                    borderColor: SUCCESS_BORDER,
+                  }}
                   animate={{ background: "#fff", borderColor: BORDER_INPUT }}
                   transition={{ delay: 0.08 * 1 + 0.6, duration: 0.9 }}
                 >
@@ -896,11 +1172,16 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                     aria-hidden
                     className="absolute inset-y-0 w-1/3 pointer-events-none"
                     style={{
-                      background: "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.35) 50%, transparent 100%)",
+                      background:
+                        "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.35) 50%, transparent 100%)",
                     }}
                     initial={{ x: "-120%" }}
                     animate={{ x: "260%" }}
-                    transition={{ delay: 0.08 * 1 + 0.1, duration: 0.9, ease: "easeOut" }}
+                    transition={{
+                      delay: 0.08 * 1 + 0.1,
+                      duration: 0.9,
+                      ease: "easeOut",
+                    }}
                   />
                 </motion.div>
                 <motion.p
@@ -934,7 +1215,9 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
                     setState({
                       ...state,
                       mobile: e.target.value,
-                      sigMobile: state.sameAsOwner ? e.target.value : state.sigMobile,
+                      sigMobile: state.sameAsOwner
+                        ? e.target.value
+                        : state.sigMobile,
                     })
                   }
                 />
@@ -942,16 +1225,12 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
             </div>
           </section>
 
-          
-
           <section>
-            <SectionHeading>Business information</SectionHeading>
+            {/* <SectionHeading>Business information</SectionHeading> */}
             <FieldLabel>Expected Annual Gift Card Spend</FieldLabel>
-            <Select
+            <SpendChipGroup
               value={state.spend}
               onChange={(v: string) => setState({ ...state, spend: v })}
-              placeholder="50 Lakhs - 1 Crore"
-              options={["Under 10 Lakhs", "10 Lakhs - 50 Lakhs", "50 Lakhs - 1 Crore", "1 Crore+"]}
             />
             <p className="text-xs mt-1.5" style={{ color: MUTED }}>
               Optional. This helps us recommend the right setup later.
@@ -973,10 +1252,30 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
 type DocKey = "gst" | "cin" | "address";
 type UploadedDoc = { name: string; ext: string; size: string } | null;
 
-const DOC_DEFS: { key: DocKey; title: string; hint: string; sample: UploadedDoc }[] = [
-  { key: "gst", title: "GST certificate", hint: "PDF or image, up to 5 MB", sample: { name: "GST Certificate.pdf", ext: "PDF", size: "248 KB" } },
-  { key: "cin", title: "CIN certificate", hint: "PDF or image, up to 5 MB", sample: { name: "CIN Certificate.pdf", ext: "PDF", size: "1.2 MB" } },
-  { key: "address", title: "Address proof (optional)", hint: "Only needed if GST certificate is not available", sample: { name: "Electricity Bill.pdf", ext: "PDF", size: "512 KB" } },
+const DOC_DEFS: {
+  key: DocKey;
+  title: string;
+  hint: string;
+  sample: UploadedDoc;
+}[] = [
+  {
+    key: "gst",
+    title: "GST certificate",
+    hint: "PDF or image, up to 5 MB",
+    sample: { name: "GST Certificate.pdf", ext: "PDF", size: "248 KB" },
+  },
+  {
+    key: "cin",
+    title: "CIN certificate",
+    hint: "PDF or image, up to 5 MB",
+    sample: { name: "CIN Certificate.pdf", ext: "PDF", size: "1.2 MB" },
+  },
+  {
+    key: "address",
+    title: "Address proof (optional)",
+    hint: "Only needed if GST certificate is not available",
+    sample: { name: "Electricity Bill.pdf", ext: "PDF", size: "512 KB" },
+  },
 ];
 
 const DOC_ICONS: Record<DocKey, string> = {
@@ -1008,9 +1307,8 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
     <div className="pb-2 px-2 sm:px-0">
       <div className="w-full">
         <FormCard
-          eyebrow="Usually takes 1 minute"
           title="Document upload"
-          subtitle="Upload company documents so we can autofill your setup"
+          subtitle="Upload company documents so we can autofill your setup."
           progress={10}
         >
           <div className="space-y-6">
@@ -1023,15 +1321,23 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
                   return (
                     <motion.div
                       key={key}
-                      onClick={() => !file && setDocs({ ...docs, [key]: sample })}
+                      onClick={() =>
+                        !file && setDocs({ ...docs, [key]: sample })
+                      }
                       className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
                       style={{
                         border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
                         background: file ? SUCCESS_BG : "#fff",
-                        boxShadow: file ? "0 0 0 3px rgba(0,130,54,0.05)" : "none",
+                        boxShadow: file
+                          ? "0 0 0 3px rgba(0,130,54,0.05)"
+                          : "none",
                         cursor: file ? "default" : "pointer",
                       }}
-                      whileHover={!file ? { scale: 1.01, borderColor: PRIMARY } : { borderColor: SUCCESS }}
+                      whileHover={
+                        !file
+                          ? { scale: 1.01, borderColor: PRIMARY }
+                          : { borderColor: SUCCESS }
+                      }
                       whileTap={!file ? { scale: 0.99 } : {}}
                     >
                       <div
@@ -1039,17 +1345,37 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
                         style={{ background: file ? "#fff" : BG_SOFT }}
                       >
                         {file ? (
-                          <CheckCircle2 className="size-5" style={{ color: SUCCESS }} />
+                          <CheckCircle2
+                            className="size-5"
+                            style={{ color: SUCCESS }}
+                          />
                         ) : (
-                          <img src={iconSrc} alt="" className="size-6" draggable={false} />
+                          <img
+                            src={iconSrc}
+                            alt=""
+                            className="size-6"
+                            draggable={false}
+                          />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm truncate" style={{ color: TEXT, fontWeight: 600, lineHeight: "20px" }}>
+                        <div
+                          className="text-sm truncate"
+                          style={{
+                            color: TEXT,
+                            fontWeight: 600,
+                            lineHeight: "20px",
+                          }}
+                        >
                           {file ? file.name : title}
                         </div>
-                        <div className="text-xs mt-0.5" style={{ color: MUTED, lineHeight: "16px" }}>
-                          {file ? `${file.ext} · ${file.size} · Uploaded` : hint}
+                        <div
+                          className="text-xs mt-0.5"
+                          style={{ color: MUTED, lineHeight: "16px" }}
+                        >
+                          {file
+                            ? `${file.ext} · ${file.size} · Uploaded`
+                            : hint}
                         </div>
                       </div>
                       <button
@@ -1059,23 +1385,43 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
                           setDocs({ ...docs, [key]: file ? null : sample });
                         }}
                         className="shrink-0 inline-flex items-center gap-2"
-                        style={{ color: PRIMARY, fontWeight: 600, fontSize: 14, lineHeight: "20px" }}
+                        style={{
+                          color: PRIMARY,
+                          fontWeight: 600,
+                          fontSize: 14,
+                          lineHeight: "20px",
+                        }}
                       >
-                        {file ? <RefreshCw className="size-5" /> : <img src={uploadMinimalisticIcon} alt="" className="size-6" draggable={false} />}
+                        {file ? (
+                          <RefreshCw className="size-5" />
+                        ) : (
+                          <img
+                            src={uploadMinimalisticIcon}
+                            alt=""
+                            className="size-6"
+                            draggable={false}
+                          />
+                        )}
                         {file ? "Replace" : "Upload"}
                       </button>
                     </motion.div>
                   );
                 })}
               </div>
-              <p className="text-xs mt-4" style={{ color: MUTED, lineHeight: "16px" }}>
-                We'll use these only for verification. Nothing is shared. Address proof is optional if you have GST certificate.
+              <p
+                className="text-xs mt-4"
+                style={{ color: MUTED, lineHeight: "16px" }}
+              >
+                We'll use these only for verification. Nothing is shared.
+                Address proof is optional if you have GST certificate.
               </p>
             </section>
           </div>
         </FormCard>
 
-        <ActionBar left={<GhostLink onClick={() => go(2)}>Skip for now</GhostLink>}>
+        <ActionBar
+          left={<GhostLink onClick={() => go(2)}>Skip for now</GhostLink>}
+        >
           {parsing ? (
             <motion.div
               className="min-w-[120px] px-6 py-3 rounded-[12px] text-sm inline-flex items-center justify-center gap-2"
@@ -1100,7 +1446,9 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
 export function ScreenCompanyIdentifier({ go, state, setState }: any) {
   const [loading, setLoading] = useState(false);
   const [showAlt, setShowAlt] = useState(false);
-  const tabs = showAlt ? ["GSTIN", "CIN / LLPIN", "PAN"] : ["GSTIN", "CIN / LLPIN", "PAN"];
+  const tabs = showAlt
+    ? ["GSTIN", "CIN / LLPIN", "PAN"]
+    : ["GSTIN", "CIN / LLPIN", "PAN"];
   const helper = showAlt
     ? "Use CIN, LLPIN, or PAN to continue. Additional documents may be requested later."
     : "GSTIN helps us fetch your legal name, PAN, registered address, and state.";
@@ -1115,16 +1463,24 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
 
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-12 px-4 sm:px-8">
-      <PageHeader title="Verify your company" subtitle="Enter one company identifier. We'll autofill everything we can." />
+      <PageHeader
+        title="Verify your company"
+        subtitle="Enter one company identifier. We'll autofill everything we can."
+      />
       <Card className="p-5 sm:p-8">
         <div className="flex items-center justify-between mb-2">
           <h3 style={{ fontWeight: 600, color: TEXT }}>Choose how to verify</h3>
-          <span className="text-xs flex items-center gap-1" style={{ color: MUTED }}>
-            <Info className="size-3.5" /> Pick one — you only need a single identifier
+          <span
+            className="text-xs flex items-center gap-1"
+            style={{ color: MUTED }}
+          >
+            <Info className="size-3.5" /> Pick one — you only need a single
+            identifier
           </span>
         </div>
         <p className="text-xs mb-5" style={{ color: MUTED }}>
-          We'll fetch your legal name, PAN, registered address, and state automatically.
+          We'll fetch your legal name, PAN, registered address, and state
+          automatically.
         </p>
 
         {(() => {
@@ -1137,7 +1493,8 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
               autofills: "Legal name, PAN, registered address, state",
               placeholder: "29AABCP1234F1Z5",
               format: "15 characters · letters + digits",
-              regex: /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}Z[0-9A-Z]{1}$/i,
+              regex:
+                /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[0-9A-Z]{1}Z[0-9A-Z]{1}$/i,
               len: 15,
             },
             {
@@ -1164,8 +1521,11 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
             },
           ];
 
-          const selected = options.find((o) => o.id === state.idType) || options[0];
-          const trimmed = (state.idValue || "").replace(/\s/g, "").toUpperCase();
+          const selected =
+            options.find((o) => o.id === state.idType) || options[0];
+          const trimmed = (state.idValue || "")
+            .replace(/\s/g, "")
+            .toUpperCase();
           const formatValid = selected.regex.test(trimmed);
           const tooShort = trimmed.length > 0 && trimmed.length < selected.len;
 
@@ -1178,12 +1538,16 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
                   return (
                     <div
                       key={opt.id}
-                      onClick={() => setState({ ...state, idType: opt.id, idValue: "" })}
+                      onClick={() =>
+                        setState({ ...state, idType: opt.id, idValue: "" })
+                      }
                       className="rounded-xl border transition cursor-pointer"
                       style={{
                         borderColor: isSelected ? PRIMARY : BORDER,
                         background: isSelected ? BG_SOFT : "#fff",
-                        boxShadow: isSelected ? "0 0 0 3px rgba(0,107,94,0.08)" : "none",
+                        boxShadow: isSelected
+                          ? "0 0 0 3px rgba(0,107,94,0.08)"
+                          : "none",
                       }}
                     >
                       <div className="flex items-center gap-4 p-4">
@@ -1194,21 +1558,43 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
                             background: isSelected ? PRIMARY : "#fff",
                           }}
                         >
-                          {isSelected && <div className="size-2 rounded-full bg-white" />}
+                          {isSelected && (
+                            <div className="size-2 rounded-full bg-white" />
+                          )}
                         </div>
-                        <div className="size-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: isSelected ? "#fff" : "#F9FAFB" }}>
+                        <div
+                          className="size-10 rounded-lg flex items-center justify-center shrink-0"
+                          style={{
+                            background: isSelected ? "#fff" : "#F9FAFB",
+                          }}
+                        >
                           <Icon className="size-5" style={{ color: PRIMARY }} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>{opt.title}</span>
+                            <span
+                              className="text-sm"
+                              style={{ color: TEXT, fontWeight: 600 }}
+                            >
+                              {opt.title}
+                            </span>
                             {opt.id === "GSTIN" && (
-                              <span className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}>
+                              <span
+                                className="text-[11px] px-2 py-0.5 rounded-full"
+                                style={{
+                                  background: PRIMARY,
+                                  color: "#fff",
+                                  fontWeight: 600,
+                                }}
+                              >
                                 Recommended
                               </span>
                             )}
                           </div>
-                          <div className="text-xs mt-0.5" style={{ color: MUTED }}>
+                          <div
+                            className="text-xs mt-0.5"
+                            style={{ color: MUTED }}
+                          >
                             Autofills: {opt.autofills}
                           </div>
                         </div>
@@ -1223,7 +1609,10 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
                               placeholder={opt.placeholder}
                               maxLength={opt.len + 4}
                               onChange={(e) =>
-                                setState({ ...state, idValue: e.target.value.toUpperCase() })
+                                setState({
+                                  ...state,
+                                  idValue: e.target.value.toUpperCase(),
+                                })
                               }
                               className="w-full h-11 px-3.5 pr-24 rounded-lg outline-none text-sm tracking-wider"
                               style={{
@@ -1236,23 +1625,35 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
                               {formatValid ? (
-                                <span className="text-xs flex items-center gap-1" style={{ color: SUCCESS, fontWeight: 600 }}>
+                                <span
+                                  className="text-xs flex items-center gap-1"
+                                  style={{ color: SUCCESS, fontWeight: 600 }}
+                                >
                                   <CheckCircle2 className="size-4" /> Valid
                                 </span>
                               ) : (
-                                <span className="text-xs" style={{ color: MUTED }}>
+                                <span
+                                  className="text-xs"
+                                  style={{ color: MUTED }}
+                                >
                                   {trimmed.length}/{opt.len}
                                 </span>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center justify-between mt-2">
-                            <p className="text-xs" style={{ color: tooShort ? "#B42318" : MUTED }}>
+                            <p
+                              className="text-xs"
+                              style={{ color: tooShort ? "#B42318" : MUTED }}
+                            >
                               {tooShort
                                 ? `Looks incomplete — ${opt.title} is ${opt.len} characters.`
                                 : `Format: ${opt.format}`}
                             </p>
-                            <button className="text-xs hover:underline" style={{ color: PRIMARY, fontWeight: 600 }}>
+                            <button
+                              className="text-xs hover:underline"
+                              style={{ color: PRIMARY, fontWeight: 600 }}
+                            >
                               Where do I find this?
                             </button>
                           </div>
@@ -1263,25 +1664,42 @@ export function ScreenCompanyIdentifier({ go, state, setState }: any) {
                 })}
               </div>
 
-              <div className="mt-6 p-4 rounded-lg flex items-start gap-3" style={{ background: BG_SOFT }}>
-                <Info className="size-4 shrink-0 mt-0.5" style={{ color: PRIMARY }} />
+              <div
+                className="mt-6 p-4 rounded-lg flex items-start gap-3"
+                style={{ background: BG_SOFT }}
+              >
+                <Info
+                  className="size-4 shrink-0 mt-0.5"
+                  style={{ color: PRIMARY }}
+                />
                 <p className="text-xs" style={{ color: TEXT }}>
-                  Only one identifier is needed to start. If anything else is required, we'll ask after a quick check — no documents upfront.
+                  Only one identifier is needed to start. If anything else is
+                  required, we'll ask after a quick check — no documents
+                  upfront.
                 </p>
               </div>
 
-              <div className="mt-8 pt-6 border-t flex items-center justify-between" style={{ borderColor: BORDER }}>
+              <div
+                className="mt-8 pt-6 border-t flex items-center justify-between"
+                style={{ borderColor: BORDER }}
+              >
                 <span className="text-xs" style={{ color: MUTED }}>
                   Takes about 10 seconds · No documents needed
                 </span>
-                <PrimaryButton disabled={!formatValid || loading} onClick={handleVerify}>
+                <PrimaryButton
+                  disabled={!formatValid || loading}
+                  onClick={handleVerify}
+                >
                   {loading ? (
                     <span className="inline-flex items-center gap-2">
                       <Loader2 className="size-4 animate-spin" />
                       Fetching company details...
                     </span>
                   ) : (
-                    <>Verify & autofill <ChevronRight className="size-4 inline" /></>
+                    <>
+                      Verify & autofill{" "}
+                      <ChevronRight className="size-4 inline" />
+                    </>
                   )}
                 </PrimaryButton>
               </div>
@@ -1326,7 +1744,10 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
                 <SectionHeading>Business identity</SectionHeading>
               </div>
               <div className="flex items-center gap-3">
-                <div className="text-sm" style={{ color: TEXT_2, fontWeight: 600 }}>
+                <div
+                  className="text-sm"
+                  style={{ color: TEXT_2, fontWeight: 600 }}
+                >
                   GST present
                 </div>
                 <motion.button
@@ -1356,14 +1777,32 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
                   exit={{ opacity: 0, height: 0, y: -8 }}
                   transition={{ duration: 0.28, ease: "easeOut" }}
                 >
-                  <h3 className="text-base sm:text-lg mb-4" style={{ color: TEXT, fontWeight: 700 }}>
+                  <h3
+                    className="text-base sm:text-lg mb-4"
+                    style={{ color: TEXT, fontWeight: 700 }}
+                  >
                     GST details
                   </h3>
                   <div className="space-y-4">
-                    <PrefilledWithCheck index={0} label="GSTIN Number" value="27AAAAA0000A1Z5" source="Fetched from documents" />
+                    <PrefilledWithCheck
+                      index={0}
+                      label="GSTIN Number"
+                      value="27AAAAA0000A1Z5"
+                      source="Fetched from documents"
+                    />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                      <Prefilled index={1} label="GSTIN Name" value="PINE LABS LIMITED" source="Fetched from documents" />
-                      <Prefilled index={2} label="GSTIN State" value="KARNATAKA" source="Fetched from documents" />
+                      <Prefilled
+                        index={1}
+                        label="GSTIN Name"
+                        value="PINE LABS LIMITED"
+                        source="Fetched from documents"
+                      />
+                      <Prefilled
+                        index={2}
+                        label="GSTIN State"
+                        value="KARNATAKA"
+                        source="Fetched from documents"
+                      />
                     </div>
                   </div>
                 </motion.div>
@@ -1372,7 +1811,10 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
 
             {/* PAN Details Section */}
             <div className="mb-6 sm:mb-7">
-              <h3 className="text-base sm:text-lg mb-4" style={{ color: TEXT, fontWeight: 700 }}>
+              <h3
+                className="text-base sm:text-lg mb-4"
+                style={{ color: TEXT, fontWeight: 700 }}
+              >
                 PAN details
               </h3>
               <PANInputWithVerify
@@ -1380,30 +1822,50 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
                 label="PAN Number"
                 value={state.panNumber}
                 legalName={state.panName}
-                onChange={(e: any) => setState({ ...state, panNumber: e.target.value.toUpperCase() })}
+                onChange={(e: any) =>
+                  setState({
+                    ...state,
+                    panNumber: e.target.value.toUpperCase(),
+                  })
+                }
                 verified={state.panVerified}
                 onVerify={() => {
                   setState({
-	                    ...state,
-	                    panVerified: true,
-	                    panName: "John Doe"
-	                  });
+                    ...state,
+                    panVerified: true,
+                    panName: "PINE LABS LIMITED",
+                  });
                 }}
+                source="Fetched from documents"
                 required
               />
               <p className="text-xs sm:text-sm mt-2" style={{ color: MUTED }}>
-                PAN details will be matched against the type of entity/organisation.
+                PAN details will be matched against the type of
+                entity/organisation.
               </p>
             </div>
 
             {/* CIN/LLP Details Section */}
             <div className="mb-6 sm:mb-7">
-              <h3 className="text-base sm:text-lg mb-4" style={{ color: TEXT, fontWeight: 700 }}>
+              <h3
+                className="text-base sm:text-lg mb-4"
+                style={{ color: TEXT, fontWeight: 700 }}
+              >
                 CIN details
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <PrefilledWithCheck index={4} label="CIN/LLP No" value="U31900DL1991PLC043974" source="Fetched from documents" />
-                <Prefilled index={5} label="CIN/LLP Name" value="PINE LABS LIMITED" source="Fetched from documents" />
+                <PrefilledWithCheck
+                  index={4}
+                  label="CIN/LLP No"
+                  value="U31900DL1991PLC043974"
+                  source="Fetched from documents"
+                />
+                <Prefilled
+                  index={5}
+                  label="CIN/LLP Name"
+                  value="PINE LABS LIMITED"
+                  source="Fetched from documents"
+                />
               </div>
             </div>
 
@@ -1416,22 +1878,22 @@ export function ScreenBusinessIdentity({ go, state, setState }: any) {
                   Provide only if available
                 </p>
               </div>
-              <div>
+              {/* <div>
                 <FieldLabel>Expected Annual Gift Card Spend</FieldLabel>
-                <Select
-                  value={state?.spend || "50Lac-1cr"}
+                <SpendChipGroup
+                  value={state?.spend}
                   onChange={(v: string) => setState({ ...state, spend: v })}
-                  placeholder="50Lac-1cr"
-                  options={["Below 50Lac", "50Lac-1cr", "1cr-5cr", "5cr-10cr", "Above 10cr"]}
                 />
-              </div>
+              </div> */}
             </div>
           </section>
         </div>
       </FormCard>
 
       <ActionBar>
-        <PrimaryButton disabled={!state.panVerified} onClick={() => go(4)}>Save & continue</PrimaryButton>
+        <PrimaryButton disabled={!state.panVerified} onClick={() => go(4)}>
+          Save & continue
+        </PrimaryButton>
       </ActionBar>
 
       <GstUnavailableConfirm
@@ -1486,11 +1948,16 @@ function GstUnavailableConfirm({ open, onCancel, onConfirm }: any) {
             >
               <Info className="size-5" />
             </div>
-            <h3 id="gst-confirm-title" className="pr-8 text-lg leading-7" style={{ color: TEXT, fontWeight: 700 }}>
+            <h3
+              id="gst-confirm-title"
+              className="pr-8 text-lg leading-7"
+              style={{ color: TEXT, fontWeight: 700 }}
+            >
               Continue without GST details?
             </h3>
             <p className="mt-2 text-sm leading-6" style={{ color: MUTED }}>
-              If selected yes, the GSTIN state must match your billing/registered address.
+              If selected yes, the GSTIN state must match your
+              billing/registered address.
             </p>
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -1498,7 +1965,11 @@ function GstUnavailableConfirm({ open, onCancel, onConfirm }: any) {
                 type="button"
                 onClick={onCancel}
                 className="rounded-[10px] px-4 py-2.5 text-sm transition hover:bg-gray-50"
-                style={{ border: `1px solid ${BORDER_INPUT}`, color: TEXT_2, fontWeight: 600 }}
+                style={{
+                  border: `1px solid ${BORDER_INPUT}`,
+                  color: TEXT_2,
+                  fontWeight: 600,
+                }}
               >
                 Keep GST on
               </button>
@@ -1531,7 +2002,12 @@ export function ScreenCompanyAddress({ go, state, setState }: any) {
           <section>
             <SectionHeading>Registered address</SectionHeading>
             <div className="space-y-4">
-              <Prefilled index={0} label="Address line 1" value="4th Floor, Tower B, Building 9, DLF Cyber City" source="Fetched from GSTIN" />
+              <Prefilled
+                index={0}
+                label="Address line 1"
+                value="4th Floor, Tower B, Building 9, DLF Cyber City"
+                source="Fetched from GSTIN"
+              />
               <div>
                 <FieldLabel optional>Address line 2</FieldLabel>
                 <TextInput placeholder="Apartment, suite, etc." />
@@ -1546,14 +2022,22 @@ export function ScreenCompanyAddress({ go, state, setState }: any) {
 
           <section>
             <SectionHeading>Billing address</SectionHeading>
-            <label className="flex items-center gap-2.5 cursor-pointer p-3 rounded-lg" style={{ background: BG_SOFT }}>
+            <label
+              className="flex items-center gap-2.5 cursor-pointer p-3 rounded-lg"
+              style={{ background: BG_SOFT }}
+            >
               <input
                 type="checkbox"
                 checked={state.billingSame}
-                onChange={(e) => setState({ ...state, billingSame: e.target.checked })}
+                onChange={(e) =>
+                  setState({ ...state, billingSame: e.target.checked })
+                }
                 className="size-4 accent-[#005656]"
               />
-              <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>
+              <span
+                className="text-sm"
+                style={{ color: TEXT, fontWeight: 600 }}
+              >
                 Billing address is same as registered address
               </span>
             </label>
@@ -1602,7 +2086,17 @@ export function ScreenCompanyAddress({ go, state, setState }: any) {
   );
 }
 
-function PANInputWithVerify({ label, value, legalName, onVerify, verified, onChange, required, index = 0 }: any) {
+function PANInputWithVerify({
+  label,
+  value,
+  legalName,
+  onVerify,
+  verified,
+  onChange,
+  required,
+  index = 0,
+  source,
+}: any) {
   const [isVerifying, setIsVerifying] = useState(false);
   const canVerify = Boolean(value && value.length >= 10);
 
@@ -1623,29 +2117,141 @@ function PANInputWithVerify({ label, value, legalName, onVerify, verified, onCha
     >
       {verified ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: 0.08 * index,
+              duration: 0.35,
+              ease: "easeOut",
+            }}
+          >
             <FieldLabel required={required}>{label}</FieldLabel>
-            <div
-              className="flex w-full items-center gap-2 rounded-[8px] px-4 py-2.5"
-              style={{ background: "#FAFAFA", border: `1px solid ${BORDER_INPUT}` }}
+            <motion.div
+              className="relative flex w-full items-center gap-2 overflow-hidden rounded-[8px] px-4 py-2.5"
+              style={{ border: `1px solid ${BORDER_INPUT}` }}
+              initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
+              animate={{ background: "#fff", borderColor: BORDER_INPUT }}
+              transition={{ delay: 0.08 * index + 0.55, duration: 0.9 }}
             >
-              <div className="min-w-0 flex-1" style={{ color: TEXT, fontSize: 16, fontWeight: 400, lineHeight: "24px" }}>
+              <div
+                className="min-w-0 flex-1"
+                style={{
+                  color: TEXT,
+                  fontSize: 16,
+                  fontWeight: 400,
+                  lineHeight: "24px",
+                }}
+              >
                 {value}
               </div>
-              <CheckCircle2 className="size-5 shrink-0" style={{ color: SUCCESS }} />
-            </div>
-          </div>
-          <div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: [0.5, 1.18, 1] }}
+                transition={{ delay: 0.08 * index + 0.15, duration: 0.45 }}
+              >
+                <CheckCircle2
+                  className="size-5 shrink-0"
+                  style={{ color: SUCCESS }}
+                />
+              </motion.div>
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 w-1/3"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.45) 50%, transparent 100%)",
+                }}
+                initial={{ x: "-120%" }}
+                animate={{ x: "260%" }}
+                transition={{
+                  delay: 0.08 * index + 0.1,
+                  duration: 2.4,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+            {source && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08 * index + 0.4 }}
+                className="text-xs mt-1.5 flex items-center gap-1"
+                style={{ color: SUCCESS }}
+              >
+                <CheckCircle2 className="size-3" /> {source}
+              </motion.p>
+            )}
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              delay: 0.08 * (index + 1),
+              duration: 0.35,
+              ease: "easeOut",
+            }}
+          >
             <FieldLabel>Legal name</FieldLabel>
-            <div
-              className="flex w-full items-center rounded-[8px] px-4 py-2.5"
-              style={{ background: "#FAFAFA", border: `1px solid ${BORDER_INPUT}` }}
+            <motion.div
+              className="relative flex w-full items-center gap-2 overflow-hidden rounded-[8px] px-4 py-2.5"
+              style={{ border: `1px solid ${BORDER_INPUT}` }}
+              initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
+              animate={{ background: "#fff", borderColor: BORDER_INPUT }}
+              transition={{ delay: 0.08 * (index + 1) + 0.55, duration: 0.9 }}
             >
-              <div className="min-w-0 flex-1" style={{ color: TEXT_2, fontSize: 14, fontWeight: 400, lineHeight: "21px" }}>
-                {legalName || "John Doe"}
+              <div
+                className="min-w-0 flex-1"
+                style={{
+                  color: TEXT_2,
+                  fontSize: 14,
+                  fontWeight: 400,
+                  lineHeight: "21px",
+                }}
+              >
+                {legalName || "PINE LABS LIMITED"}
               </div>
-            </div>
-          </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: [0.5, 1.18, 1] }}
+                transition={{
+                  delay: 0.08 * (index + 1) + 0.15,
+                  duration: 0.45,
+                }}
+              >
+                <CheckCircle2
+                  className="size-5 shrink-0"
+                  style={{ color: SUCCESS }}
+                />
+              </motion.div>
+              <motion.span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 w-1/3"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent 0%, rgba(208,242,85,0.45) 50%, transparent 100%)",
+                }}
+                initial={{ x: "-120%" }}
+                animate={{ x: "260%" }}
+                transition={{
+                  delay: 0.08 * (index + 1) + 0.1,
+                  duration: 2.4,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+            {source && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.08 * (index + 1) + 0.4 }}
+                className="text-xs mt-1.5 flex items-center gap-1"
+                style={{ color: SUCCESS }}
+              >
+                <CheckCircle2 className="size-3" /> {source}
+              </motion.p>
+            )}
+          </motion.div>
         </div>
       ) : (
         <>
@@ -1707,7 +2313,13 @@ function Prefilled({ label, value, source, index = 0, editable = false }: any) {
       <FieldLabel>{label}</FieldLabel>
       <motion.div
         className="px-4 py-2.5 rounded-[8px] flex items-center justify-between relative overflow-hidden"
-        style={{ border: `1px solid ${BORDER_INPUT}`, background: "#fff", color: TEXT_2, fontSize: 14, minHeight: 44 }}
+        style={{
+          border: `1px solid ${BORDER_INPUT}`,
+          background: "#fff",
+          color: TEXT_2,
+          fontSize: 14,
+          minHeight: 44,
+        }}
         initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
         animate={{ background: "#fff", borderColor: BORDER_INPUT }}
         transition={{ delay: 0.08 * index + 0.6, duration: 0.9 }}
@@ -1759,7 +2371,13 @@ function Prefilled({ label, value, source, index = 0, editable = false }: any) {
   );
 }
 
-function PrefilledWithCheck({ label, value, index = 0, required, source }: any) {
+function PrefilledWithCheck({
+  label,
+  value,
+  index = 0,
+  required,
+  source,
+}: any) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -1769,7 +2387,13 @@ function PrefilledWithCheck({ label, value, index = 0, required, source }: any) 
       <FieldLabel required={required}>{label}</FieldLabel>
       <motion.div
         className="px-4 py-2.5 pr-10 rounded-[8px] flex items-center gap-2 relative overflow-hidden"
-        style={{ border: `1px solid ${BORDER_INPUT}`, background: "#fff", color: TEXT_2, fontSize: 14, minHeight: 44 }}
+        style={{
+          border: `1px solid ${BORDER_INPUT}`,
+          background: "#fff",
+          color: TEXT_2,
+          fontSize: 14,
+          minHeight: 44,
+        }}
         initial={{ background: SUCCESS_BG, borderColor: SUCCESS_BORDER }}
         animate={{ background: "#fff", borderColor: BORDER_INPUT }}
         transition={{ delay: 0.08 * index + 0.6, duration: 0.9 }}
@@ -1788,7 +2412,10 @@ function PrefilledWithCheck({ label, value, index = 0, required, source }: any) 
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.08 * index + 0.5, duration: 0.3 }}
         >
-          <CheckCircle2 className="size-5 shrink-0" style={{ color: "#00a86b" }} />
+          <CheckCircle2
+            className="size-5 shrink-0"
+            style={{ color: "#00a86b" }}
+          />
         </motion.div>
         <motion.span
           aria-hidden
@@ -1823,8 +2450,13 @@ function PrefilledWithCheck({ label, value, index = 0, required, source }: any) 
 
 // ============== SCREEN 5 ==============
 export function ScreenSignatory({ go, state, setState }: any) {
-  const needsLetter = ["Procurement Manager", "Admin Manager", "Other"].includes(state.designation);
-  const valid = state.sigName && state.sigEmail && state.designation && state.sigConfirm;
+  const needsLetter = [
+    "Procurement Manager",
+    "Admin Manager",
+    "Other",
+  ].includes(state.designation);
+  const valid =
+    state.sigName && state.sigEmail && state.designation && state.sigConfirm;
 
   return (
     <div className="pb-2 px-2 sm:px-0">
@@ -1835,7 +2467,10 @@ export function ScreenSignatory({ go, state, setState }: any) {
       >
         <div className="space-y-6 sm:space-y-7">
           <section>
-            <label className="flex items-center gap-2.5 cursor-pointer mb-5 sm:mb-6 p-3 rounded-lg" style={{ background: BG_SOFT }}>
+            <label
+              className="flex items-center gap-2.5 cursor-pointer mb-5 sm:mb-6 p-3 rounded-lg"
+              style={{ background: BG_SOFT }}
+            >
               <input
                 type="checkbox"
                 checked={state.sameAsOwner}
@@ -1851,7 +2486,12 @@ export function ScreenSignatory({ go, state, setState }: any) {
                 }}
                 className="size-4 accent-[#005656]"
               />
-              <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>Same as basic details</span>
+              <span
+                className="text-sm"
+                style={{ color: TEXT, fontWeight: 600 }}
+              >
+                Same as basic details
+              </span>
             </label>
 
             <div className="space-y-4 sm:space-y-5">
@@ -1860,7 +2500,9 @@ export function ScreenSignatory({ go, state, setState }: any) {
                 <TextInput
                   value={state.sigName}
                   placeholder="Enter full name"
-                  onChange={(e: any) => setState({ ...state, sigName: e.target.value })}
+                  onChange={(e: any) =>
+                    setState({ ...state, sigName: e.target.value })
+                  }
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1869,7 +2511,9 @@ export function ScreenSignatory({ go, state, setState }: any) {
                   <TextInput
                     value={state.sigEmail}
                     placeholder="you@company.com"
-                    onChange={(e: any) => setState({ ...state, sigEmail: e.target.value })}
+                    onChange={(e: any) =>
+                      setState({ ...state, sigEmail: e.target.value })
+                    }
                   />
                 </div>
                 <div>
@@ -1877,7 +2521,9 @@ export function ScreenSignatory({ go, state, setState }: any) {
                   <TextInput
                     value={state.sigMobile}
                     placeholder="+91 9876543210"
-                    onChange={(e: any) => setState({ ...state, sigMobile: e.target.value })}
+                    onChange={(e: any) =>
+                      setState({ ...state, sigMobile: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -1885,7 +2531,9 @@ export function ScreenSignatory({ go, state, setState }: any) {
                 <FieldLabel required>Designation</FieldLabel>
                 <Select
                   value={state.designation}
-                  onChange={(v: string) => setState({ ...state, designation: v })}
+                  onChange={(v: string) =>
+                    setState({ ...state, designation: v })
+                  }
                   placeholder="Select designation"
                   options={[
                     "Founder / Director",
@@ -1909,13 +2557,20 @@ export function ScreenSignatory({ go, state, setState }: any) {
                     style={{ borderColor: "#F79009", background: "#FFFAEB" }}
                   >
                     <div className="flex items-start gap-3">
-                      <Upload className="size-5 mt-0.5" style={{ color: "#F79009" }} />
+                      <Upload
+                        className="size-5 mt-0.5"
+                        style={{ color: "#F79009" }}
+                      />
                       <div className="flex-1">
-                        <div className="text-sm mb-1" style={{ color: TEXT, fontWeight: 600 }}>
+                        <div
+                          className="text-sm mb-1"
+                          style={{ color: TEXT, fontWeight: 600 }}
+                        >
                           Upload authorisation letter
                         </div>
                         <p className="text-xs mb-3" style={{ color: MUTED }}>
-                          Required if the signatory is not a director, partner, or business owner.
+                          Required if the signatory is not a director, partner,
+                          or business owner.
                         </p>
                         <SecondaryButton>Choose file</SecondaryButton>
                       </div>
@@ -1928,11 +2583,14 @@ export function ScreenSignatory({ go, state, setState }: any) {
                 <input
                   type="checkbox"
                   checked={state.sigConfirm}
-                  onChange={(e) => setState({ ...state, sigConfirm: e.target.checked })}
+                  onChange={(e) =>
+                    setState({ ...state, sigConfirm: e.target.checked })
+                  }
                   className="size-4 mt-0.5 accent-[#005656]"
                 />
                 <span className="text-sm" style={{ color: TEXT }}>
-                  I confirm that I am authorised to act on behalf of this organisation.
+                  I confirm that I am authorised to act on behalf of this
+                  organisation.
                 </span>
               </label>
             </div>
@@ -1953,40 +2611,97 @@ export function ScreenSignatory({ go, state, setState }: any) {
 export function ScreenDocuments({ go }: { go: Nav }) {
   return (
     <div className="max-w-2xl mx-auto py-6 sm:py-12 px-4 sm:px-8">
-      <PageHeader title="Documents" subtitle="Upload only what's needed to complete verification." />
+      <PageHeader
+        title="Documents"
+        subtitle="Upload only what's needed to complete verification."
+      />
 
-      <Card className="p-4 sm:p-6 mb-4 sm:mb-5" style={{ background: BG_SOFT, borderColor: "#A6E5DC" } as any}>
+      <Card
+        className="p-4 sm:p-6 mb-4 sm:mb-5"
+        style={{ background: BG_SOFT, borderColor: "#A6E5DC" } as any}
+      >
         <div className="flex items-start gap-2 sm:gap-3">
-          <div className="size-8 sm:size-10 rounded-full flex items-center justify-center shrink-0" style={{ background: "#fff" }}>
-            <CheckCircle2 className="size-4 sm:size-5" style={{ color: SUCCESS }} />
+          <div
+            className="size-8 sm:size-10 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: "#fff" }}
+          >
+            <CheckCircle2
+              className="size-4 sm:size-5"
+              style={{ color: SUCCESS }}
+            />
           </div>
           <div>
-            <div className="text-xs sm:text-sm mb-1" style={{ color: TEXT, fontWeight: 600 }}>No documents required right now</div>
+            <div
+              className="text-xs sm:text-sm mb-1"
+              style={{ color: TEXT, fontWeight: 600 }}
+            >
+              No documents required right now
+            </div>
             <p className="text-xs sm:text-sm" style={{ color: MUTED }}>
-              We have enough information to begin verification. If anything else is needed, we'll notify you.
+              We have enough information to begin verification. If anything else
+              is needed, we'll notify you.
             </p>
           </div>
         </div>
       </Card>
 
-      <div className="text-xs sm:text-sm mb-2 sm:mb-3" style={{ color: MUTED, fontWeight: 500 }}>Optional uploads</div>
+      <div
+        className="text-xs sm:text-sm mb-2 sm:mb-3"
+        style={{ color: MUTED, fontWeight: 500 }}
+      >
+        Optional uploads
+      </div>
 
       <div className="space-y-3 mb-6 sm:mb-8">
         {[
-          { name: "Authorisation letter", reason: "Speeds up verification if signatory is a manager.", status: "Optional" },
-          { name: "Address proof", reason: "Required only if billing address differs from registered.", status: "Optional" },
-          { name: "Company PAN", reason: "Needed only if PAN could not be auto-verified.", status: "Optional" },
+          {
+            name: "Authorisation letter",
+            reason: "Speeds up verification if signatory is a manager.",
+            status: "Optional",
+          },
+          {
+            name: "Address proof",
+            reason: "Required only if billing address differs from registered.",
+            status: "Optional",
+          },
+          {
+            name: "Company PAN",
+            reason: "Needed only if PAN could not be auto-verified.",
+            status: "Optional",
+          },
         ].map((d) => (
-          <Card key={d.name} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-            <div className="size-9 sm:size-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: BG_SOFT }}>
-              <FileText className="size-4 sm:size-5" style={{ color: PRIMARY }} />
+          <Card
+            key={d.name}
+            className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
+          >
+            <div
+              className="size-9 sm:size-10 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: BG_SOFT }}
+            >
+              <FileText
+                className="size-4 sm:size-5"
+                style={{ color: PRIMARY }}
+              />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-xs sm:text-sm" style={{ color: TEXT, fontWeight: 600 }}>{d.name}</div>
-              <div className="text-[10px] sm:text-xs mt-0.5" style={{ color: MUTED }}>{d.reason}</div>
+              <div
+                className="text-xs sm:text-sm"
+                style={{ color: TEXT, fontWeight: 600 }}
+              >
+                {d.name}
+              </div>
+              <div
+                className="text-[10px] sm:text-xs mt-0.5"
+                style={{ color: MUTED }}
+              >
+                {d.reason}
+              </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
-              <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full whitespace-nowrap" style={{ background: "#F2F4F7", color: MUTED }}>
+              <span
+                className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full whitespace-nowrap"
+                style={{ background: "#F2F4F7", color: MUTED }}
+              >
                 {d.status}
               </span>
               <SecondaryButton>Upload</SecondaryButton>
@@ -2032,7 +2747,10 @@ export function ScreenReviewSubmit({ go, state, setState }: any) {
                 ["Entity type", "Private Limited Company"],
                 ["PAN", "AABCP1234F"],
                 ["GSTIN", "29AABCP1234F1Z5"],
-                ["Registered address", "4th Floor, Tower B, DLF Cyber City, Gurugram, 122002"],
+                [
+                  "Registered address",
+                  "4th Floor, Tower B, DLF Cyber City, Gurugram, 122002",
+                ],
               ]}
             />
 
@@ -2055,16 +2773,24 @@ export function ScreenReviewSubmit({ go, state, setState }: any) {
           </section>
 
           <section>
-            <label className="flex items-start gap-2.5 cursor-pointer p-4 rounded-lg" style={{ background: BG_SOFT }}>
+            <label
+              className="flex items-start gap-2.5 cursor-pointer p-4 rounded-lg"
+              style={{ background: BG_SOFT }}
+            >
               <input
                 type="checkbox"
                 checked={state.declaration}
-                onChange={(e) => setState({ ...state, declaration: e.target.checked })}
+                onChange={(e) =>
+                  setState({ ...state, declaration: e.target.checked })
+                }
                 className="size-4 mt-0.5 accent-[#005656]"
               />
-              <span className="text-sm" style={{ color: TEXT, fontWeight: 600 }}>
-                I confirm that the information provided is accurate and I'm ready to proceed with terms review and
-                digital signature.
+              <span
+                className="text-sm"
+                style={{ color: TEXT, fontWeight: 600 }}
+              >
+                I confirm that the information provided is accurate and I'm
+                ready to proceed with terms review and digital signature.
               </span>
             </label>
           </section>
@@ -2094,7 +2820,12 @@ function SummaryCard({ title, rows, onEdit }: any) {
       whileHover={{ boxShadow: "0px 8px 12px 0px rgba(16,24,40,0.08)" }}
     >
       <div className="flex items-center justify-between mb-3 sm:mb-4">
-        <h3 className="text-sm sm:text-[15px]" style={{ fontWeight: 600, color: TEXT }}>{title}</h3>
+        <h3
+          className="text-sm sm:text-[15px]"
+          style={{ fontWeight: 600, color: TEXT }}
+        >
+          {title}
+        </h3>
         <motion.button
           onClick={onEdit}
           className="text-xs sm:text-sm flex items-center gap-1"
@@ -2106,8 +2837,14 @@ function SummaryCard({ title, rows, onEdit }: any) {
       </div>
       <div className="space-y-2 sm:space-y-2.5">
         {rows.map(([k, v]: any) => (
-          <div key={k} className="flex flex-col sm:flex-row text-xs sm:text-sm gap-1 sm:gap-0">
-            <div className="sm:w-44 shrink-0" style={{ color: MUTED, fontWeight: 600 }}>
+          <div
+            key={k}
+            className="flex flex-col sm:flex-row text-xs sm:text-sm gap-1 sm:gap-0"
+          >
+            <div
+              className="sm:w-44 shrink-0"
+              style={{ color: MUTED, fontWeight: 600 }}
+            >
               {k}
             </div>
             <div style={{ color: TEXT, fontWeight: 500 }}>{v || "—"}</div>
@@ -2118,15 +2855,29 @@ function SummaryCard({ title, rows, onEdit }: any) {
   );
 }
 
-
 // ============== TERMS & CONDITIONS (Screens 7-10) ==============
 function TermsParagraph({ title, children }: any) {
   return (
     <div>
-      <p className="mb-1" style={{ color: TEXT, fontSize: 16, fontWeight: 700, lineHeight: "24px" }}>
+      <p
+        className="mb-1"
+        style={{
+          color: TEXT,
+          fontSize: 16,
+          fontWeight: 700,
+          lineHeight: "24px",
+        }}
+      >
         {title}
       </p>
-      <p style={{ color: TEXT, fontSize: 16, fontWeight: 500, lineHeight: "24px" }}>
+      <p
+        style={{
+          color: TEXT,
+          fontSize: 16,
+          fontWeight: 500,
+          lineHeight: "24px",
+        }}
+      >
         {children}
       </p>
     </div>
@@ -2135,9 +2886,7 @@ function TermsParagraph({ title, children }: any) {
 
 function SignatureStamp() {
   return (
-    <div
-      className="mt-8 flex justify-end"
-    >
+    <div className="mt-8 flex justify-end">
       <div className="inline-flex flex-col items-center gap-2">
         <img
           src={signatureImg}
@@ -2153,17 +2902,42 @@ function SignatureStamp() {
   );
 }
 
-function TermsDocument({ page, title = "Terms and Conditions for Gift Voucher Procurement", left, right, children, notice, framed = false, signed = false }: any) {
+function TermsDocument({
+  page,
+  title = "Terms and Conditions for Gift Voucher Procurement",
+  left,
+  right,
+  children,
+  notice,
+  framed = false,
+  signed = false,
+}: any) {
   return (
     <div
-      className={framed ? "mx-auto w-full max-w-[1040px] rounded-[16px] bg-white px-5 py-6 sm:px-8 sm:py-8 lg:px-10" : "mx-auto w-full max-w-[1040px]"}
-      style={framed ? {
-        border: `1px solid ${BORDER}`,
-        boxShadow: "0px 25px 50px -12px rgba(16,24,40,0.10)",
-      } : undefined}
+      className={
+        framed
+          ? "mx-auto w-full max-w-[1040px] rounded-[16px] bg-white px-5 py-6 sm:px-8 sm:py-8 lg:px-10"
+          : "mx-auto w-full max-w-[1040px]"
+      }
+      style={
+        framed
+          ? {
+              border: `1px solid ${BORDER}`,
+              boxShadow: "0px 25px 50px -12px rgba(16,24,40,0.10)",
+            }
+          : undefined
+      }
     >
       <div className="flex flex-col items-center gap-8">
-        <div className="text-center" style={{ color: TEXT, fontSize: 16, lineHeight: "24px", fontWeight: 400 }}>
+        <div
+          className="text-center"
+          style={{
+            color: TEXT,
+            fontSize: 16,
+            lineHeight: "24px",
+            fontWeight: 400,
+          }}
+        >
           Page: {page}/4
         </div>
 
@@ -2171,7 +2945,12 @@ function TermsDocument({ page, title = "Terms and Conditions for Gift Voucher Pr
           <div className="space-y-3 text-center">
             {page === 1 && (
               <div className="flex justify-center p-4 sm:p-6">
-                <img src={pineLabsLogoImg} alt="Pine Labs" className="h-[50px] w-auto object-contain" draggable={false} />
+                <img
+                  src={pineLabsLogoImg}
+                  alt="Pine Labs"
+                  className="h-[50px] w-auto object-contain"
+                  draggable={false}
+                />
               </div>
             )}
             <h1
@@ -2209,7 +2988,11 @@ function TermsFormPage({ page, children }: any) {
     <FormCard
       eyebrow={`Page ${page} of 4`}
       title="Terms & Conditions"
-      subtitle={page === 4 ? "Final page - please read and accept to proceed to digital signature" : "Please review the terms before proceeding"}
+      subtitle={
+        page === 4
+          ? "Final page - please read and accept to proceed to digital signature"
+          : "Please review the terms before proceeding"
+      }
       progress={page === 1 ? 80 : page === 2 ? 85 : page === 3 ? 90 : 95}
       maxWidth={1040}
       animateIn={false}
@@ -2219,7 +3002,13 @@ function TermsFormPage({ page, children }: any) {
   );
 }
 
-function TermsCheckbox({ label, selected = false }: { label: string; selected?: boolean }) {
+function TermsCheckbox({
+  label,
+  selected = false,
+}: {
+  label: string;
+  selected?: boolean;
+}) {
   return (
     <div className="flex items-center gap-3">
       <span
@@ -2230,10 +3019,20 @@ function TermsCheckbox({ label, selected = false }: { label: string; selected?: 
         }}
       >
         {selected && (
-          <Check className="size-5" style={{ color: "#50D387", strokeWidth: 2 }} />
+          <Check
+            className="size-5"
+            style={{ color: "#50D387", strokeWidth: 2 }}
+          />
         )}
       </span>
-      <span style={{ color: TEXT, fontSize: 14, fontWeight: 500, lineHeight: "20px" }}>
+      <span
+        style={{
+          color: TEXT,
+          fontSize: 14,
+          fontWeight: 500,
+          lineHeight: "20px",
+        }}
+      >
         {label}
       </span>
     </div>
@@ -2270,11 +3069,23 @@ function TermsCell({
   );
 }
 
-function TermsRow({ label, value, tall = false }: { label: string; value: React.ReactNode; tall?: boolean }) {
+function TermsRow({
+  label,
+  value,
+  tall = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  tall?: boolean;
+}) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
-      <TermsCell label className={tall ? "sm:min-h-[64px]" : ""}>{label}</TermsCell>
-      <TermsCell className={`border-r ${tall ? "sm:min-h-[64px]" : ""}`}>{value}</TermsCell>
+      <TermsCell label className={tall ? "sm:min-h-[64px]" : ""}>
+        {label}
+      </TermsCell>
+      <TermsCell className={`border-r ${tall ? "sm:min-h-[64px]" : ""}`}>
+        {value}
+      </TermsCell>
     </div>
   );
 }
@@ -2291,66 +3102,121 @@ function TermsSplitRow({ leftLabel, leftValue, rightLabel, rightValue }: any) {
 }
 
 function TermsProcurementFormContent({ signed = false }: { signed?: boolean }) {
-  const orgTypes = ["Sole Proprietorship", "Partnership", "Trust", "Pvt Ltd", "Public Ltd", "LLP"];
+  const orgTypes = [
+    "Sole Proprietorship",
+    "Partnership",
+    "Trust",
+    "Pvt Ltd",
+    "Public Ltd",
+    "LLP",
+  ];
 
   return (
     <div className="w-full overflow-hidden rounded-sm border-b border-[#181D27]">
-            <TermsRow label="Execution Date:" value="23-12-2025" />
-            <TermsRow label="Name of the Entity" value="PINE LABS LIMITED" />
-            <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
-              <TermsCell label>Type of Organisation</TermsCell>
-              <TermsCell className="border-r">
-                <div className="flex flex-wrap gap-x-4 gap-y-3">
-                  {orgTypes.map((type) => (
-                    <TermsCheckbox key={type} label={type} selected={type === "LLP"} />
-                  ))}
-                </div>
-              </TermsCell>
+      <TermsRow label="Execution Date:" value="23-12-2025" />
+      <TermsRow label="Name of the Entity" value="PINE LABS LIMITED" />
+      <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
+        <TermsCell label>Type of Organisation</TermsCell>
+        <TermsCell className="border-r">
+          <div className="flex flex-wrap gap-x-4 gap-y-3">
+            {orgTypes.map((type) => (
+              <TermsCheckbox
+                key={type}
+                label={type}
+                selected={type === "LLP"}
+              />
+            ))}
+          </div>
+        </TermsCell>
+      </div>
+      <TermsRow
+        label="Registered Address"
+        value="123, MG ROAD, INDIRANAGAR"
+        tall
+      />
+      <TermsSplitRow
+        leftLabel="City"
+        leftValue="BENGALURU"
+        rightLabel="State"
+        rightValue="KARNATAKA"
+      />
+      <TermsSplitRow
+        leftLabel="Pin Code"
+        leftValue="560102"
+        rightLabel="Telephone"
+        rightValue="8807962325"
+      />
+      <TermsRow label="First Name and Last Name" value="ANIMESH MANDAL" tall />
+      <TermsRow
+        label="Billing Address"
+        value="123, MG ROAD, INDIRANAGAR"
+        tall
+      />
+      <TermsSplitRow
+        leftLabel="City"
+        leftValue="BENGALURU"
+        rightLabel="State"
+        rightValue="KARNATAKA"
+      />
+      <TermsSplitRow
+        leftLabel="Pin Code"
+        leftValue="560102"
+        rightLabel="Telephone"
+        rightValue="8807962325"
+      />
+      <TermsCell center className="border-r">
+        Gift Voucher Solutions Offered by Pine Labs & Procured by the Entity
+      </TermsCell>
+      <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr]">
+        <TermsCell label>Solution:</TermsCell>
+        <TermsCell className="border-r">
+          <div className="flex flex-wrap gap-x-4 gap-y-3">
+            <TermsCheckbox label="Self-Serve" selected />
+            <TermsCheckbox label="API" />
+            <TermsCheckbox label="Offline Mode" />
+          </div>
+        </TermsCell>
+      </div>
+      <TermsCell label className="border-r">
+        Based on your selection of the solution above, only such clauses of the
+        terms & conditions which are relevant to your arrangement with Pine Labs
+        shall be applicable & binding on you.
+      </TermsCell>
+      <TermsRow label="GST Registration No" value="6CRQJQ8155V7Z9" />
+      <TermsRow
+        label="Permanent Account Number (PAN)"
+        value={
+          <span style={{ fontSize: 16, lineHeight: "24px" }}>ASDFG1234I</span>
+        }
+      />
+      <TermsSplitRow
+        leftLabel="CIN/LLP Number (If Applicable):"
+        leftValue="U31900DL1991PLC043974"
+        rightLabel="TAN Number (If applicable):"
+        rightValue=""
+      />
+      <TermsCell center className="border-r">
+        Signature of authorized person of the Company:
+      </TermsCell>
+      <TermsRow label="Company Name" value="PINE LABS LIMITED" tall />
+      <TermsRow label="Designation" value="MANAGER" tall />
+      <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
+        <TermsCell label className="min-h-[160px] sm:min-h-[200px]">
+          Signature & Seal
+        </TermsCell>
+        <TermsCell className="min-h-[160px] border-r sm:min-h-[200px]">
+          {signed && (
+            <div className="flex h-full w-full items-end justify-end">
+              <img
+                src={signatureImg}
+                alt="Authorised digital signature"
+                className="h-16 sm:h-20 w-auto object-contain"
+                draggable={false}
+              />
             </div>
-            <TermsRow label="Registered Address" value="123, MG ROAD, INDIRANAGAR" tall />
-            <TermsSplitRow leftLabel="City" leftValue="BENGALURU" rightLabel="State" rightValue="KARNATAKA" />
-            <TermsSplitRow leftLabel="Pin Code" leftValue="560102" rightLabel="Telephone" rightValue="8807962325" />
-            <TermsRow label="First Name and Last Name" value="ANIMESH MANDAL" tall />
-            <TermsRow label="Billing Address" value="123, MG ROAD, INDIRANAGAR" tall />
-            <TermsSplitRow leftLabel="City" leftValue="BENGALURU" rightLabel="State" rightValue="KARNATAKA" />
-            <TermsSplitRow leftLabel="Pin Code" leftValue="560102" rightLabel="Telephone" rightValue="8807962325" />
-            <TermsCell center className="border-r">
-              Gift Voucher Solutions Offered by Pine Labs & Procured by the Entity
-            </TermsCell>
-            <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr]">
-              <TermsCell label>Solution:</TermsCell>
-              <TermsCell className="border-r">
-                <div className="flex flex-wrap gap-x-4 gap-y-3">
-                  <TermsCheckbox label="Self-Serve" selected />
-                  <TermsCheckbox label="API" />
-                  <TermsCheckbox label="Offline Mode" />
-                </div>
-              </TermsCell>
-            </div>
-            <TermsCell label className="border-r">
-              Based on your selection of the solution above, only such clauses of the terms & conditions which are relevant to your arrangement with Pine Labs shall be applicable & binding on you.
-            </TermsCell>
-            <TermsRow label="GST Registration No" value="6CRQJQ8155V7Z9" />
-            <TermsRow label="Permanent Account Number (PAN)" value={<span style={{ fontSize: 16, lineHeight: "24px" }}>ASDFG1234I</span>} />
-            <TermsSplitRow leftLabel="CIN/LLP Number (If Applicable):" leftValue="U31900DL1991PLC043974" rightLabel="TAN Number (If applicable):" rightValue="" />
-            <TermsCell center className="border-r">Signature of authorized person of the Company:</TermsCell>
-            <TermsRow label="Company Name" value="PINE LABS LIMITED" tall />
-            <TermsRow label="Designation" value="MANAGER" tall />
-            <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr]">
-              <TermsCell label className="min-h-[160px] sm:min-h-[200px]">Signature & Seal</TermsCell>
-              <TermsCell className="min-h-[160px] border-r sm:min-h-[200px]">
-                {signed && (
-                  <div className="flex h-full w-full items-end justify-end">
-                    <img
-                      src={signatureImg}
-                      alt="Authorised digital signature"
-                      className="h-16 sm:h-20 w-auto object-contain"
-                      draggable={false}
-                    />
-                  </div>
-                )}
-              </TermsCell>
-            </div>
+          )}
+        </TermsCell>
+      </div>
     </div>
   );
 }
@@ -2359,12 +3225,17 @@ export function ScreenTermsPage1({ go, state }: any) {
   return (
     <div className="pb-2 px-2 sm:px-0">
       <TermsFormPage page={1}>
-        <TermsDocument page={1} title="Gift Voucher Procurement (Corporate) Form">
+        <TermsDocument
+          page={1}
+          title="Gift Voucher Procurement (Corporate) Form"
+        >
           <TermsProcurementFormContent signed={state.esignVerified} />
         </TermsDocument>
       </TermsFormPage>
 
-      <ActionBar left={<GhostLink onClick={() => go(6)}>Back to review</GhostLink>}>
+      <ActionBar
+        left={<GhostLink onClick={() => go(6)}>Back to review</GhostLink>}
+      >
         <PrimaryButton onClick={() => go(8)}>Next page (2 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -2382,39 +3253,57 @@ export function ScreenTermsPage2({ go, state }: any) {
           left={
             <>
               <TermsParagraph title="Ordering and Payment Terms">
-                5.1 All Orders are subject to acceptance by Pine Labs and availability of Gift Cards.
-                <br /><br />
-                5.2 Prices are exclusive of applicable taxes unless stated otherwise.
-                <br /><br />
-                5.3 Payment must be made within the credit period agreed during onboarding.
+                5.1 All Orders are subject to acceptance by Pine Labs and
+                availability of Gift Cards.
+                <br />
+                <br />
+                5.2 Prices are exclusive of applicable taxes unless stated
+                otherwise.
+                <br />
+                <br />
+                5.3 Payment must be made within the credit period agreed during
+                onboarding.
               </TermsParagraph>
               <TermsParagraph title="Delivery and Fulfillment">
-                6.1 Gift Cards will be delivered electronically to the email addresses provided by the Company.
-                <br /><br />
-                6.2 Delivery timelines are estimates, and Pine Labs is not liable for delays beyond its reasonable control.
+                6.1 Gift Cards will be delivered electronically to the email
+                addresses provided by the Company.
+                <br />
+                <br />
+                6.2 Delivery timelines are estimates, and Pine Labs is not
+                liable for delays beyond its reasonable control.
               </TermsParagraph>
             </>
           }
           right={
             <>
               <TermsParagraph title="Returns and Refunds">
-                7.1 Gift Cards are non-refundable once delivered unless there is a defect or error attributable to Pine Labs.
-                <br /><br />
-                7.2 Approved refunds will be processed within 15 business days to the original payment method.
+                7.1 Gift Cards are non-refundable once delivered unless there is
+                a defect or error attributable to Pine Labs.
+                <br />
+                <br />
+                7.2 Approved refunds will be processed within 15 business days
+                to the original payment method.
               </TermsParagraph>
               <TermsParagraph title="Customer Responsibilities">
-                8.1 The Company must use the Portal only for legitimate business purposes.
-                <br /><br />
-                8.2 The Company must not resell Gift Cards for profit or use them for money laundering.
-                <br /><br />
-                8.3 The Company is responsible for proper distribution and tracking of Gift Cards to end recipients.
+                8.1 The Company must use the Portal only for legitimate business
+                purposes.
+                <br />
+                <br />
+                8.2 The Company must not resell Gift Cards for profit or use
+                them for money laundering.
+                <br />
+                <br />
+                8.3 The Company is responsible for proper distribution and
+                tracking of Gift Cards to end recipients.
               </TermsParagraph>
             </>
           }
         />
       </TermsFormPage>
 
-      <ActionBar left={<GhostLink onClick={() => go(7)}>Previous page</GhostLink>}>
+      <ActionBar
+        left={<GhostLink onClick={() => go(7)}>Previous page</GhostLink>}
+      >
         <PrimaryButton onClick={() => go(9)}>Next page (3 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -2432,35 +3321,50 @@ export function ScreenTermsPage3({ go, state }: any) {
           left={
             <>
               <TermsParagraph title="Data Privacy and Security">
-                9.1 Pine Labs collects and processes Company data in accordance with its Privacy Policy and applicable data protection laws.
-                <br /><br />
-                9.2 The Company consents to the collection, use, and storage of information necessary for Portal operations.
+                9.1 Pine Labs collects and processes Company data in accordance
+                with its Privacy Policy and applicable data protection laws.
+                <br />
+                <br />
+                9.2 The Company consents to the collection, use, and storage of
+                information necessary for Portal operations.
               </TermsParagraph>
               <TermsParagraph title="Intellectual Property">
-                10.1 All content on the Portal, including logos, trademarks, and software, is the property of Pine Labs or its licensors.
-                <br /><br />
-                10.2 The Company is granted a limited, non-exclusive, non-transferable license to use the Portal.
+                10.1 All content on the Portal, including logos, trademarks, and
+                software, is the property of Pine Labs or its licensors.
+                <br />
+                <br />
+                10.2 The Company is granted a limited, non-exclusive,
+                non-transferable license to use the Portal.
               </TermsParagraph>
             </>
           }
           right={
             <>
               <TermsParagraph title="Limitation of Liability">
-                11.1 Pine Labs' total liability under this Agreement shall not exceed the amount paid by the Company in the preceding 12 months.
-                <br /><br />
-                11.2 Pine Labs is not liable for indirect, incidental, or consequential damages.
+                11.1 Pine Labs' total liability under this Agreement shall not
+                exceed the amount paid by the Company in the preceding 12
+                months.
+                <br />
+                <br />
+                11.2 Pine Labs is not liable for indirect, incidental, or
+                consequential damages.
               </TermsParagraph>
               <TermsParagraph title="Force Majeure">
-                12.1 Neither party shall be liable for failure to perform obligations due to circumstances beyond reasonable control.
-                <br /><br />
-                12.2 The affected party must notify the other party promptly and make reasonable efforts to resume performance.
+                12.1 Neither party shall be liable for failure to perform
+                obligations due to circumstances beyond reasonable control.
+                <br />
+                <br />
+                12.2 The affected party must notify the other party promptly and
+                make reasonable efforts to resume performance.
               </TermsParagraph>
             </>
           }
         />
       </TermsFormPage>
 
-      <ActionBar left={<GhostLink onClick={() => go(8)}>Previous page</GhostLink>}>
+      <ActionBar
+        left={<GhostLink onClick={() => go(8)}>Previous page</GhostLink>}
+      >
         <PrimaryButton onClick={() => go(10)}>Next page (4 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -2478,17 +3382,25 @@ export function ScreenTermsPage4({ go, state }: any) {
           left={
             <>
               <TermsParagraph title="Termination">
-                13.1 Either party may terminate this Agreement with 30 days' written notice.
-                <br /><br />
-                13.2 Pine Labs may terminate immediately if the Company breaches any material term of this Agreement.
+                13.1 Either party may terminate this Agreement with 30 days'
+                written notice.
+                <br />
+                <br />
+                13.2 Pine Labs may terminate immediately if the Company breaches
+                any material term of this Agreement.
               </TermsParagraph>
               <TermsParagraph title="Indemnification">
-                14.1 The Company agrees to indemnify Pine Labs against claims arising from breach of these Terms, violation of laws, misuse of Gift Cards, or unauthorised access by users.
+                14.1 The Company agrees to indemnify Pine Labs against claims
+                arising from breach of these Terms, violation of laws, misuse of
+                Gift Cards, or unauthorised access by users.
               </TermsParagraph>
               <TermsParagraph title="Dispute Resolution">
-                15.1 Any disputes shall first be attempted to be resolved through good-faith negotiation.
-                <br /><br />
-                15.2 If negotiation fails, disputes shall be resolved through arbitration in accordance with applicable Indian law.
+                15.1 Any disputes shall first be attempted to be resolved
+                through good-faith negotiation.
+                <br />
+                <br />
+                15.2 If negotiation fails, disputes shall be resolved through
+                arbitration in accordance with applicable Indian law.
               </TermsParagraph>
             </>
           }
@@ -2496,31 +3408,50 @@ export function ScreenTermsPage4({ go, state }: any) {
             <>
               <TermsParagraph title="Governing Law">
                 16.1 This Agreement shall be governed by the laws of India.
-                <br /><br />
-                16.2 The courts of Gurugram, Haryana shall have exclusive jurisdiction over matters not subject to arbitration.
+                <br />
+                <br />
+                16.2 The courts of Gurugram, Haryana shall have exclusive
+                jurisdiction over matters not subject to arbitration.
               </TermsParagraph>
               <TermsParagraph title="Amendments">
-                17.1 Pine Labs may amend these Terms with 15 days' notice to Customers.
-                <br /><br />
-                17.2 Continued use of the Portal after amendments constitutes acceptance of the revised Terms.
+                17.1 Pine Labs may amend these Terms with 15 days' notice to
+                Customers.
+                <br />
+                <br />
+                17.2 Continued use of the Portal after amendments constitutes
+                acceptance of the revised Terms.
               </TermsParagraph>
               <TermsParagraph title="Miscellaneous">
-                18.1 This Agreement constitutes the entire agreement between the parties.
-                <br /><br />
-                18.2 If any provision is found invalid, the remaining provisions remain in effect.
+                18.1 This Agreement constitutes the entire agreement between the
+                parties.
+                <br />
+                <br />
+                18.2 If any provision is found invalid, the remaining provisions
+                remain in effect.
               </TermsParagraph>
             </>
           }
           notice={
-            <Card className="p-5" style={{ background: "#FFFAEB", borderColor: "#FEDF89" } as any}>
+            <Card
+              className="p-5"
+              style={{ background: "#FFFAEB", borderColor: "#FEDF89" } as any}
+            >
               <div className="flex items-start gap-3">
-                <Info className="size-5 shrink-0 mt-0.5" style={{ color: "#F79009" }} />
+                <Info
+                  className="size-5 shrink-0 mt-0.5"
+                  style={{ color: "#F79009" }}
+                />
                 <div>
-                  <div className="text-sm mb-1" style={{ color: TEXT, fontWeight: 600 }}>
+                  <div
+                    className="text-sm mb-1"
+                    style={{ color: TEXT, fontWeight: 600 }}
+                  >
                     Final acceptance required
                   </div>
                   <p className="text-sm" style={{ color: MUTED }}>
-                    By proceeding to the next step, you confirm that you have read, understood, and accept all 4 pages of these Terms & Conditions on behalf of your organization.
+                    By proceeding to the next step, you confirm that you have
+                    read, understood, and accept all 4 pages of these Terms &
+                    Conditions on behalf of your organization.
                   </p>
                 </div>
               </div>
@@ -2529,8 +3460,10 @@ export function ScreenTermsPage4({ go, state }: any) {
         />
       </TermsFormPage>
 
-      <ActionBar left={<GhostLink onClick={() => go(9)}>Previous page</GhostLink>}>
-        <PrimaryButton onClick={() => state.esignVerified ? go(12) : go(11)}>
+      <ActionBar
+        left={<GhostLink onClick={() => go(9)}>Previous page</GhostLink>}
+      >
+        <PrimaryButton onClick={() => (state.esignVerified ? go(12) : go(11))}>
           {state.esignVerified ? "Sign" : "Accept & proceed to eSign"}
         </PrimaryButton>
       </ActionBar>
@@ -2564,101 +3497,141 @@ export function ScreenAadhaarOTP({ go, state, setState }: any) {
       <FormCard
         eyebrow="Final step"
         title={otpSent ? "Verify Your Aadhaar" : "Aadhaar eSign verification"}
-        subtitle={otpSent ? "We've sent a 6-digit code to your registered mobile number" : "Complete your digital signature using Aadhaar OTP"}
+        subtitle={
+          otpSent
+            ? "We've sent a 6-digit code to your registered mobile number"
+            : "Complete your digital signature using Aadhaar OTP"
+        }
       >
         <div className="mx-auto w-full max-w-[500px] space-y-6">
-            {!otpSent ? (
-              <div className="space-y-5">
-                <div className="flex items-start gap-3 rounded-[12px] p-4" style={{ background: BG_SOFT, border: `1px solid ${BORDER}` }}>
-                  <div className="size-10 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#fff", border: `1px solid ${BORDER}` }}>
-                    <ShieldCheck className="size-5" style={{ color: PRIMARY }} />
-                  </div>
-                  <div>
-                    <div className="text-sm mb-1" style={{ color: TEXT, fontWeight: 700 }}>
-                      Secure digital signature
-                    </div>
-                    <p className="text-sm" style={{ color: MUTED, lineHeight: 1.6 }}>
-                      Your Aadhaar details are used only for identity verification and creating a legally binding digital signature. We don't store your Aadhaar number.
-                    </p>
-                  </div>
+          {!otpSent ? (
+            <div className="space-y-5">
+              <div
+                className="flex items-start gap-3 rounded-[12px] p-4"
+                style={{ background: BG_SOFT, border: `1px solid ${BORDER}` }}
+              >
+                <div
+                  className="size-10 rounded-[10px] flex items-center justify-center shrink-0"
+                  style={{ background: "#fff", border: `1px solid ${BORDER}` }}
+                >
+                  <ShieldCheck className="size-5" style={{ color: PRIMARY }} />
                 </div>
-                <FieldLabel required>Aadhaar Number</FieldLabel>
-                <TextInput
-                  placeholder="Enter 12-digit Aadhaar number"
-                  maxLength={12}
-                  value={state.aadhaarNumber || ""}
-                  onChange={(e: any) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    setState({ ...state, aadhaarNumber: val });
-                  }}
-                />
-                <p className="text-xs mt-2" style={{ color: MUTED }}>
-                  An OTP will be sent to your registered mobile number
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
                 <div>
-                  <label className="block text-[14px] font-semibold text-[#414651] mb-3">
-                    Enter verification code
-                  </label>
-
-                  <div className="flex gap-3 justify-between">
-                    {[0, 1, 2, 3, 4, 5].map((i) => (
-                      <input
-                        key={i}
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={1}
-                        className="w-full aspect-square text-center text-[24px] font-semibold bg-[#fafafa] border-2 border-[#d5d7da] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005656] focus:border-transparent transition-all"
-                        style={{
-                          borderColor: state.aadhaarOTP?.[i] ? PRIMARY : BORDER_INPUT,
-                          color: TEXT,
-                        }}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "");
-                          const current = state.aadhaarOTP || "";
-                          const newOTP = current.substring(0, i) + val + current.substring(i + 1);
-                          setState({ ...state, aadhaarOTP: newOTP });
-                          if (val && i < 5) {
-                            const next = e.target.nextElementSibling as HTMLInputElement;
-                            next?.focus();
-                          }
-                        }}
-                        value={state.aadhaarOTP?.[i] || ""}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="text-center">
-                  <button className="text-[14px] text-[#005656] font-semibold hover:underline">
-                    Resend verification code
-                  </button>
-                </div>
-                <div className="flex items-start gap-4">
-                  <span
-                    className="relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-lg"
-                    style={{ background: "#003323" }}
+                  <div
+                    className="text-sm mb-1"
+                    style={{ color: TEXT, fontWeight: 700 }}
                   >
-                    <Check className="size-5" style={{ color: "#50D387", strokeWidth: 2 }} />
-                  </span>
-                  <p style={{ color: TEXT_2, fontSize: 16, fontWeight: 400, lineHeight: "28px" }}>
-                    I am the holder of the above Aadhaar Number. I hereby authenticate myself as the legal signee for this document.
+                    Secure digital signature
+                  </div>
+                  <p
+                    className="text-sm"
+                    style={{ color: MUTED, lineHeight: 1.6 }}
+                  >
+                    Your Aadhaar details are used only for identity verification
+                    and creating a legally binding digital signature. We don't
+                    store your Aadhaar number.
                   </p>
                 </div>
               </div>
-            )}
+              <FieldLabel required>Aadhaar Number</FieldLabel>
+              <TextInput
+                placeholder="Enter 12-digit Aadhaar number"
+                maxLength={12}
+                value={state.aadhaarNumber || ""}
+                onChange={(e: any) => {
+                  const val = e.target.value.replace(/\D/g, "");
+                  setState({ ...state, aadhaarNumber: val });
+                }}
+              />
+              <p className="text-xs mt-2" style={{ color: MUTED }}>
+                An OTP will be sent to your registered mobile number
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div>
+                <label className="block text-[14px] font-semibold text-[#414651] mb-3">
+                  Enter verification code
+                </label>
+
+                <div className="flex gap-3 justify-between">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <input
+                      key={i}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      className="w-full aspect-square text-center text-[24px] font-semibold bg-[#fafafa] border-2 border-[#d5d7da] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005656] focus:border-transparent transition-all"
+                      style={{
+                        borderColor: state.aadhaarOTP?.[i]
+                          ? PRIMARY
+                          : BORDER_INPUT,
+                        color: TEXT,
+                      }}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        const current = state.aadhaarOTP || "";
+                        const newOTP =
+                          current.substring(0, i) +
+                          val +
+                          current.substring(i + 1);
+                        setState({ ...state, aadhaarOTP: newOTP });
+                        if (val && i < 5) {
+                          const next = e.target
+                            .nextElementSibling as HTMLInputElement;
+                          next?.focus();
+                        }
+                      }}
+                      value={state.aadhaarOTP?.[i] || ""}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <button className="text-[14px] text-[#005656] font-semibold hover:underline">
+                  Resend verification code
+                </button>
+              </div>
+              <div className="flex items-start gap-4">
+                <span
+                  className="relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-lg"
+                  style={{ background: "#003323" }}
+                >
+                  <Check
+                    className="size-5"
+                    style={{ color: "#50D387", strokeWidth: 2 }}
+                  />
+                </span>
+                <p
+                  style={{
+                    color: TEXT_2,
+                    fontSize: 16,
+                    fontWeight: 400,
+                    lineHeight: "28px",
+                  }}
+                >
+                  I am the holder of the above Aadhaar Number. I hereby
+                  authenticate myself as the legal signee for this document.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </FormCard>
 
-      <ActionBar left={<GhostLink onClick={() => go(10)}>Back to terms</GhostLink>}>
+      <ActionBar
+        left={<GhostLink onClick={() => go(10)}>Back to terms</GhostLink>}
+      >
         {!otpSent ? (
           <PrimaryButton disabled={!aadhaarComplete} onClick={handleSendOTP}>
             Send OTP
           </PrimaryButton>
         ) : (
-          <PrimaryButton disabled={!otpComplete || verifying} onClick={handleVerify}>
+          <PrimaryButton
+            disabled={!otpComplete || verifying}
+            onClick={handleVerify}
+          >
             {verifying ? (
               <>
                 <Loader2 className="size-4 animate-spin mr-2" />
@@ -2675,7 +3648,14 @@ export function ScreenAadhaarOTP({ go, state, setState }: any) {
 }
 // ============== SUCCESS - Celebration + Email Template (Screen 12) ==============
 function Confetti() {
-  const colors = ["#d0f255", "#005656", "#008236", "#FFB020", "#F472B6", "#60A5FA"];
+  const colors = [
+    "#d0f255",
+    "#005656",
+    "#008236",
+    "#FFB020",
+    "#F472B6",
+    "#60A5FA",
+  ];
   const pieces = Array.from({ length: 60 });
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -2690,8 +3670,18 @@ function Confetti() {
           <motion.div
             key={i}
             initial={{ y: -40, x: 0, opacity: 0, rotate: 0 }}
-            animate={{ y: "110vh", opacity: [0, 1, 1, 0.8, 0], rotate: rotate + 540 }}
-            transition={{ delay, duration, ease: "easeIn", repeat: Infinity, repeatDelay: 2 }}
+            animate={{
+              y: "110vh",
+              opacity: [0, 1, 1, 0.8, 0],
+              rotate: rotate + 540,
+            }}
+            transition={{
+              delay,
+              duration,
+              ease: "easeIn",
+              repeat: Infinity,
+              repeatDelay: 2,
+            }}
             style={{
               position: "absolute",
               top: 0,
@@ -2710,7 +3700,8 @@ function Confetti() {
 
 export function ScreenSuccess({ state }: any) {
   const merchantId = "PL-" + Math.floor(100000 + Math.random() * 900000);
-  const tempPassword = "Qs@" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const tempPassword =
+    "Qs@" + Math.random().toString(36).slice(2, 8).toUpperCase();
   const firstName = state.fullName?.split(" ")[0] || "there";
   const successTickAnimation = useMemo(() => getRethemedSuccessTick(), []);
   const [showQwikServe, setShowQwikServe] = useState(false);
@@ -2735,7 +3726,12 @@ export function ScreenSuccess({ state }: any) {
           }}
           initial={{ opacity: 0, scale: 0.7 }}
           animate={{ opacity: [0.45, 0.7, 0.5], scale: [0.92, 1.04, 1] }}
-          transition={{ duration: 2.6, ease: "easeInOut", repeat: Infinity, repeatType: "mirror" }}
+          transition={{
+            duration: 2.6,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "mirror",
+          }}
         />
         <motion.div
           initial={{ opacity: 0, scale: 0.72, y: 14 }}
@@ -2756,7 +3752,12 @@ export function ScreenSuccess({ state }: any) {
             style={{ border: `1.5px solid rgba(0,130,54,0.26)` }}
             initial={{ scale: 0.88, opacity: 0 }}
             animate={{ scale: [0.95, 1.22, 1.38], opacity: [0, 0.42, 0] }}
-            transition={{ duration: 1.9, times: [0, 0.45, 1], repeat: Infinity, repeatDelay: 0.4 }}
+            transition={{
+              duration: 1.9,
+              times: [0, 0.45, 1],
+              repeat: Infinity,
+              repeatDelay: 0.4,
+            }}
           />
           <motion.div
             className="absolute inset-[10px] rounded-full"
@@ -2773,7 +3774,11 @@ export function ScreenSuccess({ state }: any) {
             className="relative z-10 size-[62px] sm:size-[76px] md:size-[86px]"
             initial={{ opacity: 0, scale: 0.88 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.16, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              delay: 0.16,
+              duration: 0.4,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <Lottie
               animationData={successTickAnimation}
@@ -2794,8 +3799,17 @@ export function ScreenSuccess({ state }: any) {
                 right: i === 0 ? 16 : i === 1 ? 28 : 36,
               }}
               initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 0.6], y: [6, -4, -12] }}
-              transition={{ delay: 0.78 + i * 0.1, duration: 1.1, repeat: Infinity, repeatDelay: 1.8 }}
+              animate={{
+                opacity: [0, 1, 0],
+                scale: [0.4, 1, 0.6],
+                y: [6, -4, -12],
+              }}
+              transition={{
+                delay: 0.78 + i * 0.1,
+                duration: 1.1,
+                repeat: Infinity,
+                repeatDelay: 1.8,
+              }}
             />
           ))}
         </motion.div>
@@ -2816,51 +3830,97 @@ export function ScreenSuccess({ state }: any) {
           className="mt-2 sm:mt-3 text-xs sm:text-sm md:text-base max-w-xl mx-auto px-4"
           style={{ color: MUTED }}
         >
-          Your Pine Labs merchant account is activated. We've emailed your QwikServe portal
-          login credentials to <span style={{ color: TEXT, fontWeight: 600 }}>{state.email}</span>.
+          Your Pine Labs merchant account is activated. We've emailed your
+          QwikServe portal login credentials to{" "}
+          <span style={{ color: TEXT, fontWeight: 600 }}>{state.email}</span>.
         </motion.p>
       </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="relative rounded-[12px] sm:rounded-[16px] md:rounded-[20px] overflow-hidden"
-          style={{
-            background: "rgba(255,255,255,0.94)",
-            border: `1px solid ${BORDER}`,
-            boxShadow: "0px 18px 42px rgba(16,24,40,0.1)",
-            backdropFilter: "blur(10px)",
-          }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="relative rounded-[12px] sm:rounded-[16px] md:rounded-[20px] overflow-hidden"
+        style={{
+          background: "rgba(255,255,255,0.94)",
+          border: `1px solid ${BORDER}`,
+          boxShadow: "0px 18px 42px rgba(16,24,40,0.1)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <div
+          className="px-3 sm:px-5 py-2 sm:py-3 flex items-center gap-2 border-b"
+          style={{ borderColor: BORDER, background: BG_SOFT }}
         >
-        <div className="px-3 sm:px-5 py-2 sm:py-3 flex items-center gap-2 border-b" style={{ borderColor: BORDER, background: BG_SOFT }}>
           <div className="flex gap-1 sm:gap-1.5">
-            <span className="size-2 sm:size-3 rounded-full" style={{ background: "#FF5F57" }} />
-            <span className="size-2 sm:size-3 rounded-full" style={{ background: "#FEBC2E" }} />
-            <span className="size-2 sm:size-3 rounded-full" style={{ background: "#28C840" }} />
+            <span
+              className="size-2 sm:size-3 rounded-full"
+              style={{ background: "#FF5F57" }}
+            />
+            <span
+              className="size-2 sm:size-3 rounded-full"
+              style={{ background: "#FEBC2E" }}
+            />
+            <span
+              className="size-2 sm:size-3 rounded-full"
+              style={{ background: "#28C840" }}
+            />
           </div>
-          <div className="flex-1 text-center text-[10px] sm:text-xs" style={{ color: MUTED }}>
-            <Mail className="inline size-3 sm:size-3.5 mr-1" /> Inbox · QwikServe
+          <div
+            className="flex-1 text-center text-[10px] sm:text-xs"
+            style={{ color: MUTED }}
+          >
+            <Mail className="inline size-3 sm:size-3.5 mr-1" /> Inbox ·
+            QwikServe
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 py-3 sm:py-5 border-b" style={{ borderColor: BORDER }}>
+        <div
+          className="px-4 sm:px-6 py-3 sm:py-5 border-b"
+          style={{ borderColor: BORDER }}
+        >
           <div className="flex items-start justify-between gap-2 sm:gap-4 mb-2 sm:mb-3">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="size-8 sm:size-10 rounded-full flex items-center justify-center shrink-0 text-xs sm:text-sm" style={{ background: PRIMARY, color: LIME, fontWeight: 700 }}>
+              <div
+                className="size-8 sm:size-10 rounded-full flex items-center justify-center shrink-0 text-xs sm:text-sm"
+                style={{ background: PRIMARY, color: LIME, fontWeight: 700 }}
+              >
                 PL
               </div>
               <div className="min-w-0">
-                <div className="text-xs sm:text-sm truncate" style={{ color: TEXT, fontWeight: 600 }}>Pine Labs QwikServe</div>
-                <div className="text-[10px] sm:text-xs truncate" style={{ color: MUTED }}>noreply@pinelabs.com</div>
+                <div
+                  className="text-xs sm:text-sm truncate"
+                  style={{ color: TEXT, fontWeight: 600 }}
+                >
+                  Pine Labs QwikServe
+                </div>
+                <div
+                  className="text-[10px] sm:text-xs truncate"
+                  style={{ color: MUTED }}
+                >
+                  noreply@pinelabs.com
+                </div>
               </div>
             </div>
-            <div className="text-[10px] sm:text-xs shrink-0" style={{ color: MUTED }}>just now</div>
+            <div
+              className="text-[10px] sm:text-xs shrink-0"
+              style={{ color: MUTED }}
+            >
+              just now
+            </div>
           </div>
-          <div className="text-xs sm:text-sm" style={{ color: TEXT, fontWeight: 600 }}>
+          <div
+            className="text-xs sm:text-sm"
+            style={{ color: TEXT, fontWeight: 600 }}
+          >
             Welcome to QwikServe — your login credentials inside
           </div>
-          <div className="text-[10px] sm:text-xs mt-0.5 truncate" style={{ color: MUTED }}>To: {state.email}</div>
+          <div
+            className="text-[10px] sm:text-xs mt-0.5 truncate"
+            style={{ color: MUTED }}
+          >
+            To: {state.email}
+          </div>
         </div>
 
         <div className="px-4 sm:px-6 py-4 sm:py-6">
@@ -2872,67 +3932,147 @@ export function ScreenSuccess({ state }: any) {
               boxShadow: "0 18px 34px -22px rgba(0,86,86,0.55)",
             }}
           >
-            <Sparkles className="inline size-4 sm:size-5 mb-1 sm:mb-2" style={{ color: LIME }} />
-            <div className="text-sm sm:text-lg" style={{ fontWeight: 700 }}>You're all set, {firstName || "Merchant"}!</div>
-            <div className="text-[10px] sm:text-xs mt-0.5 sm:mt-1" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Sparkles
+              className="inline size-4 sm:size-5 mb-1 sm:mb-2"
+              style={{ color: LIME }}
+            />
+            <div className="text-sm sm:text-lg" style={{ fontWeight: 700 }}>
+              You're all set, {firstName || "Merchant"}!
+            </div>
+            <div
+              className="text-[10px] sm:text-xs mt-0.5 sm:mt-1"
+              style={{ color: "rgba(255,255,255,0.85)" }}
+            >
               Your QwikServe portal is ready to use
             </div>
           </div>
 
-          <p className="text-xs sm:text-sm mb-3 sm:mb-4" style={{ color: TEXT_2 }}>
+          <p
+            className="text-xs sm:text-sm mb-3 sm:mb-4"
+            style={{ color: TEXT_2 }}
+          >
             Hi {firstName},
           </p>
-          <p className="text-xs sm:text-sm mb-4 sm:mb-5" style={{ color: TEXT_2 }}>
-            Thank you for completing your merchant onboarding with Pine Labs. Your account has been
-            verified and activated. Use the credentials below to log in to the QwikServe platform
-            and start managing your business.
+          <p
+            className="text-xs sm:text-sm mb-4 sm:mb-5"
+            style={{ color: TEXT_2 }}
+          >
+            Thank you for completing your merchant onboarding with Pine Labs.
+            Your account has been verified and activated. Use the credentials
+            below to log in to the QwikServe platform and start managing your
+            business.
           </p>
 
-          <div className="rounded-[8px] sm:rounded-[12px] p-3 sm:p-4 mb-4 sm:mb-5" style={{ background: BG_SOFT, border: `1px dashed ${BORDER_INPUT}` }}>
-            <div className="text-[10px] sm:text-xs mb-2 sm:mb-3" style={{ color: MUTED, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.4 }}>
+          <div
+            className="rounded-[8px] sm:rounded-[12px] p-3 sm:p-4 mb-4 sm:mb-5"
+            style={{
+              background: BG_SOFT,
+              border: `1px dashed ${BORDER_INPUT}`,
+            }}
+          >
+            <div
+              className="text-[10px] sm:text-xs mb-2 sm:mb-3"
+              style={{
+                color: MUTED,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: 0.4,
+              }}
+            >
               Your login credentials
             </div>
             <div className="space-y-2 sm:space-y-2.5 text-xs sm:text-sm">
               <div className="flex items-center justify-between gap-2 sm:gap-3">
                 <span style={{ color: MUTED }}>Merchant ID</span>
-                <span className="text-[11px] sm:text-sm truncate" style={{ color: TEXT, fontWeight: 600, fontFamily: "monospace" }}>{merchantId}</span>
+                <span
+                  className="text-[11px] sm:text-sm truncate"
+                  style={{
+                    color: TEXT,
+                    fontWeight: 600,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {merchantId}
+                </span>
               </div>
               <div className="flex items-center justify-between gap-2 sm:gap-3">
                 <span style={{ color: MUTED }}>Username</span>
-                <span className="text-[11px] sm:text-sm truncate" style={{ color: TEXT, fontWeight: 600, fontFamily: "monospace" }}>{state.email}</span>
+                <span
+                  className="text-[11px] sm:text-sm truncate"
+                  style={{
+                    color: TEXT,
+                    fontWeight: 600,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {state.email}
+                </span>
               </div>
               <div className="flex items-center justify-between gap-2 sm:gap-3">
-                <span className="whitespace-nowrap" style={{ color: MUTED }}>Temporary password</span>
-                <span className="text-[11px] sm:text-sm" style={{ color: TEXT, fontWeight: 600, fontFamily: "monospace" }}>{tempPassword}</span>
+                <span className="whitespace-nowrap" style={{ color: MUTED }}>
+                  Temporary password
+                </span>
+                <span
+                  className="text-[11px] sm:text-sm"
+                  style={{
+                    color: TEXT,
+                    fontWeight: 600,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  {tempPassword}
+                </span>
               </div>
               <div className="flex items-center justify-between gap-2 sm:gap-3">
                 <span style={{ color: MUTED }}>Portal URL</span>
-                <span className="text-[11px] sm:text-sm truncate" style={{ color: PRIMARY, fontWeight: 600 }}>qwikserve.pinelabs.com</span>
+                <span
+                  className="text-[11px] sm:text-sm truncate"
+                  style={{ color: PRIMARY, fontWeight: 600 }}
+                >
+                  qwikserve.pinelabs.com
+                </span>
               </div>
             </div>
           </div>
 
-	          <div className="flex justify-center mb-4 sm:mb-5">
-	            <button
-	              type="button"
-	              onClick={() => setShowQwikServe(true)}
-	              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm"
-	              style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}
-	            >
+          <div className="flex justify-center mb-4 sm:mb-5">
+            <button
+              type="button"
+              onClick={() => setShowQwikServe(true)}
+              className="inline-flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm"
+              style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}
+            >
               Log in to QwikServe <ArrowRight className="size-3.5 sm:size-4" />
             </button>
           </div>
 
-          <div className="rounded-[8px] sm:rounded-[10px] p-2.5 sm:p-3 mb-4 sm:mb-5 flex items-start gap-2 text-[10px] sm:text-xs" style={{ background: "#FEF6E7", border: "1px solid #FCE7B3", color: "#7A4F01" }}>
+          <div
+            className="rounded-[8px] sm:rounded-[10px] p-2.5 sm:p-3 mb-4 sm:mb-5 flex items-start gap-2 text-[10px] sm:text-xs"
+            style={{
+              background: "#FEF6E7",
+              border: "1px solid #FCE7B3",
+              color: "#7A4F01",
+            }}
+          >
             <Lock className="size-3.5 sm:size-4 shrink-0 mt-0.5" />
-            <span>For security, please change your temporary password on first login. This email contains sensitive credentials — do not share.</span>
+            <span>
+              For security, please change your temporary password on first
+              login. This email contains sensitive credentials — do not share.
+            </span>
           </div>
 
           <p className="text-[10px] sm:text-xs" style={{ color: MUTED }}>
-            Need help? Reach our support team at <span style={{ color: PRIMARY }}>support@pinelabs.com</span> or call 1800-419-0207.
+            Need help? Reach our support team at{" "}
+            <span style={{ color: PRIMARY }}>support@pinelabs.com</span> or call
+            1800-419-0207.
           </p>
-          <p className="text-[10px] sm:text-xs mt-2 sm:mt-3" style={{ color: MUTED }}>
-            Cheers,<br />The Pine Labs Team
+          <p
+            className="text-[10px] sm:text-xs mt-2 sm:mt-3"
+            style={{ color: MUTED }}
+          >
+            Cheers,
+            <br />
+            The Pine Labs Team
           </p>
         </div>
       </motion.div>
@@ -2951,7 +4091,10 @@ export function ScreenSuccess({ state }: any) {
         {showQwikServe && (
           <motion.div
             className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6"
-            style={{ background: "rgba(10,13,18,0.62)", backdropFilter: "blur(8px)" }}
+            style={{
+              background: "rgba(10,13,18,0.62)",
+              backdropFilter: "blur(8px)",
+            }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -2964,9 +4107,15 @@ export function ScreenSuccess({ state }: any) {
               exit={{ opacity: 0, y: 12, scale: 0.98 }}
               transition={{ duration: 0.24, ease: "easeOut" }}
             >
-              <div className="flex items-center justify-between gap-3 border-b px-4 py-3 sm:px-5" style={{ borderColor: BORDER }}>
+              <div
+                className="flex items-center justify-between gap-3 border-b px-4 py-3 sm:px-5"
+                style={{ borderColor: BORDER }}
+              >
                 <div className="min-w-0">
-                  <div className="truncate text-sm sm:text-base" style={{ color: TEXT, fontWeight: 700 }}>
+                  <div
+                    className="truncate text-sm sm:text-base"
+                    style={{ color: TEXT, fontWeight: 700 }}
+                  >
                     QwikServe portal
                   </div>
                   <div className="truncate text-xs" style={{ color: MUTED }}>

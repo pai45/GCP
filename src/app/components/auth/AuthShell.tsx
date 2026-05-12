@@ -1,9 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import Lottie from "lottie-react";
 import { useNavigate } from "react-router";
 import pineLabsLogoImg from "../../../imports/Pine_Labs_White.png";
-import logoAnimation from "../../../imports/logo-animation.json";
+import landingImage from "../../../imports/landing image.png";
 import ColorBends from "./ColorBends";
 
 const authBgColors = ["#012C2C", "#33470d", "#4f6a16", "#789126", "#a9c93a"];
@@ -235,13 +234,14 @@ export function AuthShell({
                 }}
                 transition={{ duration: 1.5, ease: [0.45, 0, 0.2, 1] }}
               />
-              <Lottie
-                animationData={logoAnimation}
-                loop
-                autoplay
-                className="relative h-28 w-28"
-                aria-label="Pine Labs loading animation"
-                rendererSettings={{ preserveAspectRatio: "xMidYMid meet" }}
+              <motion.img
+                src={landingImage}
+                alt="Pine Labs onboarding"
+                className="relative h-28 w-28 rounded-[24px] object-cover"
+                initial={{ scale: 1.14 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                draggable={false}
               />
             </motion.div>
           </motion.div>

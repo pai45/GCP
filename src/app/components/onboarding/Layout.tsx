@@ -1,6 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Check, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Lock,
+  UserRound,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import pineLabsLogoImg from "../../../../pinelabs logo.png";
 import LiquidEther from "./LiquidEther";
@@ -42,8 +50,23 @@ export const STEPS: {
   { id: 5, label: "Review and Submit" },
 ];
 
-export function TopNav({ onSaveExit }: { onSaveExit?: () => void }) {
+export function TopNav({
+  onSaveExit,
+  autosaveKey,
+}: {
+  onSaveExit?: () => void;
+  autosaveKey?: string;
+}) {
   const navigate = useNavigate();
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!autosaveKey) return;
+
+    setIsSaving(true);
+    const timer = window.setTimeout(() => setIsSaving(false), 850);
+    return () => window.clearTimeout(timer);
+  }, [autosaveKey]);
 
   return (
     <header
@@ -101,19 +124,53 @@ export function TopNav({ onSaveExit }: { onSaveExit?: () => void }) {
             </div>
           </div>
         </div>
-        <button
-          onClick={onSaveExit}
-          className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm hover:bg-[#f9fafb] transition shrink-0"
-          style={{
-            color: "#252b37",
-            fontWeight: 600,
-            border: `1px solid ${BORDER_INPUT}`,
-            background: "#fff",
-          }}
-        >
-          <span className="hidden sm:inline">Save & Log out</span>
-          <span className="sm:hidden">Save</span>
-        </button>
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div
+            className="hidden items-center gap-2 rounded-full px-3 py-2 text-xs font-semibold sm:flex"
+            style={{
+              color: isSaving ? PRIMARY : SUCCESS,
+              background: isSaving ? "#f7fee7" : SUCCESS_BG,
+              border: `1px solid ${isSaving ? "#d9f99d" : SUCCESS_BORDER}`,
+            }}
+          >
+            {isSaving ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <CheckCircle2 size={14} />
+            )}
+            {isSaving ? "Autosaving..." : "Saved"}
+          </div>
+          <button
+            type="button"
+            className="flex size-10 items-center justify-center rounded-full transition hover:bg-[#f9fafb]"
+            style={{
+              color: PRIMARY,
+              border: `1px solid ${BORDER_INPUT}`,
+              background: "#fff",
+            }}
+            aria-label="Profile"
+          >
+            <UserRound size={18} />
+          </button>
+          <div
+            className="h-8 w-px"
+            style={{ background: BORDER_INPUT }}
+            aria-hidden="true"
+          />
+          <button
+            onClick={onSaveExit}
+            className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-[8px] sm:rounded-[10px] text-xs sm:text-sm hover:bg-[#f9fafb] transition shrink-0"
+            style={{
+              color: "#252b37",
+              fontWeight: 600,
+              border: `1px solid ${BORDER_INPUT}`,
+              background: "#fff",
+            }}
+          >
+            <span className="hidden sm:inline">Save & Log out</span>
+            <span className="sm:hidden">Save</span>
+          </button>
+        </div>
       </div>
     </header>
   );
@@ -133,7 +190,7 @@ function SidebarComponent({
   onStepClick?: (step: number, subId?: string) => void;
 }) {
   return (
-    <aside className="hidden lg:block w-[360px] xl:w-[408px] shrink-0 self-start sticky top-[94px] pr-8 xl:pr-10 pt-8">
+    <aside className="hidden lg:block w-[360px] xl:w-[408px] shrink-0 self-start sticky top-[94px] pr-8 xl:pr-10">
       <motion.div
         className="rounded-[24px] p-6"
         style={{
@@ -574,6 +631,7 @@ export function PageShell({
   children,
   onSaveExit,
   onStepClick,
+  autosaveKey,
 }: {
   currentStep: number;
   completed: number[];
@@ -583,6 +641,7 @@ export function PageShell({
   children: React.ReactNode;
   onSaveExit?: () => void;
   onStepClick?: (step: number, subId?: string) => void;
+  autosaveKey?: string;
 }) {
   const totalSteps = STEPS.length;
   const progressPercent = (completed.length / totalSteps) * 100;
@@ -628,7 +687,7 @@ export function PageShell({
       </div>
 
       <div className="relative z-10 flex flex-col flex-1 w-full">
-        <TopNav onSaveExit={onSaveExit} />
+        <TopNav onSaveExit={onSaveExit} autosaveKey={autosaveKey} />
 
         {/* Mobile progress bar and steps accordion */}
         {showSidebar && (
@@ -648,7 +707,7 @@ export function PageShell({
             className="flex justify-center w-full"
             style={{ maxWidth: 1440 }}
           >
-            <div className="flex items-start w-full px-0 sm:px-6 md:px-8 xl:px-[80px]">
+            <div className="flex items-start w-full px-0 pt-6 sm:px-6 sm:pt-8 md:px-8 lg:pt-16 xl:px-[80px]">
               {showSidebar && (
                 <Sidebar
                   currentStep={currentStep}
@@ -659,10 +718,8 @@ export function PageShell({
                 />
               )}
               <main
-                className={`flex-1 min-w-0 flex overflow-visible pt-4 sm:pt-6 lg:pt-12 ${
-                  showSidebar
-                    ? "lg:ml-12 xl:ml-16 justify-start"
-                    : "justify-center"
+                className={`flex-1 min-w-0 flex overflow-visible ${
+                  showSidebar ? "lg:ml-12 xl:ml-16 justify-start" : "justify-center"
                 }`}
               >
                 <div className="w-full">{children}</div>
@@ -677,7 +734,7 @@ export function PageShell({
 }
 
 export function FormCard({
-  eyebrow = "Usually takes 1 minute",
+  eyebrow,
   title,
   subtitle,
   progress,
@@ -713,20 +770,22 @@ export function FormCard({
       >
         <div className="flex flex-col sm:flex-row items-start justify-between gap-4 sm:gap-6">
           <div className="flex-1 min-w-0">
-            <div
-              className="inline-flex items-center justify-center px-2.5 sm:px-3 py-1 rounded-full uppercase"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                color: "rgba(255,255,255,0.9)",
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: "0.11em",
-              }}
-            >
-              {eyebrow}
-            </div>
+            {eyebrow && (
+              <div
+                className="inline-flex items-center justify-center px-2.5 sm:px-3 py-1 rounded-full uppercase"
+                style={{
+                  background: "rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: "0.11em",
+                }}
+              >
+                {eyebrow}
+              </div>
+            )}
             <h1
-              className="mt-2.5 sm:mt-3"
+              className={eyebrow ? "mt-2.5 sm:mt-3" : ""}
               style={{
                 color: "#fff",
                 fontFamily: "var(--font-display)",

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Loader2 } from "lucide-react";
+import { UserRound } from "lucide-react";
 
 interface AnalyzingTransitionProps {
   onComplete: () => void;
@@ -8,6 +8,8 @@ interface AnalyzingTransitionProps {
   stepTwoText?: string;
   successTitle?: string;
   successText?: string;
+  successOnly?: boolean;
+  successIcon?: "check" | "profile";
 }
 
 export function AnalyzingTransition({
@@ -16,10 +18,18 @@ export function AnalyzingTransition({
   stepTwoText = "Verifying your CIN details...",
   successTitle = "Congratulations",
   successText = "All your details have been verified...",
+  successOnly = false,
+  successIcon = "check",
 }: AnalyzingTransitionProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(successOnly ? 3 : 0);
 
   useEffect(() => {
+    if (successOnly) {
+      setCurrentStep(3);
+      const timer = setTimeout(() => onComplete(), 2600);
+      return () => clearTimeout(timer);
+    }
+
     // Show first subtext immediately
     const timer1 = setTimeout(() => setCurrentStep(1), 100);
     // Switch to second subtext after 2s
@@ -35,7 +45,7 @@ export function AnalyzingTransition({
       clearTimeout(timer3);
       clearTimeout(timer4);
     };
-  }, [onComplete]);
+  }, [onComplete, successOnly]);
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -127,7 +137,7 @@ export function AnalyzingTransition({
         <AnimatePresence mode="wait">
           {currentStep === 3 && (
             <motion.div
-              key="success-check"
+              key={`success-${successIcon}`}
               initial={{ scale: 0, rotate: -180 }}
               animate={{ scale: 1, rotate: 0 }}
               exit={{ scale: 0, rotate: 180 }}
@@ -160,23 +170,41 @@ export function AnalyzingTransition({
                   }}
                 />
 
-                {/* Animated checkmark */}
-                <svg
-                  className="absolute inset-0 w-full h-full"
-                  viewBox="0 0 100 100"
-                >
-                  <motion.path
-                    d="M 25 50 L 40 65 L 75 30"
-                    fill="none"
-                    stroke="#d0f255"
-                    strokeWidth="8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
-                  />
-                </svg>
+                {successIcon === "profile" ? (
+                  <motion.div
+                    className="absolute inset-0 flex items-center justify-center text-[#d0f255]"
+                    initial={{ opacity: 0, scale: 0.5 }}
+                    animate={{ opacity: 1, scale: [0.5, 1.12, 1] }}
+                    transition={{
+                      duration: 0.65,
+                      delay: 0.2,
+                      ease: [0.34, 1.56, 0.64, 1],
+                    }}
+                  >
+                    <UserRound size={48} strokeWidth={2.4} />
+                  </motion.div>
+                ) : (
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 100 100"
+                  >
+                    <motion.path
+                      d="M 25 50 L 40 65 L 75 30"
+                      fill="none"
+                      stroke="#d0f255"
+                      strokeWidth="8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{
+                        duration: 0.5,
+                        delay: 0.3,
+                        ease: "easeOut",
+                      }}
+                    />
+                  </svg>
+                )}
 
                 {/* Glow effect */}
                 <motion.div
