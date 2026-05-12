@@ -15,7 +15,7 @@ import {
 import Lottie from "lottie-react";
 import { AnimatePresence, motion } from "motion/react";
 import {
-  BrowserRouter,
+  HashRouter,
   Navigate,
   Route,
   Routes,
@@ -192,9 +192,9 @@ const initialOnboardingState = {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppRoutes />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

@@ -1241,7 +1241,7 @@ export function ScreenAccountOwner({ go, state, setState }: any) {
         </div>
       </FormCard>
 
-      <ActionBar left={<GhostLink>Save and continue later</GhostLink>}>
+      <ActionBar>
         <PrimaryButton disabled={!valid} onClick={() => go(3)}>
           Save & next
         </PrimaryButton>
@@ -1286,6 +1286,94 @@ const DOC_ICONS: Record<DocKey, string> = {
   address: mapPointWaveIcon,
 };
 
+function DocumentUploadRow({
+  docKey,
+  title,
+  hint,
+  sample,
+  file,
+  docs,
+  setDocs,
+}: {
+  docKey: DocKey;
+  title: string;
+  hint: string;
+  sample: UploadedDoc;
+  file: UploadedDoc;
+  docs: Record<DocKey, UploadedDoc>;
+  setDocs: (docs: Record<DocKey, UploadedDoc>) => void;
+}) {
+  const iconSrc = DOC_ICONS[docKey];
+
+  return (
+    <motion.div
+      onClick={() => !file && setDocs({ ...docs, [docKey]: sample })}
+      className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
+      style={{
+        border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
+        background: file ? SUCCESS_BG : "#fff",
+        boxShadow: file ? "0 0 0 3px rgba(0,130,54,0.05)" : "none",
+        cursor: file ? "default" : "pointer",
+      }}
+      whileHover={
+        !file ? { scale: 1.01, borderColor: PRIMARY } : { borderColor: SUCCESS }
+      }
+      whileTap={!file ? { scale: 0.99 } : {}}
+    >
+      <div
+        className="size-9 rounded-[10px] flex items-center justify-center shrink-0"
+        style={{ background: file ? "#fff" : BG_SOFT }}
+      >
+        {file ? (
+          <CheckCircle2 className="size-5" style={{ color: SUCCESS }} />
+        ) : (
+          <img src={iconSrc} alt="" className="size-6" draggable={false} />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div
+          className="text-sm truncate"
+          style={{ color: TEXT, fontWeight: 600, lineHeight: "20px" }}
+        >
+          {file ? file.name : title}
+        </div>
+        <div
+          className="text-xs mt-0.5"
+          style={{ color: MUTED, lineHeight: "16px" }}
+        >
+          {file ? `${file.ext} · ${file.size} · Uploaded` : hint}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setDocs({ ...docs, [docKey]: file ? null : sample });
+        }}
+        className="shrink-0 inline-flex items-center gap-2"
+        style={{
+          color: PRIMARY,
+          fontWeight: 600,
+          fontSize: 14,
+          lineHeight: "20px",
+        }}
+      >
+        {file ? (
+          <RefreshCw className="size-5" />
+        ) : (
+          <img
+            src={uploadMinimalisticIcon}
+            alt=""
+            className="size-6"
+            draggable={false}
+          />
+        )}
+        {file ? "Replace" : "Upload"}
+      </button>
+    </motion.div>
+  );
+}
+
 export function ScreenBeforeYouBegin({ go, state, setState }: any) {
   const [docs, setDocs] = useState<Record<DocKey, UploadedDoc>>({
     gst: null,
@@ -1317,7 +1405,7 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
             <section>
               <SectionHeading>Required Documents</SectionHeading>
               <div className="space-y-3">
-                {DOC_DEFS.map(({ key, title, hint, sample }) => {
+                {DOC_DEFS.filter((doc) => doc.key !== "address").map(({ key, title, hint, sample }) => {
                   const file = docs[key];
                   const iconSrc = DOC_ICONS[key];
                   return (
@@ -1415,15 +1503,114 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
                 style={{ color: MUTED, lineHeight: "16px" }}
               >
                 We'll use these only for verification. Nothing is shared.
-                Address proof is optional if you have GST certificate.
               </p>
+            </section>
+            <section>
+              <h2
+                className="mb-4 text-base sm:text-lg"
+                style={{ color: TEXT, fontWeight: 700, lineHeight: "24px" }}
+              >
+                If GST not present
+              </h2>
+              {DOC_DEFS.filter((doc) => doc.key === "address").map(
+                ({ key, title, hint, sample }) => {
+                  const file = docs[key];
+                  const iconSrc = DOC_ICONS[key];
+                  return (
+                    <motion.div
+                      key={key}
+                      onClick={() =>
+                        !file && setDocs({ ...docs, [key]: sample })
+                      }
+                      className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
+                      style={{
+                        border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
+                        background: file ? SUCCESS_BG : "#fff",
+                        boxShadow: file
+                          ? "0 0 0 3px rgba(0,130,54,0.05)"
+                          : "none",
+                        cursor: file ? "default" : "pointer",
+                      }}
+                      whileHover={
+                        !file
+                          ? { scale: 1.01, borderColor: PRIMARY }
+                          : { borderColor: SUCCESS }
+                      }
+                      whileTap={!file ? { scale: 0.99 } : {}}
+                    >
+                      <div
+                        className="size-9 rounded-[10px] flex items-center justify-center shrink-0"
+                        style={{ background: file ? "#fff" : BG_SOFT }}
+                      >
+                        {file ? (
+                          <CheckCircle2
+                            className="size-5"
+                            style={{ color: SUCCESS }}
+                          />
+                        ) : (
+                          <img
+                            src={iconSrc}
+                            alt=""
+                            className="size-6"
+                            draggable={false}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className="text-sm truncate"
+                          style={{
+                            color: TEXT,
+                            fontWeight: 600,
+                            lineHeight: "20px",
+                          }}
+                        >
+                          {file ? file.name : title}
+                        </div>
+                        <div
+                          className="text-xs mt-0.5"
+                          style={{ color: MUTED, lineHeight: "16px" }}
+                        >
+                          {file
+                            ? `${file.ext} · ${file.size} · Uploaded`
+                            : hint}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDocs({ ...docs, [key]: file ? null : sample });
+                        }}
+                        className="shrink-0 inline-flex items-center gap-2"
+                        style={{
+                          color: PRIMARY,
+                          fontWeight: 600,
+                          fontSize: 14,
+                          lineHeight: "20px",
+                        }}
+                      >
+                        {file ? (
+                          <RefreshCw className="size-5" />
+                        ) : (
+                          <img
+                            src={uploadMinimalisticIcon}
+                            alt=""
+                            className="size-6"
+                            draggable={false}
+                          />
+                        )}
+                        {file ? "Replace" : "Upload"}
+                      </button>
+                    </motion.div>
+                  );
+                },
+              )}
             </section>
           </div>
         </FormCard>
 
-        <ActionBar
-          left={<GhostLink onClick={() => go(2)}>Skip for now</GhostLink>}
-        >
+        <ActionBar>
           {parsing ? (
             <motion.div
               className="min-w-[120px] px-6 py-3 rounded-[12px] text-sm inline-flex items-center justify-center gap-2"
@@ -2081,7 +2268,7 @@ export function ScreenCompanyAddress({ go, state, setState }: any) {
         </div>
       </FormCard>
 
-      <ActionBar left={<GhostLink onClick={() => go(3)}>Back</GhostLink>}>
+      <ActionBar>
         <PrimaryButton onClick={() => go(5)}>Save & continue</PrimaryButton>
       </ActionBar>
     </div>
@@ -2600,7 +2787,7 @@ export function ScreenSignatory({ go, state, setState }: any) {
         </div>
       </FormCard>
 
-      <ActionBar left={<GhostLink onClick={() => go(4)}>Back</GhostLink>}>
+      <ActionBar>
         <PrimaryButton disabled={!valid} onClick={() => go(6)}>
           Save & continue
         </PrimaryButton>
@@ -2713,7 +2900,6 @@ export function ScreenDocuments({ go }: { go: Nav }) {
       </div>
 
       <div className="flex flex-col sm:flex-row items-center gap-3 sm:justify-between">
-        <GhostLink onClick={() => go(7)}>Skip for now</GhostLink>
         <PrimaryButton onClick={() => go(7)}>Continue to review</PrimaryButton>
       </div>
     </div>
@@ -3235,9 +3421,7 @@ export function ScreenTermsPage1({ go, state }: any) {
         </TermsDocument>
       </TermsFormPage>
 
-      <ActionBar
-        left={<GhostLink onClick={() => go(6)}>Back to review</GhostLink>}
-      >
+      <ActionBar>
         <PrimaryButton onClick={() => go(8)}>Next page (2 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -3303,9 +3487,7 @@ export function ScreenTermsPage2({ go, state }: any) {
         />
       </TermsFormPage>
 
-      <ActionBar
-        left={<GhostLink onClick={() => go(7)}>Previous page</GhostLink>}
-      >
+      <ActionBar>
         <PrimaryButton onClick={() => go(9)}>Next page (3 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -3364,9 +3546,7 @@ export function ScreenTermsPage3({ go, state }: any) {
         />
       </TermsFormPage>
 
-      <ActionBar
-        left={<GhostLink onClick={() => go(8)}>Previous page</GhostLink>}
-      >
+      <ActionBar>
         <PrimaryButton onClick={() => go(10)}>Next page (4 of 4)</PrimaryButton>
       </ActionBar>
     </div>
@@ -3462,9 +3642,7 @@ export function ScreenTermsPage4({ go, state }: any) {
         />
       </TermsFormPage>
 
-      <ActionBar
-        left={<GhostLink onClick={() => go(9)}>Previous page</GhostLink>}
-      >
+      <ActionBar>
         <PrimaryButton onClick={() => (state.esignVerified ? go(12) : go(11))}>
           {state.esignVerified ? "Sign" : "Accept & proceed to eSign"}
         </PrimaryButton>
@@ -3622,9 +3800,7 @@ export function ScreenAadhaarOTP({ go, state, setState }: any) {
         </div>
       </FormCard>
 
-      <ActionBar
-        left={<GhostLink onClick={() => go(10)}>Back to terms</GhostLink>}
-      >
+      <ActionBar>
         {!otpSent ? (
           <PrimaryButton disabled={!aadhaarComplete} onClick={handleSendOTP}>
             Send OTP
