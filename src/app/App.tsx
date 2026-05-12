@@ -117,18 +117,18 @@ const SCREEN_BY_PATH: Record<string, number> = {
 };
 
 const SIDEBAR_STEP_FOR_SCREEN: Record<number, number> = {
-  1: 0,
-  2: 1,
-  3: 2,
-  4: 2,
-  5: 3,
-  6: 4,
-  7: 4,
-  8: 4,
-  9: 4,
-  10: 4,
-  11: 4,
-  12: 4,
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 3,
+  5: 4,
+  6: 5,
+  7: 5,
+  8: 5,
+  9: 5,
+  10: 5,
+  11: 5,
+  12: 5,
 };
 
 const SUB_FOR_SCREEN: Record<number, string | undefined> = {
@@ -150,17 +150,17 @@ const COMPLETED_SUBS_FOR_SCREEN: Record<number, string[]> = {
 
 const COMPLETED_FOR_SCREEN: Record<number, number[]> = {
   1: [],
-  2: [],
-  3: [1],
-  4: [1],
-  5: [1, 2],
-  6: [1, 2, 3],
-  7: [1, 2, 3, 4],
-  8: [1, 2, 3, 4],
-  9: [1, 2, 3, 4],
-  10: [1, 2, 3, 4],
-  11: [1, 2, 3, 4],
-  12: [1, 2, 3, 4],
+  2: [1],
+  3: [1, 2],
+  4: [1, 2],
+  5: [1, 2, 3],
+  6: [1, 2, 3, 4],
+  7: [1, 2, 3, 4, 5],
+  8: [1, 2, 3, 4, 5],
+  9: [1, 2, 3, 4, 5],
+  10: [1, 2, 3, 4, 5],
+  11: [1, 2, 3, 4, 5],
+  12: [1, 2, 3, 4, 5],
 };
 
 const initialOnboardingState = {
@@ -352,10 +352,11 @@ function OnboardingFlow() {
   }, [navigate, transitionContext]);
 
   const handleStepClick = (stepId: number, subId?: string) => {
-    if (stepId === 1) go(2);
-    if (stepId === 2) go(subId === "address" ? 4 : 3);
-    if (stepId === 3) go(5);
-    if (stepId === 4) go(6);
+    if (stepId === 1) go(1);
+    if (stepId === 2) go(2);
+    if (stepId === 3) go(subId === "address" ? 4 : 3);
+    if (stepId === 4) go(5);
+    if (stepId === 5) go(6);
   };
 
   if (transitionContext) {
@@ -384,8 +385,8 @@ function OnboardingFlow() {
     );
   }
 
-  const showSidebar = screen >= 2 && screen <= 10;
-  const sidebarStep = SIDEBAR_STEP_FOR_SCREEN[screen] ?? 4;
+  const showSidebar = screen >= 1 && screen <= 10;
+  const sidebarStep = SIDEBAR_STEP_FOR_SCREEN[screen] ?? 5;
   const completed = COMPLETED_FOR_SCREEN[screen] ?? [];
   const currentSub = SUB_FOR_SCREEN[screen];
   const completedSubs = COMPLETED_SUBS_FOR_SCREEN[screen];

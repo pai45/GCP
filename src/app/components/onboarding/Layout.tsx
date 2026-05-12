@@ -28,17 +28,18 @@ export const STEPS: {
   label: string;
   subs?: { id: string; label: string }[];
 }[] = [
-  { id: 1, label: "Basic details" },
+  { id: 1, label: "Document upload" },
+  { id: 2, label: "Basic details" },
   {
-    id: 2,
+    id: 3,
     label: "Organisation Details",
     subs: [
       { id: "identity", label: "Business identity" },
       { id: "address", label: "Registered address" },
     ],
   },
-  { id: 3, label: "Authorised signatory" },
-  { id: 4, label: "Review and Submit" },
+  { id: 4, label: "Authorised signatory" },
+  { id: 5, label: "Review and Submit" },
 ];
 
 export function TopNav({ onSaveExit }: { onSaveExit?: () => void }) {
@@ -132,7 +133,7 @@ function SidebarComponent({
   onStepClick?: (step: number, subId?: string) => void;
 }) {
   return (
-    <aside className="hidden lg:block w-[360px] xl:w-[408px] shrink-0 self-start sticky top-[94px] pr-8 xl:pr-10 pt-6">
+    <aside className="hidden lg:block w-[360px] xl:w-[408px] shrink-0 self-start sticky top-[94px] pr-8 xl:pr-10 pt-8">
       <motion.div
         className="rounded-[24px] p-6"
         style={{
@@ -163,7 +164,7 @@ function SidebarComponent({
             Account Setup
           </div>
           <div style={{ color: MUTED, fontSize: 12, lineHeight: "18px" }}>
-            {currentStep} of {STEPS.length} step
+            {currentStep} of {STEPS.length} steps
           </div>
         </motion.div>
 
@@ -659,7 +660,9 @@ export function PageShell({
               )}
               <main
                 className={`flex-1 min-w-0 flex overflow-visible pt-4 sm:pt-6 lg:pt-12 ${
-                  showSidebar ? "lg:ml-12 xl:ml-16 justify-start" : "justify-center"
+                  showSidebar
+                    ? "lg:ml-12 xl:ml-16 justify-start"
+                    : "justify-center"
                 }`}
               >
                 <div className="w-full">{children}</div>

@@ -1006,11 +1006,11 @@ export function ScreenBeforeYouBegin({ go, state, setState }: any) {
 
   return (
     <div className="pb-2 px-2 sm:px-0">
-      <div className="w-full min-h-[calc(100vh-18rem)] flex items-center justify-center">
+      <div className="w-full">
         <FormCard
           eyebrow="Usually takes 1 minute"
-          title="Before you begin"
-          subtitle="Please provide your information to get started"
+          title="Document upload"
+          subtitle="Upload company documents so we can autofill your setup"
           progress={10}
         >
           <div className="space-y-6">
