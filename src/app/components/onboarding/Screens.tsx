@@ -793,77 +793,116 @@ function FormCard({
           )}
         </div>
 
-        {/* Progress bar for mobile - thin bar at bottom of header */}
+        {/* Progress bar for mobile */}
         {progress !== undefined && (
           <motion.div
-            className="sm:hidden mt-4 h-1.5 rounded-full relative"
-            style={{ background: "rgba(255,255,255,0.2)" }}
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
+            className="mt-4 flex items-center gap-3 sm:hidden"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
+            <div
+              className="relative h-1.5 flex-1 rounded-full"
+              style={{ background: "rgba(255,255,255,0.2)" }}
+            >
+              <motion.div
+                className="h-full rounded-full relative overflow-hidden"
+                style={{
+                  background: `linear-gradient(90deg, ${LIME} 0%, #b8e024 100%)`,
+                  boxShadow: `0 0 10px ${LIME}80`,
+                }}
+                initial={{ width: 0 }}
+                animate={{
+                  width: `${progress}%`,
+                  boxShadow: [
+                    `0 0 0px ${LIME}00`,
+                    `0 0 16px ${LIME}cc`,
+                    `0 0 10px ${LIME}80`,
+                  ],
+                }}
+                transition={{
+                  delay: 0.4,
+                  duration: 1,
+                  ease: [0.34, 1.56, 0.64, 1],
+                  boxShadow: {
+                    delay: 1.1,
+                    duration: 0.6,
+                    times: [0, 0.4, 1],
+                  },
+                }}
+              >
+                <motion.div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
+                  }}
+                  animate={{
+                    x: ["-100%", "200%"],
+                  }}
+                  transition={{
+                    delay: 0.6,
+                    duration: 1.5,
+                    ease: "easeInOut",
+                  }}
+                />
+              </motion.div>
+              {/* Leading-edge spark (mobile) */}
+              <motion.div
+                className="absolute top-1/2 size-2 rounded-full pointer-events-none"
+                style={{
+                  background: "#fff",
+                  boxShadow: `0 0 8px 2px ${LIME}, 0 0 14px 4px ${LIME}66`,
+                  translateY: "-50%",
+                }}
+                initial={{ left: "0%", opacity: 0, scale: 0.4 }}
+                animate={{
+                  left: `${progress}%`,
+                  opacity: [0, 1, 1, 0],
+                  scale: [0.4, 1, 1.3, 0.6],
+                }}
+                transition={{
+                  left: {
+                    delay: 0.4,
+                    duration: 1,
+                    ease: [0.34, 1.56, 0.64, 1],
+                  },
+                  opacity: {
+                    delay: 0.4,
+                    duration: 1.4,
+                    times: [0, 0.1, 0.85, 1],
+                  },
+                  scale: {
+                    delay: 0.4,
+                    duration: 1.4,
+                    times: [0, 0.3, 0.85, 1],
+                  },
+                }}
+              />
+            </div>
             <motion.div
-              className="h-full rounded-full relative overflow-hidden"
-              style={{
-                background: `linear-gradient(90deg, ${LIME} 0%, #b8e024 100%)`,
-                boxShadow: `0 0 10px ${LIME}80`,
-              }}
-              initial={{ width: 0 }}
+              className="w-11 shrink-0 text-right text-lg font-bold"
+              style={{ color: LIME }}
+              initial={{ opacity: 0, scale: 0.8 }}
               animate={{
-                width: `${progress}%`,
-                boxShadow: [
+                opacity: 1,
+                scale: [0.8, 1, 1.16, 1],
+                textShadow: [
                   `0 0 0px ${LIME}00`,
-                  `0 0 16px ${LIME}cc`,
-                  `0 0 10px ${LIME}80`,
+                  `0 0 0px ${LIME}00`,
+                  `0 0 14px ${LIME}cc`,
+                  `0 0 0px ${LIME}00`,
                 ],
               }}
               transition={{
-                delay: 0.4,
-                duration: 1,
-                ease: [0.34, 1.56, 0.64, 1],
-                boxShadow: { delay: 1.1, duration: 0.6, times: [0, 0.4, 1] },
+                delay: 0.35,
+                duration: 1.4,
+                times: [0, 0.3, 0.85, 1],
+                ease: "easeOut",
               }}
             >
-              <motion.div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)",
-                }}
-                animate={{
-                  x: ["-100%", "200%"],
-                }}
-                transition={{
-                  delay: 0.6,
-                  duration: 1.5,
-                  ease: "easeInOut",
-                }}
-              />
+              <AnimatedPercent value={progress} delay={0.4} duration={1} />%
             </motion.div>
-            {/* Leading-edge spark (mobile) */}
-            <motion.div
-              className="absolute top-1/2 size-2 rounded-full pointer-events-none"
-              style={{
-                background: "#fff",
-                boxShadow: `0 0 8px 2px ${LIME}, 0 0 14px 4px ${LIME}66`,
-                translateY: "-50%",
-              }}
-              initial={{ left: "0%", opacity: 0, scale: 0.4 }}
-              animate={{
-                left: `${progress}%`,
-                opacity: [0, 1, 1, 0],
-                scale: [0.4, 1, 1.3, 0.6],
-              }}
-              transition={{
-                left: { delay: 0.4, duration: 1, ease: [0.34, 1.56, 0.64, 1] },
-                opacity: {
-                  delay: 0.4,
-                  duration: 1.4,
-                  times: [0, 0.1, 0.85, 1],
-                },
-                scale: { delay: 0.4, duration: 1.4, times: [0, 0.3, 0.85, 1] },
-              }}
-            />
           </motion.div>
         )}
       </div>

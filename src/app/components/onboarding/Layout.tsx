@@ -249,6 +249,7 @@ function SidebarComponent({
             const isActive = step.id === currentStep;
             const isClickable = isComplete || isActive;
             const hasNextStep = index < STEPS.length - 1;
+            const hasActiveSubs = Boolean(step.subs && isActive);
             const stepLineColor =
               isComplete || isActive ? "rgba(0, 86, 86, 0.34)" : BORDER_INPUT;
 
@@ -271,7 +272,9 @@ function SidebarComponent({
                 {hasNextStep && (
                   <div
                     aria-hidden="true"
-                    className="absolute left-[28px] top-[44px] bottom-[-16px] w-[3px] rounded-full"
+                    className={`absolute left-[28px] top-[44px] w-[3px] rounded-full ${
+                      hasActiveSubs ? "h-[16px]" : "bottom-[-16px]"
+                    }`}
                     style={{ background: stepLineColor }}
                   />
                 )}
@@ -379,7 +382,7 @@ function SidebarComponent({
                     >
                       <div
                         aria-hidden="true"
-                        className="absolute left-[3px] top-0 bottom-[13px] w-px"
+                        className="absolute left-[2px] top-[-12px] bottom-[13px] w-px"
                         style={{ background: "rgba(0, 86, 86, 0.22)" }}
                       />
                       {step.subs.map((sub, i) => {
@@ -520,12 +523,6 @@ export function MobileStepsAccordion({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            <span
-              className="text-xs"
-              style={{ color: PRIMARY, fontWeight: 700 }}
-            >
-              {Math.round(progressPercent)}%
-            </span>
             {open ? (
               <ChevronUp className="size-4 text-gray-400" />
             ) : (
