@@ -530,7 +530,6 @@ export function LoginSignup({
                   Terms of Service
                 </span>
                 {" and "}
-                <br />
                 <span className="text-[#364153] underline cursor-pointer">
                   Privacy Policy
                 </span>

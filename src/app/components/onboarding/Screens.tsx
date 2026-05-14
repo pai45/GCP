@@ -12,6 +12,8 @@ import diplomaVerifiedIcon from "../../../imports/Diploma Verified.svg";
 import mapPointWaveIcon from "../../../imports/Map Point Wave.svg";
 import plateIcon from "../../../imports/Plate.svg";
 import uploadMinimalisticIcon from "../../../imports/Upload Minimalistic.svg";
+import penNewSquareIcon from "../../../imports/Pen New Square.png";
+import termsAndConditionsPageOneImg from "../../../imports/Terms and Conditions-1.png";
 import pineLabsLogoImg from "../../../../pinelabs logo.png";
 import congratulationVideo from "../../../imports/congratulation video.mp4";
 import signatureImg from "../../../imports/Screenshot 2026-04-17 at 12.33.38 PM 1.png";
@@ -49,6 +51,7 @@ import {
   FileText,
   Check,
   CheckCircle2,
+  CircleAlert,
   Building2,
   Loader2,
   Info,
@@ -63,7 +66,6 @@ import {
   Mail,
   Phone,
   ArrowRight,
-  Pencil,
   X,
   Trash2,
   RefreshCw,
@@ -1141,7 +1143,7 @@ export function ScreenAccountOwner({ go, state, setState, progress }: any) {
                     className="shrink-0"
                     type="button"
                   >
-                    <Pencil className="size-4" style={{ color: MUTED }} />
+                    <EditIcon />
                   </motion.button>
                   <motion.span
                     aria-hidden
@@ -1206,7 +1208,7 @@ export function ScreenAccountOwner({ go, state, setState, progress }: any) {
                     className="shrink-0"
                     type="button"
                   >
-                    <Pencil className="size-4" style={{ color: MUTED }} />
+                    <EditIcon />
                   </motion.button>
                   <motion.span
                     aria-hidden
@@ -1291,6 +1293,9 @@ export function ScreenAccountOwner({ go, state, setState, progress }: any) {
 // ============== BEFORE YOU BEGIN — Document upload + autofill ==============
 type DocKey = "gst" | "cin" | "address";
 type UploadedDoc = { name: string; ext: string; size: string } | null;
+type UploadScenario = "success" | "error";
+type FetchedDocKey = Extract<DocKey, "gst" | "cin">;
+type FetchedDetail = { label: string; value: string };
 
 const DOC_DEFS: {
   key: DocKey;
@@ -1323,6 +1328,17 @@ const DOC_ICONS: Record<DocKey, string> = {
   cin: plateIcon,
   address: mapPointWaveIcon,
 };
+
+function EditIcon({ className = "size-4" }: { className?: string }) {
+  return (
+    <img
+      src={penNewSquareIcon}
+      alt=""
+      className={className}
+      draggable={false}
+    />
+  );
+}
 
 function DocumentUploadRow({
   docKey,
@@ -1384,6 +1400,7 @@ function DocumentUploadRow({
       </div>
       <button
         type="button"
+        aria-label={file ? "Replace document" : "Upload document"}
         onClick={(e) => {
           e.stopPropagation();
           setDocs({ ...docs, [docKey]: file ? null : sample });
@@ -1406,8 +1423,233 @@ function DocumentUploadRow({
             draggable={false}
           />
         )}
-        {file ? "Replace" : "Upload"}
+        <span className="hidden sm:inline">{file ? "Replace" : "Upload"}</span>
       </button>
+    </motion.div>
+  );
+}
+
+const AUTOFETCHED_DETAILS: Record<FetchedDocKey, FetchedDetail[]> = {
+  gst: [
+    { label: "First Name", value: "Priya" },
+    { label: "Last Name", value: "Sharma" },
+    { label: "GSTIN number", value: "29AABCP1234F1Z5" },
+    { label: "GSTIN name", value: "Pine Labs Private Limited" },
+    { label: "GSTIN state", value: "Karnataka" },
+    { label: "PAN number", value: "AABCP1234F" },
+  ],
+  cin: [
+    { label: "CIN/LLP No", value: "U72900DL1998PTC096693" },
+    { label: "CIN/LLP Name", value: "Pine Labs Private Limited" },
+  ],
+};
+
+function UploadScenarioModal({
+  docTitle,
+  onChoose,
+  onClose,
+}: {
+  docTitle: string;
+  onChoose: (scenario: UploadScenario) => void;
+  onClose: () => void;
+}) {
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="upload-scenario-title"
+    >
+      <button
+        type="button"
+        aria-label="Close scenario selector"
+        className="absolute inset-0 bg-[#101828]/45 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      <motion.div
+        className="relative w-full max-w-md rounded-[20px] bg-white p-5 shadow-2xl sm:p-6"
+        initial={{ y: 18, scale: 0.98 }}
+        animate={{ y: 0, scale: 1 }}
+        exit={{ y: 18, scale: 0.98 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={onClose}
+          className="absolute right-4 top-4 inline-flex size-9 items-center justify-center rounded-full border border-[#e5e7eb] text-[#667085] transition hover:bg-[#f9fafb]"
+        >
+          <X className="size-4" />
+        </button>
+        <div className="pr-10">
+          <p
+            className="text-xs uppercase tracking-[0.08em]"
+            style={{ color: MUTED, fontWeight: 700 }}
+          >
+            {docTitle}
+          </p>
+          <h3
+            id="upload-scenario-title"
+            className="mt-2 text-lg"
+            style={{ color: TEXT, fontWeight: 700, lineHeight: "28px" }}
+          >
+            Choose a Scenario
+          </h3>
+        </div>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => onChoose("success")}
+            className="rounded-[14px] border px-4 py-4 text-left transition hover:-translate-y-0.5"
+            style={{ borderColor: SUCCESS_BORDER, background: SUCCESS_BG }}
+          >
+            <CheckCircle2 className="mb-3 size-5" style={{ color: SUCCESS }} />
+            <span
+              className="block text-sm"
+              style={{ color: TEXT, fontWeight: 700 }}
+            >
+              Success
+            </span>
+            <span
+              className="mt-1 block text-xs"
+              style={{ color: MUTED, lineHeight: "18px" }}
+            >
+              Upload succeeds and fetched details appear.
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => onChoose("error")}
+            className="rounded-[14px] border px-4 py-4 text-left transition hover:-translate-y-0.5"
+            style={{ borderColor: "#fecaca", background: "#fff7f7" }}
+          >
+            <CircleAlert className="mb-3 size-5 text-[#dc2626]" />
+            <span
+              className="block text-sm"
+              style={{ color: TEXT, fontWeight: 700 }}
+            >
+              Error
+            </span>
+            <span
+              className="mt-1 block text-xs"
+              style={{ color: MUTED, lineHeight: "18px" }}
+            >
+              Upload fails and asks the user to Re-Upload.
+            </span>
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function EditFetchedDetailsModal({
+  rows,
+  onSave,
+  onClose,
+}: {
+  rows: FetchedDetail[];
+  onSave: (rows: FetchedDetail[]) => void;
+  onClose: () => void;
+}) {
+  const [draftRows, setDraftRows] = useState(rows);
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-fetched-details-title"
+    >
+      <button
+        type="button"
+        aria-label="Close edit details"
+        className="absolute inset-0 bg-[#101828]/45 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
+      <motion.div
+        className="relative max-h-[86vh] w-full max-w-2xl overflow-hidden rounded-[20px] bg-white shadow-2xl"
+        initial={{ y: 18, scale: 0.98 }}
+        animate={{ y: 0, scale: 1 }}
+        exit={{ y: 18, scale: 0.98 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-[#eef0f2] px-5 py-4 sm:px-6">
+          <div>
+            <h3
+              id="edit-fetched-details-title"
+              className="text-lg"
+              style={{ color: TEXT, fontWeight: 700, lineHeight: "28px" }}
+            >
+              Edit auto fetched details
+            </h3>
+            <p className="mt-1 text-xs" style={{ color: MUTED }}>
+              Update the details before continuing.
+            </p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-[#e5e7eb] text-[#667085] transition hover:bg-[#f9fafb]"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <div className="max-h-[58vh] overflow-y-auto px-5 py-5 sm:px-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {draftRows.map((row, index) => (
+              <label key={row.label} className="block">
+                <span
+                  className="mb-1.5 block text-xs"
+                  style={{ color: MUTED, fontWeight: 700 }}
+                >
+                  {row.label}
+                </span>
+                <input
+                  value={row.value}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setDraftRows((current) =>
+                      current.map((item, itemIndex) =>
+                        itemIndex === index ? { ...item, value } : item,
+                      ),
+                    );
+                  }}
+                  className="h-11 w-full rounded-[10px] border border-[#d0d5dd] bg-white px-3 text-sm outline-none transition focus:border-[#005656] focus:ring-2 focus:ring-[#005656]/10"
+                  style={{ color: TEXT }}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 border-t border-[#eef0f2] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-11 items-center justify-center rounded-[10px] border border-[#d0d5dd] px-5 text-sm"
+            style={{ color: TEXT, fontWeight: 600 }}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(draftRows)}
+            className="inline-flex h-11 items-center justify-center rounded-[10px] px-5 text-sm"
+            style={{ background: PRIMARY, color: "#fff", fontWeight: 600 }}
+          >
+            Save changes
+          </button>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -1418,6 +1660,18 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
     cin: null,
     address: null,
   });
+  const [docErrors, setDocErrors] = useState<Record<DocKey, string | null>>({
+    gst: null,
+    cin: null,
+    address: null,
+  });
+  const [scenarioDoc, setScenarioDoc] = useState<DocKey | null>(null);
+  const [showFetchedDetails, setShowFetchedDetails] = useState(false);
+  const [fetchedDocs, setFetchedDocs] = useState<FetchedDocKey[]>([]);
+  const [fetchedDetails, setFetchedDetails] = useState<
+    Partial<Record<FetchedDocKey, FetchedDetail[]>>
+  >({});
+  const [editingFetchedDetails, setEditingFetchedDetails] = useState(false);
   const [gstPresent, setGstPresent] = useState(true);
   const [parsing, setParsing] = useState(false);
 
@@ -1432,8 +1686,82 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
     }, 1400);
   };
 
+  const openScenario = (key: DocKey) => setScenarioDoc(key);
+
+  const handleScenario = (scenario: UploadScenario) => {
+    if (!scenarioDoc) return;
+
+    const doc = DOC_DEFS.find(({ key }) => key === scenarioDoc);
+    if (!doc) return;
+
+    if (scenario === "success") {
+      setDocs({ ...docs, [scenarioDoc]: doc.sample });
+      setDocErrors({ ...docErrors, [scenarioDoc]: null });
+      if (scenarioDoc === "gst" || scenarioDoc === "cin") {
+        setFetchedDocs((current) =>
+          current.includes(scenarioDoc) ? current : [...current, scenarioDoc],
+        );
+        setFetchedDetails((current) => ({
+          ...current,
+          [scenarioDoc]:
+            current[scenarioDoc] ?? AUTOFETCHED_DETAILS[scenarioDoc],
+        }));
+        setShowFetchedDetails(true);
+      } else {
+        setShowFetchedDetails(fetchedDocs.length > 0);
+      }
+    } else {
+      setDocs({ ...docs, [scenarioDoc]: null });
+      setDocErrors({
+        ...docErrors,
+        [scenarioDoc]:
+          "We could not read this document. Please Re-Upload a clear PDF or image under 5 MB.",
+      });
+    }
+
+    setScenarioDoc(null);
+  };
+
+  const scenarioDocDef = scenarioDoc
+    ? DOC_DEFS.find(({ key }) => key === scenarioDoc)
+    : null;
+  const visibleFetchedRows = fetchedDocs.flatMap(
+    (docKey) => fetchedDetails[docKey] ?? AUTOFETCHED_DETAILS[docKey],
+  );
+
   return (
     <div className="pb-2 px-2 sm:px-0">
+      <AnimatePresence>
+        {scenarioDocDef && (
+          <UploadScenarioModal
+            docTitle={scenarioDocDef.title}
+            onChoose={handleScenario}
+            onClose={() => setScenarioDoc(null)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {editingFetchedDetails && (
+          <EditFetchedDetailsModal
+            rows={visibleFetchedRows}
+            onClose={() => setEditingFetchedDetails(false)}
+            onSave={(rows) => {
+              let offset = 0;
+              setFetchedDetails((current) => {
+                const next = { ...current };
+                fetchedDocs.forEach((docKey) => {
+                  const count = (current[docKey] ?? AUTOFETCHED_DETAILS[docKey])
+                    .length;
+                  next[docKey] = rows.slice(offset, offset + count);
+                  offset += count;
+                });
+                return next;
+              });
+              setEditingFetchedDetails(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
       <div className="w-full">
         <FormCard
           title="Document upload"
@@ -1475,33 +1803,34 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
               </div>
               <div className="space-y-3">
                 {DOC_DEFS.filter((doc) => doc.key !== "address").map(
-                  ({ key, title, hint, sample }) => {
+                  ({ key, title, hint }) => {
                     const file = docs[key];
+                    const error = docErrors[key];
                     const iconSrc = DOC_ICONS[key];
                     const disabled = key === "gst" && !gstPresent;
 
                     return (
                       <motion.div
                         key={key}
-                        onClick={() =>
-                          !disabled &&
-                          !file &&
-                          setDocs({ ...docs, [key]: sample })
-                        }
+                        onClick={() => !disabled && !file && openScenario(key)}
                         className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
                         style={{
                           border: `1px solid ${
                             disabled
                               ? "#e5e7eb"
-                              : file
-                                ? SUCCESS_BORDER
-                                : BORDER_INPUT
+                              : error
+                                ? "#fecaca"
+                                : file
+                                  ? SUCCESS_BORDER
+                                  : BORDER_INPUT
                           }`,
                           background: disabled
                             ? "#f3f4f6"
-                            : file
-                              ? SUCCESS_BG
-                              : "#fff",
+                            : error
+                              ? "#fff7f7"
+                              : file
+                                ? SUCCESS_BG
+                                : "#fff",
                           boxShadow: file
                             ? "0 0 0 3px rgba(0,130,54,0.05)"
                             : "none",
@@ -1552,24 +1881,41 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           </div>
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: MUTED, lineHeight: "16px" }}
+                            style={{
+                              color: error ? "#dc2626" : MUTED,
+                              lineHeight: "16px",
+                            }}
                           >
-                            {file
-                              ? `${file.ext} · ${file.size} · Uploaded`
-                              : hint}
+                            {error
+                              ? error
+                              : file
+                                ? `${file.ext} - ${file.size} - Uploaded`
+                                : hint}
                           </div>
                         </div>
                         <button
                           type="button"
                           disabled={disabled}
+                          aria-label={
+                            file
+                              ? "Replace document"
+                              : error
+                                ? "Re-upload document"
+                                : "Upload document"
+                          }
                           onClick={(e) => {
                             e.stopPropagation();
                             if (disabled) return;
-                            setDocs({ ...docs, [key]: file ? null : sample });
+                            if (file) {
+                              setDocs({ ...docs, [key]: null });
+                              setDocErrors({ ...docErrors, [key]: null });
+                              return;
+                            }
+                            openScenario(key);
                           }}
                           className="shrink-0 inline-flex items-center gap-2"
                           style={{
-                            color: disabled ? MUTED_2 : PRIMARY,
+                            color: disabled ? MUTED_2 : error ? TEXT_2 : PRIMARY,
                             fontWeight: 600,
                             fontSize: 14,
                             lineHeight: "20px",
@@ -1581,12 +1927,19 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           ) : (
                             <img
                               src={uploadMinimalisticIcon}
-                              alt=""
-                              className="size-6"
-                              draggable={false}
-                            />
+	                              alt=""
+	                              className="size-6"
+                              style={{
+                                filter: error
+                                  ? "grayscale(1) brightness(0.45)"
+                                  : undefined,
+                              }}
+	                              draggable={false}
+	                            />
                           )}
-                          {file ? "Replace" : "Upload"}
+                          <span className="hidden sm:inline">
+                            {file ? "Replace" : error ? "Re-Upload" : "Upload"}
+                          </span>
                         </button>
                       </motion.div>
                     );
@@ -1609,19 +1962,29 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                   If GST not present
                 </h2>
                 {DOC_DEFS.filter((doc) => doc.key === "address").map(
-                  ({ key, title, hint, sample }) => {
+                  ({ key, title, hint }) => {
                     const file = docs[key];
+                    const error = docErrors[key];
                     const iconSrc = DOC_ICONS[key];
+
                     return (
                       <motion.div
                         key={key}
-                        onClick={() =>
-                          !file && setDocs({ ...docs, [key]: sample })
-                        }
+                        onClick={() => !file && openScenario(key)}
                         className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
                         style={{
-                          border: `1px solid ${file ? SUCCESS_BORDER : BORDER_INPUT}`,
-                          background: file ? SUCCESS_BG : "#fff",
+                          border: `1px solid ${
+                            error
+                              ? "#fecaca"
+                              : file
+                                ? SUCCESS_BORDER
+                                : BORDER_INPUT
+                          }`,
+                          background: error
+                            ? "#fff7f7"
+                            : file
+                              ? SUCCESS_BG
+                              : "#fff",
                           boxShadow: file
                             ? "0 0 0 3px rgba(0,130,54,0.05)"
                             : "none",
@@ -1665,22 +2028,39 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           </div>
                           <div
                             className="text-xs mt-0.5"
-                            style={{ color: MUTED, lineHeight: "16px" }}
+                            style={{
+                              color: error ? "#dc2626" : MUTED,
+                              lineHeight: "16px",
+                            }}
                           >
-                            {file
-                              ? `${file.ext} · ${file.size} · Uploaded`
-                              : hint}
+                            {error
+                              ? error
+                              : file
+                                ? `${file.ext} - ${file.size} - Uploaded`
+                                : hint}
                           </div>
                         </div>
                         <button
                           type="button"
+                          aria-label={
+                            file
+                              ? "Replace document"
+                              : error
+                                ? "Re-upload document"
+                                : "Upload document"
+                          }
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDocs({ ...docs, [key]: file ? null : sample });
+                            if (file) {
+                              setDocs({ ...docs, [key]: null });
+                              setDocErrors({ ...docErrors, [key]: null });
+                              return;
+                            }
+                            openScenario(key);
                           }}
                           className="shrink-0 inline-flex items-center gap-2"
                           style={{
-                            color: PRIMARY,
+                            color: error ? TEXT_2 : PRIMARY,
                             fontWeight: 600,
                             fontSize: 14,
                             lineHeight: "20px",
@@ -1691,12 +2071,19 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           ) : (
                             <img
                               src={uploadMinimalisticIcon}
-                              alt=""
-                              className="size-6"
-                              draggable={false}
-                            />
+	                              alt=""
+	                              className="size-6"
+                              style={{
+                                filter: error
+                                  ? "grayscale(1) brightness(0.45)"
+                                  : undefined,
+                              }}
+	                              draggable={false}
+	                            />
                           )}
-                          {file ? "Replace" : "Upload"}
+                          <span className="hidden sm:inline">
+                            {file ? "Replace" : error ? "Re-Upload" : "Upload"}
+                          </span>
                         </button>
                       </motion.div>
                     );
@@ -1706,6 +2093,78 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
             )}
           </div>
         </FormCard>
+
+        <AnimatePresence>
+          {showFetchedDetails && fetchedDocs.length > 0 && (
+            <motion.div
+              className="mx-auto mt-4 w-full max-w-[960px] rounded-[16px] border bg-white p-5 shadow-sm sm:mt-5 sm:rounded-[20px] sm:p-6"
+              style={{ borderColor: SUCCESS_BORDER }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 12 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex size-9 items-center justify-center rounded-[10px]"
+                    style={{ background: SUCCESS_BG }}
+                  >
+                    <CheckCircle2
+                      className="size-5"
+                      style={{ color: SUCCESS }}
+                    />
+                  </div>
+                  <div>
+                    <h3
+                      className="text-base"
+                      style={{ color: TEXT, fontWeight: 700 }}
+                    >
+                      Auto fetched details
+                    </h3>
+                    <p className="text-xs" style={{ color: MUTED }}>
+                      These details were read from the uploaded document.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingFetchedDetails(true)}
+                  className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-[10px] border border-[#d0d5dd] bg-white px-3 text-xs transition hover:bg-[#f9fafb]"
+                  style={{ color: "#111111", fontWeight: 700 }}
+                >
+                  <EditIcon className="size-4" />
+                  Edit
+                </button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {fetchedDocs.flatMap((docKey) =>
+                  (fetchedDetails[docKey] ?? AUTOFETCHED_DETAILS[docKey]).map(
+                    ({ label, value }) => (
+                      <div
+                        key={`${docKey}-${label}`}
+                        className="rounded-[12px] border border-[#eef0f2] bg-[#fbfcfc] px-4 py-3"
+                      >
+                        <p
+                          className="text-xs"
+                          style={{ color: MUTED, fontWeight: 600 }}
+                        >
+                          {label}
+                        </p>
+                        <p
+                          className="mt-1 text-sm"
+                          style={{ color: TEXT, fontWeight: 600 }}
+                        >
+                          {value}
+                        </p>
+                      </div>
+                    ),
+                  ),
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <ActionBar>
           {parsing ? (
@@ -2623,7 +3082,7 @@ function Prefilled({ label, value, source, index = 0, editable = false }: any) {
             whileTap={{ scale: 0.9 }}
             className="shrink-0"
           >
-            <Pencil className="size-4" style={{ color: MUTED }} />
+            <EditIcon />
           </motion.button>
         )}
         <motion.span
@@ -3117,7 +3576,7 @@ function SummaryCard({ title, rows, onEdit }: any) {
           style={{ color: PRIMARY, fontWeight: 600 }}
           whileHover={{ scale: 1.05, textDecoration: "underline" }}
         >
-          <Pencil className="size-3 sm:size-3.5" /> Edit
+          <EditIcon className="size-3 sm:size-3.5" /> Edit
         </motion.button>
       </div>
       <div className="space-y-2 sm:space-y-2.5">
@@ -3515,59 +3974,14 @@ export function ScreenTermsPage2({ go, state, progress }: any) {
   return (
     <div className="pb-2 px-2 sm:px-0">
       <TermsFormPage page={2} progress={progress}>
-        <TermsDocument
-          page={2}
-          framed={false}
-          signed={state.esignVerified}
-          left={
-            <>
-              <TermsParagraph title="Ordering and Payment Terms">
-                5.1 All Orders are subject to acceptance by Pine Labs and
-                availability of Gift Cards.
-                <br />
-                <br />
-                5.2 Prices are exclusive of applicable taxes unless stated
-                otherwise.
-                <br />
-                <br />
-                5.3 Payment must be made within the credit period agreed during
-                onboarding.
-              </TermsParagraph>
-              <TermsParagraph title="Delivery and Fulfillment">
-                6.1 Gift Cards will be delivered electronically to the email
-                addresses provided by the Company.
-                <br />
-                <br />
-                6.2 Delivery timelines are estimates, and Pine Labs is not
-                liable for delays beyond its reasonable control.
-              </TermsParagraph>
-            </>
-          }
-          right={
-            <>
-              <TermsParagraph title="Returns and Refunds">
-                7.1 Gift Cards are non-refundable once delivered unless there is
-                a defect or error attributable to Pine Labs.
-                <br />
-                <br />
-                7.2 Approved refunds will be processed within 15 business days
-                to the original payment method.
-              </TermsParagraph>
-              <TermsParagraph title="Customer Responsibilities">
-                8.1 The Company must use the Portal only for legitimate business
-                purposes.
-                <br />
-                <br />
-                8.2 The Company must not resell Gift Cards for profit or use
-                them for money laundering.
-                <br />
-                <br />
-                8.3 The Company is responsible for proper distribution and
-                tracking of Gift Cards to end recipients.
-              </TermsParagraph>
-            </>
-          }
-        />
+        <div className="flex w-full justify-center overflow-hidden px-0 py-2 sm:px-3 sm:py-4 lg:px-6">
+          <img
+            src={termsAndConditionsPageOneImg}
+            alt="Terms and Conditions page 2"
+            className="h-auto w-full max-w-[900px] rounded-[10px] object-contain shadow-sm"
+            draggable={false}
+          />
+        </div>
       </TermsFormPage>
 
       <ActionBar>
