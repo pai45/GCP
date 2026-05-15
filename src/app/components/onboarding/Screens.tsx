@@ -1665,6 +1665,11 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
     cin: null,
     address: null,
   });
+  const [scanningDocs, setScanningDocs] = useState<Record<DocKey, boolean>>({
+    gst: false,
+    cin: false,
+    address: false,
+  });
   const [scenarioDoc, setScenarioDoc] = useState<DocKey | null>(null);
   const [showFetchedDetails, setShowFetchedDetails] = useState(false);
   const [fetchedDocs, setFetchedDocs] = useState<FetchedDocKey[]>([]);
@@ -1688,6 +1693,46 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
 
   const openScenario = (key: DocKey) => setScenarioDoc(key);
 
+  const startSuccessfulUpload = (key: DocKey, sample: UploadedDoc) => {
+    setScenarioDoc(null);
+    setDocErrors((current) => ({ ...current, [key]: null }));
+    setScanningDocs((current) => ({ ...current, [key]: true }));
+
+    if (key === "gst" || key === "cin") {
+      const details = AUTOFETCHED_DETAILS[key];
+      setFetchedDocs((current) => (current.includes(key) ? current : [...current, key]));
+      setFetchedDetails((current) => ({ ...current, [key]: [] }));
+      setShowFetchedDetails(true);
+
+      details.forEach((_, index) => {
+        window.setTimeout(
+          () => {
+            setFetchedDetails((current) => ({
+              ...current,
+              [key]: details.slice(0, index + 1),
+            }));
+          },
+          650 + index * 320,
+        );
+      });
+
+      window.setTimeout(
+        () => {
+          setDocs((current) => ({ ...current, [key]: sample }));
+          setScanningDocs((current) => ({ ...current, [key]: false }));
+        },
+        650 + details.length * 320 + 260,
+      );
+      return;
+    }
+
+    window.setTimeout(() => {
+      setDocs((current) => ({ ...current, [key]: sample }));
+      setScanningDocs((current) => ({ ...current, [key]: false }));
+      setShowFetchedDetails(fetchedDocs.length > 0);
+    }, 1300);
+  };
+
   const handleScenario = (scenario: UploadScenario) => {
     if (!scenarioDoc) return;
 
@@ -1695,23 +1740,10 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
     if (!doc) return;
 
     if (scenario === "success") {
-      setDocs({ ...docs, [scenarioDoc]: doc.sample });
-      setDocErrors({ ...docErrors, [scenarioDoc]: null });
-      if (scenarioDoc === "gst" || scenarioDoc === "cin") {
-        setFetchedDocs((current) =>
-          current.includes(scenarioDoc) ? current : [...current, scenarioDoc],
-        );
-        setFetchedDetails((current) => ({
-          ...current,
-          [scenarioDoc]:
-            current[scenarioDoc] ?? AUTOFETCHED_DETAILS[scenarioDoc],
-        }));
-        setShowFetchedDetails(true);
-      } else {
-        setShowFetchedDetails(fetchedDocs.length > 0);
-      }
+      startSuccessfulUpload(scenarioDoc, doc.sample);
     } else {
       setDocs({ ...docs, [scenarioDoc]: null });
+      setScanningDocs({ ...scanningDocs, [scenarioDoc]: false });
       setDocErrors({
         ...docErrors,
         [scenarioDoc]:
@@ -1806,18 +1838,23 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                   ({ key, title, hint }) => {
                     const file = docs[key];
                     const error = docErrors[key];
+                    const scanning = scanningDocs[key];
                     const iconSrc = DOC_ICONS[key];
                     const disabled = key === "gst" && !gstPresent;
 
                     return (
                       <motion.div
                         key={key}
-                        onClick={() => !disabled && !file && openScenario(key)}
-                        className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
+                        onClick={() =>
+                          !disabled && !file && !scanning && openScenario(key)
+                        }
+                        className="relative min-h-[72px] overflow-hidden rounded-2xl px-4 py-4 flex items-center gap-4 transition"
                         style={{
                           border: `1px solid ${
                             disabled
                               ? "#e5e7eb"
+                              : scanning
+                                ? SUCCESS_BORDER
                               : error
                                 ? "#fecaca"
                                 : file
@@ -1826,32 +1863,49 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           }`,
                           background: disabled
                             ? "#f3f4f6"
+                            : scanning
+                              ? "#fff"
                             : error
                               ? "#fff7f7"
                               : file
                                 ? SUCCESS_BG
                                 : "#fff",
-                          boxShadow: file
+                          boxShadow: file || scanning
                             ? "0 0 0 3px rgba(0,130,54,0.05)"
                             : "none",
                           cursor: disabled
                             ? "not-allowed"
+                            : scanning
+                              ? "wait"
                             : file
                               ? "default"
                               : "pointer",
                           opacity: disabled ? 0.62 : 1,
                         }}
                         whileHover={
-                          !disabled && !file
+                          !disabled && !file && !scanning
                             ? { scale: 1.01, borderColor: PRIMARY }
                             : disabled
                               ? {}
                               : { borderColor: SUCCESS }
                         }
-                        whileTap={!disabled && !file ? { scale: 0.99 } : {}}
+                        whileTap={!disabled && !file && !scanning ? { scale: 0.99 } : {}}
                       >
+                        {scanning && (
+                          <motion.div
+                            aria-hidden="true"
+                            className="absolute inset-y-0 left-0"
+                            style={{
+                              background:
+                                "linear-gradient(90deg, rgba(240,253,244,0.98) 0%, rgba(220,252,231,0.78) 62%, rgba(255,255,255,0) 100%)",
+                            }}
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 1.8, ease: "easeInOut" }}
+                          />
+                        )}
                         <div
-                          className="size-9 rounded-[10px] flex items-center justify-center shrink-0"
+                          className="relative z-10 size-9 rounded-[10px] flex items-center justify-center shrink-0"
                           style={{ background: file ? "#fff" : BG_SOFT }}
                         >
                           {file ? (
@@ -1868,7 +1922,7 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                             />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="relative z-10 flex-1 min-w-0">
                           <div
                             className="text-sm truncate"
                             style={{
@@ -1886,7 +1940,9 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                               lineHeight: "16px",
                             }}
                           >
-                            {error
+                            {scanning
+                              ? "Scanning document for auto fetched details..."
+                              : error
                               ? error
                               : file
                                 ? `${file.ext} - ${file.size} - Uploaded`
@@ -1895,9 +1951,11 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                         </div>
                         <button
                           type="button"
-                          disabled={disabled}
+                          disabled={disabled || scanning}
                           aria-label={
-                            file
+                            scanning
+                              ? "Uploading document"
+                              : file
                               ? "Replace document"
                               : error
                                 ? "Re-upload document"
@@ -1905,15 +1963,23 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           }
                           onClick={(e) => {
                             e.stopPropagation();
-                            if (disabled) return;
+                            if (disabled || scanning) return;
                             if (file) {
                               setDocs({ ...docs, [key]: null });
                               setDocErrors({ ...docErrors, [key]: null });
+                              setFetchedDocs((current) =>
+                                current.filter((docKey) => docKey !== key),
+                              );
+                              setFetchedDetails((current) => {
+                                const next = { ...current };
+                                delete next[key as FetchedDocKey];
+                                return next;
+                              });
                               return;
                             }
                             openScenario(key);
                           }}
-                          className="shrink-0 inline-flex items-center gap-2"
+                          className="relative z-10 shrink-0 inline-flex items-center gap-2"
                           style={{
                             color: disabled ? MUTED_2 : error ? TEXT_2 : PRIMARY,
                             fontWeight: 600,
@@ -1938,7 +2004,13 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
 	                            />
                           )}
                           <span className="hidden sm:inline">
-                            {file ? "Replace" : error ? "Re-Upload" : "Upload"}
+                            {scanning
+                              ? "Uploading"
+                              : file
+                                ? "Replace"
+                                : error
+                                  ? "Re-Upload"
+                                  : "Upload"}
                           </span>
                         </button>
                       </motion.div>
@@ -1965,40 +2037,58 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                   ({ key, title, hint }) => {
                     const file = docs[key];
                     const error = docErrors[key];
+                    const scanning = scanningDocs[key];
                     const iconSrc = DOC_ICONS[key];
 
                     return (
                       <motion.div
                         key={key}
-                        onClick={() => !file && openScenario(key)}
-                        className="min-h-[72px] rounded-2xl px-4 py-4 flex items-center gap-4 transition"
+                        onClick={() => !file && !scanning && openScenario(key)}
+                        className="relative min-h-[72px] overflow-hidden rounded-2xl px-4 py-4 flex items-center gap-4 transition"
                         style={{
                           border: `1px solid ${
-                            error
+                            scanning
+                              ? SUCCESS_BORDER
+                              : error
                               ? "#fecaca"
                               : file
                                 ? SUCCESS_BORDER
                                 : BORDER_INPUT
                           }`,
-                          background: error
+                          background: scanning
+                            ? "#fff"
+                            : error
                             ? "#fff7f7"
                             : file
                               ? SUCCESS_BG
                               : "#fff",
-                          boxShadow: file
+                          boxShadow: file || scanning
                             ? "0 0 0 3px rgba(0,130,54,0.05)"
                             : "none",
-                          cursor: file ? "default" : "pointer",
+                          cursor: scanning ? "wait" : file ? "default" : "pointer",
                         }}
                         whileHover={
-                          !file
+                          !file && !scanning
                             ? { scale: 1.01, borderColor: PRIMARY }
                             : { borderColor: SUCCESS }
                         }
-                        whileTap={!file ? { scale: 0.99 } : {}}
+                        whileTap={!file && !scanning ? { scale: 0.99 } : {}}
                       >
+                        {scanning && (
+                          <motion.div
+                            aria-hidden="true"
+                            className="absolute inset-y-0 left-0"
+                            style={{
+                              background:
+                                "linear-gradient(90deg, rgba(240,253,244,0.98) 0%, rgba(220,252,231,0.78) 62%, rgba(255,255,255,0) 100%)",
+                            }}
+                            initial={{ width: "0%" }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 1.4, ease: "easeInOut" }}
+                          />
+                        )}
                         <div
-                          className="size-9 rounded-[10px] flex items-center justify-center shrink-0"
+                          className="relative z-10 size-9 rounded-[10px] flex items-center justify-center shrink-0"
                           style={{ background: file ? "#fff" : BG_SOFT }}
                         >
                           {file ? (
@@ -2015,7 +2105,7 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                             />
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="relative z-10 flex-1 min-w-0">
                           <div
                             className="text-sm truncate"
                             style={{
@@ -2033,7 +2123,9 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                               lineHeight: "16px",
                             }}
                           >
-                            {error
+                            {scanning
+                              ? "Scanning document for auto fetched details..."
+                              : error
                               ? error
                               : file
                                 ? `${file.ext} - ${file.size} - Uploaded`
@@ -2043,7 +2135,9 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                         <button
                           type="button"
                           aria-label={
-                            file
+                            scanning
+                              ? "Uploading document"
+                              : file
                               ? "Replace document"
                               : error
                                 ? "Re-upload document"
@@ -2051,6 +2145,7 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                           }
                           onClick={(e) => {
                             e.stopPropagation();
+                            if (scanning) return;
                             if (file) {
                               setDocs({ ...docs, [key]: null });
                               setDocErrors({ ...docErrors, [key]: null });
@@ -2058,7 +2153,7 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                             }
                             openScenario(key);
                           }}
-                          className="shrink-0 inline-flex items-center gap-2"
+                          className="relative z-10 shrink-0 inline-flex items-center gap-2"
                           style={{
                             color: error ? TEXT_2 : PRIMARY,
                             fontWeight: 600,
@@ -2082,7 +2177,13 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
 	                            />
                           )}
                           <span className="hidden sm:inline">
-                            {file ? "Replace" : error ? "Re-Upload" : "Upload"}
+                            {scanning
+                              ? "Uploading"
+                              : file
+                                ? "Replace"
+                                : error
+                                  ? "Re-Upload"
+                                  : "Upload"}
                           </span>
                         </button>
                       </motion.div>
@@ -2141,10 +2242,13 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                 {fetchedDocs.flatMap((docKey) =>
                   (fetchedDetails[docKey] ?? AUTOFETCHED_DETAILS[docKey]).map(
                     ({ label, value }) => (
-                      <div
-                        key={`${docKey}-${label}`}
-                        className="rounded-[12px] border border-[#eef0f2] bg-[#fbfcfc] px-4 py-3"
-                      >
+                    <motion.div
+                      key={`${docKey}-${label}`}
+                      className="rounded-[12px] border border-[#eef0f2] bg-[#fbfcfc] px-4 py-3"
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ duration: 0.24, ease: "easeOut" }}
+                    >
                         <p
                           className="text-xs"
                           style={{ color: MUTED, fontWeight: 600 }}
@@ -2157,7 +2261,7 @@ export function ScreenBeforeYouBegin({ go, state, setState, progress }: any) {
                         >
                           {value}
                         </p>
-                      </div>
+                      </motion.div>
                     ),
                   ),
                 )}
@@ -4152,6 +4256,7 @@ export function ScreenTermsPage4({ go, state, progress }: any) {
 export function ScreenAadhaarOTP({ go, state, setState, progress }: any) {
   const [otpSent, setOtpSent] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const aadhaarConsent = Boolean(state.aadhaarConsent);
 
   const handleSendOTP = () => {
     setOtpSent(true);
@@ -4170,155 +4275,231 @@ export function ScreenAadhaarOTP({ go, state, setState, progress }: any) {
   const aadhaarComplete = (state.aadhaarNumber || "").length === 12;
 
   return (
-    <div className="py-2 px-2 sm:px-0">
-      <FormCard
-        eyebrow="Final step"
-        title={otpSent ? "Verify Your Aadhaar" : "Aadhar eSign verification"}
-        subtitle={
-          otpSent
-            ? "We've sent a 6-digit code to your registered mobile number"
-            : "Complete your digital signature using Aadhar OTP"
-        }
-        progress={progress}
+    <div className="w-screen max-w-none -translate-x-1/2 relative left-1/2">
+      <div
+        className="w-full border-b px-5 py-5 sm:px-10 lg:px-[120px]"
+        style={{ background: PRIMARY, borderColor: BORDER_INPUT }}
       >
-        <div className="mx-auto w-full max-w-[500px] space-y-6">
-          {!otpSent ? (
-            <div className="space-y-5">
-              <div
-                className="flex items-start gap-3 rounded-[12px] p-4"
-                style={{ background: BG_SOFT, border: `1px solid ${BORDER}` }}
-              >
-                <div
-                  className="size-10 rounded-[10px] flex items-center justify-center shrink-0"
-                  style={{ background: "#fff", border: `1px solid ${BORDER}` }}
+        <h1
+          className="mx-auto max-w-[1092px] text-[18px] sm:text-[20px]"
+          style={{ color: "#fff", fontWeight: 700, lineHeight: "30px" }}
+        >
+          Step 2 : Complete your signing
+        </h1>
+      </div>
+
+      <div className="flex justify-center px-5 py-10 sm:px-8 sm:py-16">
+        <div className="w-full max-w-[592px]">
+          <div className="space-y-10">
+            {!otpSent ? (
+              <div className="space-y-6">
+                <h2
+                  className="max-w-[560px] text-[20px]"
+                  style={{ color: "#181D27", fontWeight: 700, lineHeight: "30px" }}
                 >
-                  <ShieldCheck className="size-5" style={{ color: PRIMARY }} />
-                </div>
-                <div>
-                  <div
-                    className="text-sm mb-1"
-                    style={{ color: TEXT, fontWeight: 700 }}
+                  Enter Aadhaar Card Number/Virtual ID to perform eSign via OTP
+                </h2>
+
+                <label className="block w-full max-w-[534px]">
+                  <span
+                    className="mb-2 block text-[14px]"
+                    style={{ color: "#181D27", fontWeight: 600, lineHeight: "20px" }}
                   >
-                    Secure digital signature
-                  </div>
-                  <p
-                    className="text-sm"
-                    style={{ color: MUTED, lineHeight: 1.6 }}
-                  >
-                    Your Aadhar details are used only for identity verification
-                    and creating a legally binding digital signature. We don't
-                    store your Aadhar number.
-                  </p>
-                </div>
-              </div>
-              <FieldLabel required>Aadhar Number</FieldLabel>
-              <TextInput
-                placeholder="Enter 12-digit Aadhar number"
-                maxLength={12}
-                value={state.aadhaarNumber || ""}
-                onChange={(e: any) => {
-                  const val = e.target.value.replace(/\D/g, "");
-                  setState({ ...state, aadhaarNumber: val });
-                }}
-              />
-              <p className="text-xs mt-2" style={{ color: MUTED }}>
-                An OTP will be sent to your registered mobile number
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div>
-                <label className="block text-[14px] font-semibold text-[#414651] mb-3">
-                  Enter verification code
+                    Aadhaar Card Number/Virtual ID
+                  </span>
+                  <input
+                    placeholder="Enter Aadhaar Card Number"
+                    maxLength={12}
+                    inputMode="numeric"
+                    value={state.aadhaarNumber || ""}
+                    onChange={(e: any) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      setState({ ...state, aadhaarNumber: val });
+                    }}
+                    className="h-11 w-full rounded-[8px] border bg-white px-4 text-[16px] outline-none transition focus:border-[#005656] focus:ring-2 focus:ring-[#005656]/10"
+                    style={{ borderColor: BORDER_INPUT, color: TEXT }}
+                  />
                 </label>
 
-                <div className="flex gap-3 justify-between">
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <input
-                      key={i}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      className="w-full aspect-square text-center text-[24px] font-semibold bg-[#fafafa] border-2 border-[#d5d7da] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#005656] focus:border-transparent transition-all"
-                      style={{
-                        borderColor: state.aadhaarOTP?.[i]
-                          ? PRIMARY
-                          : BORDER_INPUT,
-                        color: TEXT,
-                      }}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        const current = state.aadhaarOTP || "";
-                        const newOTP =
-                          current.substring(0, i) +
-                          val +
-                          current.substring(i + 1);
-                        setState({ ...state, aadhaarOTP: newOTP });
-                        if (val && i < 5) {
-                          const next = e.target
-                            .nextElementSibling as HTMLInputElement;
-                          next?.focus();
-                        }
-                      }}
-                      value={state.aadhaarOTP?.[i] || ""}
-                    />
-                  ))}
+                <label className="flex max-w-[560px] items-start gap-4">
+                  <button
+                    type="button"
+                    aria-pressed={aadhaarConsent}
+                    onClick={() =>
+                      setState({ ...state, aadhaarConsent: !aadhaarConsent })
+                    }
+                    className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-[8px] border transition"
+                    style={{
+                      borderColor: aadhaarConsent ? PRIMARY : BORDER_INPUT,
+                      background: aadhaarConsent ? PRIMARY : "#fff",
+                    }}
+                  >
+                    {aadhaarConsent && (
+                      <Check className="size-4" style={{ color: "#fff" }} />
+                    )}
+                  </button>
+                  <span
+                    className="text-[16px]"
+                    style={{ color: "#414651", fontWeight: 400, lineHeight: "28px" }}
+                  >
+                    I am the holder of the above Aadhaar Number. i hereby
+                    authenticate myself as the legal signee for this document.
+                  </span>
+                </label>
+
+                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:gap-6">
+                  <button
+                    type="button"
+                    onClick={() => go(10)}
+                    className="inline-flex min-h-12 min-w-[120px] flex-1 items-center justify-center rounded-[12px] border bg-white px-4 text-[16px] sm:flex-none sm:w-[254px]"
+                    style={{
+                      borderColor: BORDER_INPUT,
+                      color: "#252B37",
+                      fontWeight: 600,
+                      lineHeight: "24px",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!aadhaarComplete || !aadhaarConsent}
+                    onClick={handleSendOTP}
+                    className="inline-flex min-h-12 min-w-[120px] flex-1 items-center justify-center gap-2 rounded-[12px] border px-4 text-[16px] transition sm:flex-none sm:w-[254px]"
+                    style={{
+                      background:
+                        aadhaarComplete && aadhaarConsent ? PRIMARY : "#F5F5F5",
+                      borderColor:
+                        aadhaarComplete && aadhaarConsent ? PRIMARY : "#E9EAEB",
+                      color:
+                        aadhaarComplete && aadhaarConsent ? "#fff" : "#A4A7AE",
+                      fontWeight: 600,
+                      lineHeight: "24px",
+                      cursor:
+                        aadhaarComplete && aadhaarConsent
+                          ? "pointer"
+                          : "not-allowed",
+                    }}
+                  >
+                    Get OTP
+                    <ArrowRight className="size-5" />
+                  </button>
                 </div>
               </div>
+            ) : (
+              <div className="space-y-8">
+                <div>
+                  <h2
+                    className="text-[20px]"
+                    style={{ color: "#181D27", fontWeight: 700, lineHeight: "30px" }}
+                  >
+                    Enter OTP to complete Aadhaar eSign
+                  </h2>
+                  <p className="mt-2 text-[14px]" style={{ color: MUTED }}>
+                    We sent a 6-digit code to your registered mobile number.
+                  </p>
+                </div>
 
-              <div className="text-center">
-                <button className="text-[14px] text-[#005656] font-semibold hover:underline">
-                  Resend verification code
-                </button>
+                <div>
+                  <label className="mb-3 block text-[14px] font-semibold text-[#414651]">
+                    Enter verification code
+                  </label>
+                  <div className="flex gap-2 sm:gap-3">
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <input
+                        key={i}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        className="h-12 w-full rounded-xl border-2 bg-[#fafafa] text-center text-[22px] font-semibold outline-none transition-all focus:ring-2 focus:ring-[#005656]"
+                        style={{
+                          borderColor: state.aadhaarOTP?.[i]
+                            ? PRIMARY
+                            : BORDER_INPUT,
+                          color: TEXT,
+                        }}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          const current = state.aadhaarOTP || "";
+                          const newOTP =
+                            current.substring(0, i) +
+                            val +
+                            current.substring(i + 1);
+                          setState({ ...state, aadhaarOTP: newOTP });
+                          if (val && i < 5) {
+                            const next = e.target
+                              .nextElementSibling as HTMLInputElement;
+                            next?.focus();
+                          }
+                        }}
+                        value={state.aadhaarOTP?.[i] || ""}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
+                  <button
+                    type="button"
+                    onClick={() => setOtpSent(false)}
+                    className="inline-flex min-h-12 flex-1 items-center justify-center rounded-[12px] border bg-white px-4 text-[16px]"
+                    style={{
+                      borderColor: BORDER_INPUT,
+                      color: "#252B37",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!otpComplete || verifying}
+                    onClick={handleVerify}
+                    className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-[12px] border px-4 text-[16px]"
+                    style={{
+                      background: otpComplete && !verifying ? PRIMARY : "#F5F5F5",
+                      borderColor: otpComplete && !verifying ? PRIMARY : "#E9EAEB",
+                      color: otpComplete && !verifying ? "#fff" : "#A4A7AE",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {verifying && <Loader2 className="size-4 animate-spin" />}
+                    {verifying ? "Verifying OTP..." : "Complete eSign"}
+                  </button>
+                </div>
               </div>
-              <div className="flex items-start gap-4">
-                <span
-                  className="relative inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-lg"
-                  style={{ background: "#003323" }}
-                >
-                  <Check
-                    className="size-5"
-                    style={{ color: "#50D387", strokeWidth: 2 }}
-                  />
-                </span>
-                <p
-                  style={{
-                    color: TEXT_2,
-                    fontSize: 16,
-                    fontWeight: 400,
-                    lineHeight: "28px",
-                  }}
-                >
-                  I am the holder of the above Aadhar Number. I hereby
-                  authenticate myself as the legal signee for this document.
-                </p>
+            )}
+
+            <div className="w-full overflow-hidden rounded-[2px] border-t-4 border-[#83e7f5]">
+              <div className="flex min-h-[61px] items-center justify-between bg-[#d0f255] px-3 sm:px-5">
+                <div>
+                  <p className="text-[7px] font-bold text-[#e66b00]">
+                    Aadhaar eSignature powered by
+                  </p>
+                  <p className="text-[18px] font-bold italic leading-none text-[#69a600]">
+                    eMudhra
+                  </p>
+                  <p className="text-[6px] font-bold uppercase tracking-[0.18em] text-[#4a5565]">
+                    Trust Services
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="mb-1 text-[7px] font-bold text-[#e66b00]">
+                    Change consent language
+                  </p>
+                  <button
+                    type="button"
+                    className="rounded-[3px] border border-[#75a857] bg-white px-2 py-1 text-[9px]"
+                    style={{ color: "#414651" }}
+                  >
+                    English
+                  </button>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </FormCard>
-
-      <ActionBar>
-        {!otpSent ? (
-          <PrimaryButton disabled={!aadhaarComplete} onClick={handleSendOTP}>
-            Send OTP
-          </PrimaryButton>
-        ) : (
-          <PrimaryButton
-            disabled={!otpComplete || verifying}
-            onClick={handleVerify}
-          >
-            {verifying ? (
-              <>
-                <Loader2 className="size-4 animate-spin mr-2" />
-                Verifying OTP...
-              </>
-            ) : (
-              "Verify OTP & complete signature"
-            )}
-          </PrimaryButton>
-        )}
-      </ActionBar>
+      </div>
     </div>
   );
 }

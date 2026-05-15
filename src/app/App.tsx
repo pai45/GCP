@@ -465,7 +465,7 @@ function OnboardingFlow() {
     );
   }
 
-  const showSidebar = screen >= 1 && screen <= 11;
+  const showSidebar = screen >= 1 && screen <= 10;
   const sidebarStep = SIDEBAR_STEP_FOR_SCREEN[screen] ?? 5;
   const completed = COMPLETED_FOR_SCREEN[screen] ?? [];
   const currentSub =
